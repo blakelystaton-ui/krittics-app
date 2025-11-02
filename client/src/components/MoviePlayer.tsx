@@ -199,6 +199,19 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
               {Math.round(progress)}%
             </span>
           </div>
+          
+          {/* Quick Start Trivia Button - for MVP/testing when no video available */}
+          {!movie.videoUrl && (
+            <Button
+              onClick={onTriviaReady}
+              className="mt-4 w-full"
+              size="lg"
+              data-testid="button-quick-start-trivia"
+            >
+              <Trophy className="mr-2 h-5 w-5" />
+              Start Deep Dive Trivia
+            </Button>
+          )}
         </div>
       </Card>
 

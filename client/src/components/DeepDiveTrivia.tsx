@@ -27,10 +27,10 @@ export function DeepDiveTrivia({
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished">("initial");
 
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions?.[currentQuestionIndex];
 
   const handleAnswer = (option: string) => {
-    if (selectedAnswer) return; // Prevent double-clicking
+    if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists
 
     setSelectedAnswer(option);
     const correct = option === currentQuestion.correctAnswer;
@@ -41,7 +41,7 @@ export function DeepDiveTrivia({
     }
 
     setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
+      if (questions && currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((i) => i + 1);
         setSelectedAnswer(null);
         setIsCorrect(null);
@@ -52,7 +52,7 @@ export function DeepDiveTrivia({
   };
 
   const handleStart = () => {
-    if (questions.length > 0) {
+    if (questions && questions.length > 0) {
       setGameStatus("playing");
       setScore(0);
       setCurrentQuestionIndex(0);
@@ -142,7 +142,7 @@ export function DeepDiveTrivia({
 
   // Finished state
   if (gameStatus === "finished") {
-    const percentage = Math.round((score / questions.length) * 100);
+    const percentage = questions && questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
     let tier: string;
     let tierColor: string;
     let tierMessage: string;
@@ -178,7 +178,7 @@ export function DeepDiveTrivia({
             <div className="flex items-center justify-center gap-12">
               <div>
                 <div className="font-display text-5xl font-extrabold text-primary" data-testid="text-final-score">
-                  {score}/{questions.length}
+                  {score}/{questions?.length || 0}
                 </div>
                 <div className="mt-1 text-sm text-muted-foreground">Correct Answers</div>
               </div>
@@ -207,12 +207,16 @@ export function DeepDiveTrivia({
     );
   }
 
-  // Playing state
+  // Playing state - ensure we have a valid current question
+  if (!currentQuestion) {
+    return null;
+  }
+
   return (
     <Card className="mx-auto max-w-4xl p-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-2">
-          {Array.from({ length: questions.length }).map((_, index) => (
+          {questions && Array.from({ length: questions.length }).map((_, index) => (
             <div
               key={index}
               className={`h-2 w-8 rounded-full transition-all ${
@@ -227,7 +231,7 @@ export function DeepDiveTrivia({
           ))}
         </div>
         <div className="text-sm font-medium text-muted-foreground" data-testid="text-question-counter">
-          Question {currentQuestionIndex + 1}/{questions.length}
+          Question {currentQuestionIndex + 1}/{questions?.length || 0}
         </div>
       </div>
 

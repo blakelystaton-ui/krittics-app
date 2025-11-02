@@ -39,11 +39,12 @@ export default function HomePage() {
     setError(null);
 
     try {
-      const data = await apiRequest<{ questions: GeneratedTriviaQuestion[] }>(
+      const response = await apiRequest(
         "POST",
         "/api/trivia/generate",
         { movieTitle: movie.title }
       );
+      const data = await response.json() as { questions: GeneratedTriviaQuestion[] };
       setTriviaQuestions(data.questions);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");
