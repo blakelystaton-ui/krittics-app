@@ -1,37 +1,186 @@
-import { type User, type InsertUser } from "@shared/schema";
+import {
+  type Movie,
+  type InsertMovie,
+  type GameSession,
+  type InsertGameSession,
+  type TriviaQuestion,
+  type InsertTriviaQuestion,
+  type Answer,
+  type InsertAnswer,
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Movies
+  getMovie(id: string): Promise<Movie | undefined>;
+  getAllMovies(): Promise<Movie[]>;
+  createMovie(movie: InsertMovie): Promise<Movie>;
+
+  // Game Sessions
+  getGameSession(id: string): Promise<GameSession | undefined>;
+  createGameSession(session: InsertGameSession): Promise<GameSession>;
+  updateGameSession(id: string, updates: Partial<GameSession>): Promise<GameSession>;
+  getSessionsByUser(userId: string): Promise<GameSession[]>;
+
+  // Trivia Questions
+  getTriviaQuestion(id: string): Promise<TriviaQuestion | undefined>;
+  getQuestionsByMovie(movieId: string): Promise<TriviaQuestion[]>;
+  createTriviaQuestion(question: InsertTriviaQuestion): Promise<TriviaQuestion>;
+  createManyTriviaQuestions(questions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]>;
+
+  // Answers
+  createAnswer(answer: InsertAnswer): Promise<Answer>;
+  getAnswersBySession(sessionId: string): Promise<Answer[]>;
+
+  // Leaderboard
+  getTopPlayersByMode(gameMode: string, limit?: number): Promise<{ userId: string; totalScore: number; gamesPlayed: number }[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private movies: Map<string, Movie>;
+  private gameSessions: Map<string, GameSession>;
+  private triviaQuestions: Map<string, TriviaQuestion>;
+  private answers: Map<string, Answer>;
 
   constructor() {
-    this.users = new Map();
+    this.movies = new Map();
+    this.gameSessions = new Map();
+    this.triviaQuestions = new Map();
+    this.answers = new Map();
+
+    // Initialize with a sample movie
+    this.initializeSampleData();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  private initializeSampleData() {
+    const sampleMovie: Movie = {
+      id: "1",
+      title: "The Grand Adventure of Elias",
+      description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
+      duration: 7200,
+      posterUrl: null,
+      videoUrl: null,
+    };
+    this.movies.set(sampleMovie.id, sampleMovie);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+  // Movies
+  async getMovie(id: string): Promise<Movie | undefined> {
+    return this.movies.get(id);
+  }
+
+  async getAllMovies(): Promise<Movie[]> {
+    return Array.from(this.movies.values());
+  }
+
+  async createMovie(insertMovie: InsertMovie): Promise<Movie> {
+    const id = randomUUID();
+    const movie: Movie = { ...insertMovie, id };
+    this.movies.set(id, movie);
+    return movie;
+  }
+
+  // Game Sessions
+  async getGameSession(id: string): Promise<GameSession | undefined> {
+    return this.gameSessions.get(id);
+  }
+
+  async createGameSession(insertSession: InsertGameSession): Promise<GameSession> {
+    const id = randomUUID();
+    const now = new Date();
+    const session: GameSession = {
+      ...insertSession,
+      id,
+      createdAt: now,
+      completedAt: null,
+    };
+    this.gameSessions.set(id, session);
+    return session;
+  }
+
+  async updateGameSession(id: string, updates: Partial<GameSession>): Promise<GameSession> {
+    const existing = this.gameSessions.get(id);
+    if (!existing) {
+      throw new Error(`Game session ${id} not found`);
+    }
+    const updated = { ...existing, ...updates };
+    this.gameSessions.set(id, updated);
+    return updated;
+  }
+
+  async getSessionsByUser(userId: string): Promise<GameSession[]> {
+    return Array.from(this.gameSessions.values()).filter(
+      (session) => session.userId === userId
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  // Trivia Questions
+  async getTriviaQuestion(id: string): Promise<TriviaQuestion | undefined> {
+    return this.triviaQuestions.get(id);
+  }
+
+  async getQuestionsByMovie(movieId: string): Promise<TriviaQuestion[]> {
+    return Array.from(this.triviaQuestions.values()).filter(
+      (q) => q.movieId === movieId
+    );
+  }
+
+  async createTriviaQuestion(insertQuestion: InsertTriviaQuestion): Promise<TriviaQuestion> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const question: TriviaQuestion = {
+      ...insertQuestion,
+      id,
+      createdAt: new Date(),
+    };
+    this.triviaQuestions.set(id, question);
+    return question;
+  }
+
+  async createManyTriviaQuestions(insertQuestions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]> {
+    return Promise.all(insertQuestions.map((q) => this.createTriviaQuestion(q)));
+  }
+
+  // Answers
+  async createAnswer(insertAnswer: InsertAnswer): Promise<Answer> {
+    const id = randomUUID();
+    const answer: Answer = {
+      ...insertAnswer,
+      id,
+      answeredAt: new Date(),
+    };
+    this.answers.set(id, answer);
+    return answer;
+  }
+
+  async getAnswersBySession(sessionId: string): Promise<Answer[]> {
+    return Array.from(this.answers.values()).filter(
+      (a) => a.sessionId === sessionId
+    );
+  }
+
+  // Leaderboard
+  async getTopPlayersByMode(
+    gameMode: string,
+    limit: number = 10
+  ): Promise<{ userId: string; totalScore: number; gamesPlayed: number }[]> {
+    const sessions = Array.from(this.gameSessions.values()).filter(
+      (s) => s.gameMode === gameMode && s.status === "completed"
+    );
+
+    const playerStats = new Map<string, { totalScore: number; gamesPlayed: number }>();
+
+    for (const session of sessions) {
+      const existing = playerStats.get(session.userId) || { totalScore: 0, gamesPlayed: 0 };
+      playerStats.set(session.userId, {
+        totalScore: existing.totalScore + session.score,
+        gamesPlayed: existing.gamesPlayed + 1,
+      });
+    }
+
+    return Array.from(playerStats.entries())
+      .map(([userId, stats]) => ({ userId, ...stats }))
+      .sort((a, b) => b.totalScore - a.totalScore)
+      .slice(0, limit);
   }
 }
 
