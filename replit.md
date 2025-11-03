@@ -1,7 +1,7 @@
 # Krittics - AI-Powered Movie Trivia Platform
 
 ## Overview
-Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. Built with React, Express, and Gemini AI, it features both single-player Deep Dive mode and competitive Krossfire multiplayer (coming soon).
+Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. Built with React, Express, Gemini AI, and Firebase, it features single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards.
 
 ## Current State (MVP)
 The application is a fully functional movie trivia platform with:
@@ -9,12 +9,21 @@ The application is a fully functional movie trivia platform with:
 - **Deep Dive Trivia**: AI-generated movie trivia with 5 unique questions per game
 - **Movie Library**: 16 movies with search by title/description and filters for genre and year
 - **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting
-- **Krossfire Lobby**: Competitive mode UI with leaderboards (gameplay coming in future phase)
+- **Private Rooms**: Create/join rooms with unique codes, live chat, and real-time member list
+- **Krossfire Lobby**: Competitive mode UI with leaderboards and private room access
 - **Dark Mode**: Full dark/light theme support with smooth transitions
 - **Responsive Design**: Beautiful UI across all device sizes
 
 ## Recent Changes (November 2025)
-### Latest (November 3, 2025)
+### Latest (November 3, 2025 - Phase 2)
+- **Firebase Multiplayer Integration**: Integrated Firebase Firestore for real-time multiplayer features
+- **Private Rooms System**: Create rooms with unique 6-character codes, join via code input, real-time member lists, host controls (delete/leave)
+- **Live Chat**: Real-time chat within rooms using Firestore subcollections, auto-scroll to latest messages, timestamped messages
+- **Graceful Fallback**: App works without Firebase configured, shows informative messages when multiplayer unavailable
+- **Firebase Provider**: useFirebase hook with React StrictMode handling, stable fallback user IDs via localStorage
+- **KrossfirePage Enhancement**: Active "Private Room" button linking to multiplayer features
+
+### Earlier (November 3, 2025 - Phase 1)
 - **Movie Library**: Added 12 more movies (16 total) across Fantasy, Thriller, Drama, Sci-Fi, Romance, Western, Comedy, Horror, Adventure, Animation, Action genres
 - **Search & Filters**: Implemented search by title/description and filters for genre and year
 - **Leaderboard System**: Built real-time rankings with time period filtering (daily/weekly/all-time), deterministic ordering for tie scores, user highlighting with "You" badge
@@ -49,10 +58,18 @@ The application is a fully functional movie trivia platform with:
    - Graceful error handling with retry functionality
 
 3. **Krossfire Competitive Mode**
-   - Lobby with game mode selection
+   - Lobby with game mode selection (Quick Match + Private Rooms)
    - Leaderboard preview showing top players
    - "How to Play" instructions
-   - Matchmaking UI (full gameplay coming soon)
+   - Private Rooms feature active and accessible
+
+4. **Private Rooms Multiplayer**
+   - Create private rooms with unique 6-character codes
+   - Join rooms by entering shared codes
+   - Real-time member list with host badge
+   - Live chat with message history and auto-scroll
+   - Host controls: delete room, leave room
+   - Works with or without Firebase configured (graceful fallback)
 
 ## User Preferences
 - Primary theme: Dark mode by default (cinematic experience)
@@ -65,10 +82,11 @@ The application is a fully functional movie trivia platform with:
 ### Tech Stack
 - **Frontend**: React 18, Vite, Tailwind CSS, shadcn/ui components
 - **Backend**: Express.js, TypeScript
-- **Database**: PostgreSQL with Drizzle ORM, Neon serverless database
+- **Database**: PostgreSQL with Drizzle ORM (persistent data), Firebase Firestore (real-time multiplayer)
 - **AI**: Google Gemini 2.5 Flash (via Replit AI Integrations)
+- **Real-time**: Firebase Firestore for multiplayer rooms and chat
 - **State Management**: TanStack Query v5
-- **Storage**: DatabaseStorage (PostgreSQL persistence)
+- **Storage**: Hybrid - PostgreSQL (users, movies, games) + Firestore (rooms, chat, live state)
 - **Routing**: Wouter (lightweight client-side routing)
 
 ### Key Files Structure
@@ -82,11 +100,14 @@ client/
 │   │   ├── ThemeProvider.tsx       # Dark/light mode context
 │   │   ├── ThemeToggle.tsx         # Theme switcher button
 │   │   └── ui/                     # shadcn components
+│   ├── lib/
+│   │   └── firebase.tsx            # Firebase config, auth, and useFirebase hook
 │   ├── pages/
 │   │   ├── HomePage.tsx            # Movie player + trivia page
 │   │   ├── KrossfirePage.tsx       # Competitive mode lobby
-│   │   └── MovieLibraryPage.tsx    # Movie library with search/filters
-│   └── App.tsx                     # Main app with routing
+│   │   ├── MovieLibraryPage.tsx    # Movie library with search/filters
+│   │   └── PrivateRoomsPage.tsx    # Multiplayer room creation/joining/chat
+│   └── App.tsx                     # Main app with routing + Firebase provider
 │
 server/
 ├── gemini.ts                       # Gemini AI integration
@@ -125,6 +146,14 @@ The app uses **Gemini 2.5 Flash** via Replit AI Integrations for trivia generati
 - Retry logic with exponential backoff (3 attempts: 1s, 2s, 4s delays)
 - Environment variables: `AI_INTEGRATIONS_GEMINI_BASE_URL`, `AI_INTEGRATIONS_GEMINI_API_KEY`
 
+## Firebase Integration
+The app uses **Firebase Firestore** for real-time multiplayer features:
+- Real-time room state synchronization across clients using onSnapshot listeners
+- Chat messages stored in nested subcollections (`krittics/multiplayer/rooms/{code}/messages`)
+- Graceful fallback mode when Firebase not configured (localStorage fallback user IDs)
+- Optional environment variables: `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_API_KEY`
+- React StrictMode compatible with proper initialization guards (getApps/getApp pattern)
+
 ## Design System
 Following `design_guidelines.md`:
 - **Spacing**: Consistent p-8 for cards, 4-unit gaps between elements
@@ -136,24 +165,30 @@ Following `design_guidelines.md`:
 
 ## Known Limitations (MVP)
 - No actual video playback (mock player interface only)
-- Krossfire multiplayer gameplay not yet implemented (UI and leaderboard complete)
-- No user authentication system (using local storage userId)
+- Real-time Krossfire trivia gameplay not yet implemented (rooms and chat complete)
+- Firebase multiplayer optional (works in fallback mode without Firebase)
+- No user authentication system (using localStorage user IDs, anonymous Firebase fallback)
 - Movie library filters limited to genre/year (rating/duration deferred)
 - Deep Dive trivia sessions not fully persisted (answers not saved)
+- Private rooms: No presence cleanup for disconnected members (future enhancement)
+- Private rooms: Basic host controls only (kick/promote features deferred)
 
 ## Next Phase Features
 - Real video streaming integration
-- Real-time multiplayer Krossfire gameplay with WebSocket
-- User authentication with Firebase (Google + email/password)
+- Real-time multiplayer Krossfire trivia gameplay (synchronized questions, countdown timers, live scoring)
+- User authentication with Firebase Auth (Google + email/password)
 - User profiles with achievement badges and game history
 - Complete trivia persistence (save answers, track progress)
-- Private room creation for friends
+- Enhanced private rooms: presence detection, member kick/promote, video sync
 - Social sharing of trivia results
 - Personalized movie recommendations based on viewing history
+- Quick Match auto-matchmaking for competitive play
 
 ## Development Notes
 - Uses Vite dev server (frontend) + Express (backend) on same port
 - Workflow: `npm run dev` starts both servers
 - Hot reload enabled for rapid development
 - Dark mode persisted in localStorage
-- User ID generated via crypto.randomUUID() and stored locally
+- User ID: Generated via crypto.randomUUID(), stored in localStorage as 'krittics-user-id'
+- Firebase optional: App works in fallback mode if Firebase secrets not configured
+- Firestore structure: `krittics/multiplayer/rooms/{roomCode}` with `messages` subcollection
