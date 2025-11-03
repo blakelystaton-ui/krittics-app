@@ -7,16 +7,23 @@ Krittics is an immersive movie trivia platform that combines cinematic experienc
 The application is a fully functional movie trivia platform with:
 - **Movie Player Interface**: Video player with controls, progress tracking, and trivia notification system
 - **Deep Dive Trivia**: AI-generated movie trivia with 5 unique questions per game
-- **Competitive UI**: Krossfire lobby and leaderboard preview (gameplay coming in future phase)
+- **Movie Library**: 16 movies with search by title/description and filters for genre and year
+- **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting
+- **Krossfire Lobby**: Competitive mode UI with leaderboards (gameplay coming in future phase)
 - **Dark Mode**: Full dark/light theme support with smooth transitions
 - **Responsive Design**: Beautiful UI across all device sizes
 
 ## Recent Changes (November 2025)
-### Database Migration (Latest)
+### Latest (November 3, 2025)
+- **Movie Library**: Added 12 more movies (16 total) across Fantasy, Thriller, Drama, Sci-Fi, Romance, Western, Comedy, Horror, Adventure, Animation, Action genres
+- **Search & Filters**: Implemented search by title/description and filters for genre and year
+- **Leaderboard System**: Built real-time rankings with time period filtering (daily/weekly/all-time), deterministic ordering for tie scores, user highlighting with "You" badge
+- **Seeded Database**: Added 5 test users and 13 sample game sessions for leaderboard testing
+
+### Database Migration
 - Created PostgreSQL database with complete schema (users, movies, game_sessions, trivia_questions, answers, achievements, user_achievements, leaderboard_entries, video_progress)
 - Migrated from in-memory storage to DatabaseStorage with full persistence
-- Seeded database with 4 sample movies and achievement badges
-- Created test user for development
+- Seeded database with movies, achievements, users, and game sessions
 
 ### MVP Implementation
 - Implemented complete data schema for movies, trivia questions, game sessions, and answers
@@ -77,13 +84,16 @@ client/
 │   │   └── ui/                     # shadcn components
 │   ├── pages/
 │   │   ├── HomePage.tsx            # Movie player + trivia page
-│   │   └── KrossfirePage.tsx       # Competitive mode lobby
+│   │   ├── KrossfirePage.tsx       # Competitive mode lobby
+│   │   └── MovieLibraryPage.tsx    # Movie library with search/filters
 │   └── App.tsx                     # Main app with routing
 │
 server/
 ├── gemini.ts                       # Gemini AI integration
-├── storage.ts                      # In-memory data storage
-└── routes.ts                       # API endpoints
+├── storage.ts                      # DatabaseStorage with PostgreSQL
+├── routes.ts                       # API endpoints
+├── db.ts                           # Database connection
+└── seed.ts                         # Database seeding script
 
 shared/
 └── schema.ts                       # Shared TypeScript types & Zod schemas
@@ -91,13 +101,14 @@ shared/
 
 ### API Endpoints
 - `GET /api/movies` - Fetch all available movies
+- `GET /api/movies/search?q={query}&genre={genre}&year={year}` - Search movies with filters
 - `GET /api/movies/:id` - Get specific movie details
 - `POST /api/trivia/generate` - Generate AI trivia questions
 - `POST /api/games` - Create new game session
 - `GET /api/games/:id` - Get game session details
 - `POST /api/games/:id/answer` - Submit answer
 - `PATCH /api/games/:id/complete` - Complete game and get results
-- `GET /api/leaderboard/:gameMode` - Get leaderboard rankings
+- `GET /api/leaderboard/:gameMode?period={period}&limit={limit}` - Get leaderboard rankings (supports daily/weekly/all-time)
 - `GET /api/users/:userId/sessions` - Get user's game history
 
 ### Data Models
@@ -125,20 +136,20 @@ Following `design_guidelines.md`:
 
 ## Known Limitations (MVP)
 - No actual video playback (mock player interface only)
-- In-memory storage (data resets on server restart)
-- Krossfire multiplayer gameplay not yet implemented
-- No user authentication system
-- Single sample movie available
+- Krossfire multiplayer gameplay not yet implemented (UI and leaderboard complete)
+- No user authentication system (using local storage userId)
+- Movie library filters limited to genre/year (rating/duration deferred)
+- Deep Dive trivia sessions not fully persisted (answers not saved)
 
 ## Next Phase Features
 - Real video streaming integration
-- PostgreSQL database for data persistence
-- Real-time multiplayer Krossfire gameplay
+- Real-time multiplayer Krossfire gameplay with WebSocket
+- User authentication with Firebase (Google + email/password)
+- User profiles with achievement badges and game history
+- Complete trivia persistence (save answers, track progress)
 - Private room creation for friends
-- User profiles with achievement badges
-- Extended movie library with search/filters
 - Social sharing of trivia results
-- Personalized movie recommendations
+- Personalized movie recommendations based on viewing history
 
 ## Development Notes
 - Uses Vite dev server (frontend) + Express (backend) on same port
