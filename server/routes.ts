@@ -243,8 +243,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { gameMode } = req.params;
       const limit = parseInt(req.query.limit as string) || 10;
+      const period = (req.query.period as 'daily' | 'weekly' | 'all-time') || 'all-time';
 
-      const topPlayers = await storage.getTopPlayersByMode(gameMode, limit);
+      const topPlayers = await storage.getTopPlayersByMode(gameMode, limit, period);
 
       res.json(topPlayers);
     } catch (error) {

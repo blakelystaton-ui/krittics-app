@@ -18,7 +18,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // Movies
@@ -43,7 +43,7 @@ export interface IStorage {
   getAnswersBySession(sessionId: string): Promise<Answer[]>;
 
   // Leaderboard
-  getTopPlayersByMode(gameMode: string, limit?: number): Promise<{ userId: string; totalScore: number; gamesPlayed: number }[]>;
+  getTopPlayersByMode(gameMode: string, limit?: number, period?: 'daily' | 'weekly' | 'all-time'): Promise<{ userId: string; username: string; totalScore: number; gamesPlayed: number; averageScore: number }[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -171,10 +171,25 @@ export class MemStorage implements IStorage {
   // Leaderboard
   async getTopPlayersByMode(
     gameMode: string,
-    limit: number = 10
-  ): Promise<{ userId: string; totalScore: number; gamesPlayed: number }[]> {
+    limit: number = 10,
+    period: 'daily' | 'weekly' | 'all-time' = 'all-time'
+  ): Promise<{ userId: string; username: string; totalScore: number; gamesPlayed: number; averageScore: number }[]> {
+    // Calculate date cutoff based on period
+    let cutoffDate: Date | null = null;
+    if (period === 'daily') {
+      cutoffDate = new Date();
+      cutoffDate.setHours(0, 0, 0, 0);
+    } else if (period === 'weekly') {
+      cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 7);
+    }
+
     const sessions = Array.from(this.gameSessions.values()).filter(
-      (s) => s.gameMode === gameMode && s.status === "completed"
+      (s) => {
+        if (s.gameMode !== gameMode || s.status !== "completed") return false;
+        if (cutoffDate && s.createdAt < cutoffDate) return false;
+        return true;
+      }
     );
 
     const playerStats = new Map<string, { totalScore: number; gamesPlayed: number }>();
@@ -188,8 +203,21 @@ export class MemStorage implements IStorage {
     }
 
     return Array.from(playerStats.entries())
-      .map(([userId, stats]) => ({ userId, ...stats }))
-      .sort((a, b) => b.totalScore - a.totalScore)
+      .map(([userId, stats]) => ({
+        userId,
+        username: 'Player ' + userId.substring(0, 8),
+        totalScore: stats.totalScore,
+        gamesPlayed: stats.gamesPlayed,
+        averageScore: Math.round(stats.totalScore / stats.gamesPlayed),
+      }))
+      .sort((a, b) => {
+        // Primary sort by total score (descending)
+        if (b.totalScore !== a.totalScore) {
+          return b.totalScore - a.totalScore;
+        }
+        // Secondary sort by username (ascending) for deterministic ordering of ties
+        return a.username.localeCompare(b.username);
+      })
       .slice(0, limit);
   }
 }
@@ -281,16 +309,33 @@ export class DatabaseStorage implements IStorage {
   // Leaderboard
   async getTopPlayersByMode(
     gameMode: string,
-    limit: number = 10
-  ): Promise<{ userId: string; totalScore: number; gamesPlayed: number }[]> {
+    limit: number = 10,
+    period: 'daily' | 'weekly' | 'all-time' = 'all-time'
+  ): Promise<{ userId: string; username: string; totalScore: number; gamesPlayed: number; averageScore: number }[]> {
+    // Calculate date cutoff based on period
+    let cutoffDate: Date | null = null;
+    if (period === 'daily') {
+      cutoffDate = new Date();
+      cutoffDate.setHours(0, 0, 0, 0); // Start of today
+    } else if (period === 'weekly') {
+      cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - 7); // 7 days ago
+    }
+
     // Aggregate from game sessions (not leaderboard_entries table)
+    const conditions = [
+      eq(gameSessions.gameMode, gameMode),
+      eq(gameSessions.status, "completed")
+    ];
+
+    if (cutoffDate) {
+      conditions.push(sql`${gameSessions.createdAt} >= ${cutoffDate.toISOString()}`);
+    }
+
     const sessions = await db
       .select()
       .from(gameSessions)
-      .where(and(
-        eq(gameSessions.gameMode, gameMode),
-        eq(gameSessions.status, "completed")
-      ));
+      .where(and(...conditions));
 
     const playerStats = new Map<string, { totalScore: number; gamesPlayed: number }>();
 
@@ -302,9 +347,31 @@ export class DatabaseStorage implements IStorage {
       });
     }
 
+    // Get user data for all players
+    const userIds = Array.from(playerStats.keys());
+    const usersData = await db
+      .select()
+      .from(users)
+      .where(sql`${users.id} IN (${sql.join(userIds.map(id => sql`${id}`), sql`, `)})`);
+
+    const userMap = new Map(usersData.map(u => [u.id, u]));
+
     return Array.from(playerStats.entries())
-      .map(([userId, stats]) => ({ userId, ...stats }))
-      .sort((a, b) => b.totalScore - a.totalScore)
+      .map(([userId, stats]) => ({
+        userId,
+        username: userMap.get(userId)?.username || 'Unknown Player',
+        totalScore: stats.totalScore,
+        gamesPlayed: stats.gamesPlayed,
+        averageScore: Math.round(stats.totalScore / stats.gamesPlayed),
+      }))
+      .sort((a, b) => {
+        // Primary sort by total score (descending)
+        if (b.totalScore !== a.totalScore) {
+          return b.totalScore - a.totalScore;
+        }
+        // Secondary sort by username (ascending) for deterministic ordering of ties
+        return a.username.localeCompare(b.username);
+      })
       .slice(0, limit);
   }
 

@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { movies, achievements, users } from "@shared/schema";
+import { movies, achievements, users, gameSessions } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 async function seed() {
@@ -101,19 +101,86 @@ async function seed() {
     console.log("✓ Achievements seeded");
   }
 
-  // Create a test user if needed (for development)
-  const testUserId = "test-user-123";
-  const existingUser = await db.select().from(users).where(eq(users.id, testUserId)).limit(1);
-  
-  if (existingUser.length === 0) {
-    await db.insert(users).values({
-      id: testUserId,
-      firebaseUid: null,
+  // Create test users if needed (for development)
+  const testUsers = [
+    {
+      id: "test-user-123",
       email: "test@krittics.com",
-      displayName: "Test User",
-      avatarUrl: null,
-    });
-    console.log("✓ Test user created");
+      username: "TestPlayer",
+      displayName: "Test Player",
+    },
+    {
+      id: "user-cinema-fan",
+      email: "cinema@krittics.com",
+      username: "CinemaFan92",
+      displayName: "Cinema Fan",
+    },
+    {
+      id: "user-movie-buff",
+      email: "buff@krittics.com",
+      username: "MovieBuff",
+      displayName: "Movie Buff",
+    },
+    {
+      id: "user-film-geek",
+      email: "geek@krittics.com",
+      username: "FilmGeek",
+      displayName: "Film Geek",
+    },
+    {
+      id: "user-trivia-master",
+      email: "master@krittics.com",
+      username: "TriviaMaster",
+      displayName: "Trivia Master",
+    },
+  ];
+
+  for (const user of testUsers) {
+    const existingUser = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    
+    if (existingUser.length === 0) {
+      await db.insert(users).values({
+        id: user.id,
+        firebaseUid: null,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        avatarUrl: null,
+      });
+    }
+  }
+  console.log("✓ Test users created");
+
+  // Create sample game sessions for leaderboard
+  const existingSessions = await db.select().from(gameSessions);
+  
+  if (existingSessions.length === 0) {
+    console.log("Seeding game sessions...");
+    const allMovies = await db.select().from(movies);
+    
+    if (allMovies.length > 0) {
+      const sampleSessions = [
+        // Krossfire sessions
+        { userId: "user-trivia-master", movieId: allMovies[0]?.id, gameMode: "krossfire", score: 450, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-trivia-master", movieId: allMovies[1]?.id, gameMode: "krossfire", score: 480, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-cinema-fan", movieId: allMovies[2]?.id, gameMode: "krossfire", score: 420, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-cinema-fan", movieId: allMovies[0]?.id, gameMode: "krossfire", score: 390, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-movie-buff", movieId: allMovies[1]?.id, gameMode: "krossfire", score: 360, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-movie-buff", movieId: allMovies[3]?.id, gameMode: "krossfire", score: 330, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-film-geek", movieId: allMovies[2]?.id, gameMode: "krossfire", score: 300, totalQuestions: 5, status: "completed" as const },
+        { userId: "test-user-123", movieId: allMovies[0]?.id, gameMode: "krossfire", score: 400, totalQuestions: 5, status: "completed" as const },
+        { userId: "test-user-123", movieId: allMovies[1]?.id, gameMode: "krossfire", score: 350, totalQuestions: 5, status: "completed" as const },
+        
+        // Deep Dive sessions
+        { userId: "user-trivia-master", movieId: allMovies[0]?.id, gameMode: "deepdive", score: 100, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-cinema-fan", movieId: allMovies[1]?.id, gameMode: "deepdive", score: 80, totalQuestions: 5, status: "completed" as const },
+        { userId: "user-movie-buff", movieId: allMovies[2]?.id, gameMode: "deepdive", score: 60, totalQuestions: 5, status: "completed" as const },
+        { userId: "test-user-123", movieId: allMovies[0]?.id, gameMode: "deepdive", score: 80, totalQuestions: 5, status: "completed" as const },
+      ];
+
+      await db.insert(gameSessions).values(sampleSessions);
+      console.log("✓ Game sessions seeded");
+    }
   }
 
   console.log("Database seeding complete!");

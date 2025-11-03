@@ -1,29 +1,42 @@
 import { useState } from "react";
-import { Zap, Users, Trophy, Crown, Target } from "lucide-react";
+import { Zap, Users, Trophy, Crown, Target, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-interface Player {
-  id: string;
-  name: string;
-  score: number;
-  streak: number;
-  isCurrentUser: boolean;
+interface LeaderboardEntry {
+  userId: string;
+  username: string;
+  totalScore: number;
+  gamesPlayed: number;
+  averageScore: number;
 }
 
 export default function KrossfirePage() {
   const [gameMode, setGameMode] = useState<"lobby" | "waiting" | "playing">("lobby");
+  const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'all-time'>('all-time');
 
-  // Mock players data
-  const mockPlayers: Player[] = [
-    { id: "1", name: "You", score: 4, streak: 2, isCurrentUser: true },
-    { id: "2", name: "CinemaFan92", score: 3, streak: 1, isCurrentUser: false },
-    { id: "3", name: "MovieBuff", score: 2, streak: 0, isCurrentUser: false },
-    { id: "4", name: "FilmGeek", score: 1, streak: 0, isCurrentUser: false },
-  ];
+  // Get current user ID from localStorage
+  const currentUserId = localStorage.getItem('userId');
 
-  const sortedPlayers = [...mockPlayers].sort((a, b) => b.score - a.score);
+  // Fetch leaderboard data
+  const { data: leaderboard = [], isLoading } = useQuery<LeaderboardEntry[]>({
+    queryKey: ['/api/leaderboard/krossfire', timePeriod],
+    queryFn: async () => {
+      const response = await fetch(`/api/leaderboard/krossfire?period=${timePeriod}&limit=10`);
+      if (!response.ok) throw new Error('Failed to fetch leaderboard');
+      return response.json();
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,52 +96,88 @@ export default function KrossfirePage() {
 
             {/* Leaderboard Preview */}
             <Card className="p-8">
-              <div className="mb-6 flex items-center justify-between">
-                <h2 className="font-display text-2xl font-bold text-foreground">Top Players Today</h2>
-                <Trophy className="h-6 w-6 text-primary" />
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="font-display text-2xl font-bold text-foreground">Top Players</h2>
+                  <Trophy className="h-6 w-6 text-primary" />
+                </div>
+                <Select value={timePeriod} onValueChange={(v) => setTimePeriod(v as typeof timePeriod)}>
+                  <SelectTrigger className="w-40" data-testid="select-time-period">
+                    <Clock className="mr-2 h-4 w-4" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Today</SelectItem>
+                    <SelectItem value="weekly">This Week</SelectItem>
+                    <SelectItem value="all-time">All Time</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <div className="space-y-3">
-                {sortedPlayers.map((player, index) => (
-                  <div
-                    key={player.id}
-                    className={`flex items-center justify-between rounded-lg border p-4 transition-all ${
-                      player.isCurrentUser
-                        ? "border-primary bg-primary/5"
-                        : "border-border bg-card hover-elevate"
-                    }`}
-                    data-testid={`leaderboard-row-${index}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full font-display text-lg font-bold ${
-                          index === 0
-                            ? "bg-primary text-primary-foreground"
-                            : index === 1
-                            ? "bg-primary/60 text-primary-foreground"
-                            : index === 2
-                            ? "bg-primary/30 text-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-                      <div>
-                        <div className="font-medium text-foreground">{player.name}</div>
-                        {player.streak > 0 && (
-                          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                            <Target className="h-3 w-3" />
-                            <span>{player.streak} streak</span>
-                          </div>
-                        )}
-                      </div>
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <Skeleton className="h-6 w-32" />
+                      <Skeleton className="ml-auto h-8 w-12" />
                     </div>
-                    <Badge variant={player.isCurrentUser ? "default" : "secondary"} className="font-display text-lg">
-                      {player.score}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : leaderboard.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground">
+                  No players yet. Be the first to compete!
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {leaderboard.map((entry, index) => {
+                    const isCurrentUser = entry.userId === currentUserId;
+                    return (
+                      <div
+                        key={entry.userId}
+                        className={`flex items-center justify-between rounded-lg border p-4 transition-all ${
+                          isCurrentUser
+                            ? "border-primary bg-primary/5"
+                            : "border-border bg-card hover-elevate"
+                        }`}
+                        data-testid={`leaderboard-row-${index}`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-full font-display text-lg font-bold ${
+                              index === 0
+                                ? "bg-primary text-primary-foreground"
+                                : index === 1
+                                ? "bg-primary/60 text-primary-foreground"
+                                : index === 2
+                                ? "bg-primary/30 text-foreground"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium text-foreground">
+                              {entry.username}
+                              {isCurrentUser && (
+                                <Badge variant="outline" className="ml-2 text-xs">You</Badge>
+                              )}
+                            </div>
+                            <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                              <span>{entry.gamesPlayed} games</span>
+                              <span>•</span>
+                              <span>Avg: {entry.averageScore}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant={isCurrentUser ? "default" : "secondary"} className="font-display text-lg">
+                          {entry.totalScore}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </Card>
 
             {/* How to Play */}
