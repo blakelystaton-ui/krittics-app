@@ -9,12 +9,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Header } from "@/components/Header";
 import HomePage from "@/pages/HomePage";
 import KrossfirePage from "@/pages/KrossfirePage";
+import MovieLibraryPage from "@/pages/MovieLibraryPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/library" component={MovieLibraryPage} />
       <Route path="/krossfire" component={KrossfirePage} />
       <Route component={NotFound} />
     </Switch>

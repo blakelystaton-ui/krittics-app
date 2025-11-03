@@ -1,30 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { MoviePlayer } from "@/components/MoviePlayer";
 import { DeepDiveTrivia } from "@/components/DeepDiveTrivia";
 import { apiRequest } from "@/lib/queryClient";
 import type { Movie, GeneratedTriviaQuestion } from "@shared/schema";
 
 export default function HomePage() {
+  const [location] = useLocation();
   const [showTrivia, setShowTrivia] = useState(false);
   const [triviaQuestions, setTriviaQuestions] = useState<GeneratedTriviaQuestion[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Get movieId from URL params
+  const params = new URLSearchParams(location.split('?')[1] || '');
+  const movieIdParam = params.get('movieId');
 
   // Fetch movies from API
   const { data: movies, isLoading: moviesLoading } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
   });
 
-  // Use the first movie (or default if loading)
-  const movie: Movie = movies?.[0] || {
+  // Select movie based on URL param or use first movie
+  let movie: Movie | undefined;
+  if (movieIdParam && movies) {
+    movie = movies.find((m) => m.id === movieIdParam);
+  }
+  if (!movie && movies && movies.length > 0) {
+    movie = movies[0];
+  }
+  
+  const defaultMovie: Movie = {
     id: "1",
     title: "The Grand Adventure of Elias",
     description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
     duration: 7200,
+    genre: null,
+    year: null,
+    rating: null,
     posterUrl: null,
     videoUrl: null,
   };
+
+  const selectedMovie = movie || defaultMovie;
+
+  // Reset trivia when movie changes
+  useEffect(() => {
+    setShowTrivia(false);
+    setTriviaQuestions([]);
+    setError(null);
+  }, [movieIdParam]);
 
   const handleTriviaReady = () => {
     setShowTrivia(true);
@@ -42,7 +68,7 @@ export default function HomePage() {
       const response = await apiRequest(
         "POST",
         "/api/trivia/generate",
-        { movieTitle: movie.title }
+        { movieTitle: selectedMovie.title }
       );
       const data = await response.json() as { questions: GeneratedTriviaQuestion[] };
       setTriviaQuestions(data.questions);
@@ -72,18 +98,18 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8" data-testid="page-home">
         {!showTrivia ? (
           <div className="mx-auto max-w-6xl">
             <h2 className="mb-6 font-display text-3xl font-bold text-foreground">
               Now Playing
             </h2>
-            <MoviePlayer movie={movie} onTriviaReady={handleTriviaReady} />
+            <MoviePlayer movie={selectedMovie} onTriviaReady={handleTriviaReady} />
           </div>
         ) : (
           <div className="py-8">
             <DeepDiveTrivia
-              movieTitle={movie.title}
+              movieTitle={selectedMovie.title}
               questions={triviaQuestions}
               isGenerating={isGenerating}
               error={error}

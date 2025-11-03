@@ -32,6 +32,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET /api/movies/search - Search movies with filters
+  app.get("/api/movies/search", async (req, res) => {
+    try {
+      const { q, genre, year, rating } = req.query;
+      
+      let movies = await storage.getAllMovies();
+      
+      // Search by title
+      if (q && typeof q === "string") {
+        const query = q.toLowerCase();
+        movies = movies.filter((movie) =>
+          movie.title.toLowerCase().includes(query) ||
+          movie.description?.toLowerCase().includes(query)
+        );
+      }
+      
+      // Filter by genre
+      if (genre && typeof genre === "string") {
+        movies = movies.filter((movie) => movie.genre === genre);
+      }
+      
+      // Filter by year
+      if (year && typeof year === "string") {
+        const yearNum = parseInt(year);
+        movies = movies.filter((movie) => movie.year === yearNum);
+      }
+      
+      // Filter by rating
+      if (rating && typeof rating === "string") {
+        movies = movies.filter((movie) => movie.rating === rating);
+      }
+      
+      res.json(movies);
+    } catch (error) {
+      console.error("Error searching movies:", error);
+      res.status(500).json({ error: "Failed to search movies" });
+    }
+  });
+
   // GET /api/movies/:id - Get a specific movie
   app.get("/api/movies/:id", async (req, res) => {
     try {
