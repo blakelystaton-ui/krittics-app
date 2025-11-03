@@ -1,7 +1,17 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, json, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Users table
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  firebaseUid: text("firebase_uid").unique(),
+  email: text("email").unique(),
+  displayName: text("display_name"),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 // Movies table
 export const movies = pgTable("movies", {
@@ -9,6 +19,9 @@ export const movies = pgTable("movies", {
   title: text("title").notNull(),
   description: text("description"),
   duration: integer("duration").notNull(), // in seconds
+  genre: text("genre"),
+  year: integer("year"),
+  rating: text("rating"), // PG, PG-13, R, etc.
   posterUrl: text("poster_url"),
   videoUrl: text("video_url"),
 });
@@ -26,7 +39,7 @@ export const triviaQuestions = pgTable("trivia_questions", {
 // Game sessions table
 export const gameSessions = pgTable("game_sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: text("user_id").notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
   movieId: varchar("movie_id").references(() => movies.id),
   score: integer("score").notNull().default(0),
   totalQuestions: integer("total_questions").notNull().default(5),
@@ -46,7 +59,51 @@ export const answers = pgTable("answers", {
   answeredAt: timestamp("answered_at").defaultNow(),
 });
 
+// Achievements table
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  iconUrl: text("icon_url"),
+  tier: text("tier"), // bronze, silver, gold, platinum
+});
+
+// User achievements table (junction table)
+export const userAchievements = pgTable("user_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  achievementId: varchar("achievement_id").references(() => achievements.id).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+});
+
+// Leaderboard entries table
+export const leaderboardEntries = pgTable("leaderboard_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  gameMode: text("game_mode").notNull(), // 'deepdive' or 'krossfire'
+  totalScore: integer("total_score").notNull().default(0),
+  gamesPlayed: integer("games_played").notNull().default(0),
+  gamesWon: integer("games_won").notNull().default(0),
+  winRate: integer("win_rate").notNull().default(0), // percentage
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Video progress table (for resume functionality)
+export const videoProgress = pgTable("video_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  movieId: varchar("movie_id").references(() => movies.id).notNull(),
+  progressSeconds: integer("progress_seconds").notNull().default(0),
+  completed: boolean("completed").notNull().default(false),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertMovieSchema = createInsertSchema(movies).omit({
   id: true,
 });
@@ -67,17 +124,46 @@ export const insertAnswerSchema = createInsertSchema(answers).omit({
   answeredAt: true,
 });
 
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export const insertLeaderboardEntrySchema = createInsertSchema(leaderboardEntries).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertVideoProgressSchema = createInsertSchema(videoProgress).omit({
+  id: true,
+  updatedAt: true,
+});
+
 // Select types
+export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
 export type TriviaQuestion = typeof triviaQuestions.$inferSelect;
 export type GameSession = typeof gameSessions.$inferSelect;
 export type Answer = typeof answers.$inferSelect;
+export type Achievement = typeof achievements.$inferSelect;
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect;
+export type VideoProgress = typeof videoProgress.$inferSelect;
 
 // Insert types
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertMovie = z.infer<typeof insertMovieSchema>;
 export type InsertTriviaQuestion = z.infer<typeof insertTriviaQuestionSchema>;
 export type InsertGameSession = z.infer<typeof insertGameSessionSchema>;
 export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+export type InsertLeaderboardEntry = z.infer<typeof insertLeaderboardEntrySchema>;
+export type InsertVideoProgress = z.infer<typeof insertVideoProgressSchema>;
 
 // API response types
 export interface TriviaGenerationRequest {

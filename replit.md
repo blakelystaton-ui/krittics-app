@@ -12,6 +12,12 @@ The application is a fully functional movie trivia platform with:
 - **Responsive Design**: Beautiful UI across all device sizes
 
 ## Recent Changes (November 2025)
+### Database Migration (Latest)
+- Created PostgreSQL database with complete schema (users, movies, game_sessions, trivia_questions, answers, achievements, user_achievements, leaderboard_entries, video_progress)
+- Migrated from in-memory storage to DatabaseStorage with full persistence
+- Seeded database with 4 sample movies and achievement badges
+- Created test user for development
+
 ### MVP Implementation
 - Implemented complete data schema for movies, trivia questions, game sessions, and answers
 - Built all React components with exceptional visual quality following design guidelines
@@ -52,9 +58,10 @@ The application is a fully functional movie trivia platform with:
 ### Tech Stack
 - **Frontend**: React 18, Vite, Tailwind CSS, shadcn/ui components
 - **Backend**: Express.js, TypeScript
+- **Database**: PostgreSQL with Drizzle ORM, Neon serverless database
 - **AI**: Google Gemini 2.5 Flash (via Replit AI Integrations)
 - **State Management**: TanStack Query v5
-- **Storage**: In-memory storage (MemStorage)
+- **Storage**: DatabaseStorage (PostgreSQL persistence)
 - **Routing**: Wouter (lightweight client-side routing)
 
 ### Key Files Structure
