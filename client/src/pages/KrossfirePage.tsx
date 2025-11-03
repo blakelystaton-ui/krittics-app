@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Zap, Users, Trophy, Crown, Target, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,11 +23,12 @@ interface LeaderboardEntry {
 }
 
 export default function KrossfirePage() {
+  const [, setLocation] = useLocation();
   const [gameMode, setGameMode] = useState<"lobby" | "waiting" | "playing">("lobby");
   const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'all-time'>('all-time');
 
   // Get current user ID from localStorage
-  const currentUserId = localStorage.getItem('userId');
+  const currentUserId = localStorage.getItem('krittics-user-id');
 
   // Fetch leaderboard data
   const { data: leaderboard = [], isLoading } = useQuery<LeaderboardEntry[]>({
@@ -78,17 +80,22 @@ export default function KrossfirePage() {
                 </div>
               </Card>
 
-              <Card className="overflow-hidden opacity-60 transition-all">
-                <div className="bg-gradient-to-br from-muted/50 to-muted/20 p-8">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                    <Crown className="h-6 w-6 text-muted-foreground" />
+              <Card className="overflow-hidden transition-all hover-elevate active-elevate-2">
+                <div className="bg-gradient-to-br from-accent/20 to-accent/5 p-8">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+                    <Crown className="h-6 w-6 text-accent-foreground" />
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground">Private Room</h3>
                   <p className="mt-2 text-base text-muted-foreground">
                     Create a room and invite your friends
                   </p>
-                  <Button size="lg" className="mt-6 w-full" variant="secondary" disabled>
-                    Coming Soon
+                  <Button
+                    size="lg"
+                    className="mt-6 w-full"
+                    onClick={() => setLocation('/private-rooms')}
+                    data-testid="button-private-rooms"
+                  >
+                    Create or Join Room
                   </Button>
                 </div>
               </Card>

@@ -10,6 +10,7 @@ import { Header } from "@/components/Header";
 import HomePage from "@/pages/HomePage";
 import KrossfirePage from "@/pages/KrossfirePage";
 import MovieLibraryPage from "@/pages/MovieLibraryPage";
+import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/library" component={MovieLibraryPage} />
       <Route path="/krossfire" component={KrossfirePage} />
+      <Route path="/private-rooms" component={PrivateRoomsPage} />
       <Route component={NotFound} />
     </Switch>
   );
