@@ -18,11 +18,12 @@ The application is a fully functional movie trivia platform with:
 ## Recent Changes (November 2025)
 ### Latest (November 5, 2025 - Phase 3)
 - **Netflix-Style Browse Page**: Built cinematic streaming homescreen with auto-rotating hero carousel (6s intervals), horizontal scrolling content rows, and movie cards with hover effects
-- **Hero Carousel**: 5 featured movies with large backdrop images, gradient overlays for readability, "Play Now" and "More Info" buttons, manual carousel indicators
-- **Content Rows**: Continue Watching (with progress bars), Trending Now, New Releases, Top Rated, and genre-based rows with smooth horizontal scrolling
-- **Movie Cards**: 16:9 thumbnails with scale-105 hover effect, quick action buttons overlay (Play, Add to List, Info), title/metadata on hover
+- **Dynamic Color Theming**: Each movie has unique vibrant dominant color; hero section dynamically themes based on featured movie (colored buttons, badges, indicators, title glow, gradient overlays); movie titles and progress bars show in their unique colors; smooth 1s transitions when carousel rotates
+- **Hero Carousel**: 5 featured movies with large backdrop images, color-themed gradient overlays, themed "Play Now" and "More Info" buttons, color-coordinated carousel indicators
+- **Content Rows**: Continue Watching (with colored progress bars), Trending Now, New Releases, Top Rated, and genre-based rows with smooth horizontal scrolling
+- **Movie Cards**: 16:9 thumbnails with scale-105 hover effect, colored titles on hover, quick action buttons overlay (Play, Add to List, Info), title/metadata display
 - **Navigation Enhancement**: Added "Browse" link to header navigation (Tv icon), integrated with existing routing
-- **Responsive Design**: Mobile-first with breakpoints, smooth 300ms transitions, scrollbar-hide utility for clean horizontal scrolling
+- **Responsive Design**: Mobile-first with breakpoints, smooth transitions (300ms for cards, 1s for color theming), scrollbar-hide utility for clean horizontal scrolling
 
 ### Earlier (November 3, 2025 - Phase 2)
 - **Firebase Multiplayer Integration**: Integrated Firebase Firestore for real-time multiplayer features
