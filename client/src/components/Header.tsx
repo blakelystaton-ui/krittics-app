@@ -31,17 +31,17 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/browse" data-testid="link-home">
+        <Link href="/" data-testid="link-home">
           <h1 className="cursor-pointer font-display text-3xl font-extrabold tracking-wider text-primary transition-colors hover-elevate">
             Krittics
           </h1>
         </Link>
 
         <nav className="flex items-center gap-1">
-          <Link href="/browse" data-testid="link-browse">
+          <Link href="/" data-testid="link-browse">
             <button
               className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
-                location === "/browse"
+                location === "/"
                   ? "text-foreground"
                   : "text-muted-foreground"
               }`}
