@@ -6,6 +6,56 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Info, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import type { Movie } from '@shared/schema';
 
+// Generate vibrant dominant color for each movie based on ID
+function getMovieDominantColor(movieId: string): { hex: string; rgb: string; hsl: string } {
+  // Hash the movie ID to get consistent colors
+  let hash = 0;
+  for (let i = 0; i < movieId.length; i++) {
+    hash = movieId.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  // Generate vibrant, saturated colors with good brightness
+  const hue = Math.abs(hash % 360);
+  const saturation = 65 + (Math.abs(hash >> 8) % 25); // 65-90%
+  const lightness = 50 + (Math.abs(hash >> 16) % 15); // 50-65%
+  
+  // Convert HSL to RGB for various uses
+  const h = hue / 360;
+  const s = saturation / 100;
+  const l = lightness / 100;
+  
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+  
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  
+  const toHex = (x: number) => {
+    const hex = Math.round(x * 255).toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  };
+  
+  return {
+    hex: `#${toHex(r)}${toHex(g)}${toHex(b)}`,
+    rgb: `${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}`,
+    hsl: `${hue}, ${saturation}%, ${lightness}%`
+  };
+}
+
 interface MovieCardProps {
   movie: Movie;
   onClick: () => void;
@@ -14,6 +64,8 @@ interface MovieCardProps {
 }
 
 function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProps) {
+  const dominantColor = getMovieDominantColor(movie.id);
+  
   return (
     <div 
       className="group relative flex-shrink-0 w-[280px] cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10"
@@ -50,16 +102,24 @@ function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProp
         {showProgress && (
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
             <div 
-              className="h-full bg-primary transition-all" 
-              style={{ width: `${progress}%` }}
+              className="h-full transition-all" 
+              style={{ 
+                width: `${progress}%`,
+                backgroundColor: dominantColor.hex
+              }}
             />
           </div>
         )}
       </div>
       
-      {/* Title on hover */}
+      {/* Title on hover with colored accent */}
       <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <h4 className="font-semibold text-sm text-foreground truncate">{movie.title}</h4>
+        <h4 
+          className="font-semibold text-sm truncate"
+          style={{ color: dominantColor.hex }}
+        >
+          {movie.title}
+        </h4>
         <div className="flex items-center gap-2 mt-1">
           {movie.year && <span className="text-xs text-muted-foreground">{movie.year}</span>}
           {movie.genre && <Badge variant="outline" className="text-xs">{movie.genre}</Badge>}
@@ -171,6 +231,7 @@ export default function BrowsePage() {
   }, [featuredMovies.length]);
 
   const currentHero = featuredMovies[currentHeroIndex];
+  const heroDominantColor = currentHero ? getMovieDominantColor(currentHero.id) : null;
 
   const handleMovieClick = (movie: Movie) => {
     setLocation(`/?movieId=${movie.id}`);
@@ -190,9 +251,15 @@ export default function BrowsePage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden" data-testid="page-browse">
       {/* Hero Carousel Banner */}
-      {currentHero && (
-        <div className="relative h-[70vh] md:h-[85vh] mb-8">
-          {/* Background Image with Gradient Overlay */}
+      {currentHero && heroDominantColor && (
+        <div 
+          className="relative h-[70vh] md:h-[85vh] mb-8"
+          style={{
+            '--hero-color-rgb': heroDominantColor.rgb,
+            '--hero-color-hex': heroDominantColor.hex
+          } as React.CSSProperties}
+        >
+          {/* Background Image with Dynamic Color Gradient Overlay */}
           <div className="absolute inset-0">
             {currentHero.posterUrl ? (
               <img 
@@ -201,18 +268,39 @@ export default function BrowsePage() {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="h-full w-full bg-gradient-to-br from-primary/30 via-primary/10 to-background" />
+              <div 
+                className="h-full w-full bg-gradient-to-br"
+                style={{
+                  background: `linear-gradient(135deg, rgba(${heroDominantColor.rgb}, 0.3) 0%, rgba(${heroDominantColor.rgb}, 0.1) 50%, hsl(var(--background)) 100%)`
+                }}
+              />
             )}
-            {/* Gradient overlays for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/40 to-transparent" />
+            {/* Dynamic themed gradient overlays for readability */}
+            <div 
+              className="absolute inset-0 hero-gradient-overlay"
+              style={{
+                background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${heroDominantColor.rgb}, 0.4) 50%, transparent 100%)`
+              }}
+            />
+            <div 
+              className="absolute inset-0 hero-gradient-overlay"
+              style={{
+                background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${heroDominantColor.rgb}, 0.3) 40%, transparent 100%)`
+              }}
+            />
           </div>
 
           {/* Hero Content */}
           <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
             <div className="container mx-auto px-4 md:px-12">
               <div className="max-w-2xl">
-                <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold text-foreground mb-4 drop-shadow-2xl">
+                <h1 
+                  className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 hero-themed"
+                  style={{
+                    color: 'hsl(var(--foreground))',
+                    textShadow: `0 0 40px rgba(${heroDominantColor.rgb}, 0.6), 0 0 80px rgba(${heroDominantColor.rgb}, 0.4), 0 4px 20px rgba(0, 0, 0, 0.8)`
+                  }}
+                >
                   {currentHero.title}
                 </h1>
                 <p className="text-base md:text-lg text-foreground/90 mb-6 line-clamp-3 drop-shadow-lg">
@@ -221,14 +309,31 @@ export default function BrowsePage() {
                 
                 <div className="flex items-center gap-3 mb-6">
                   {currentHero.year && <span className="text-sm font-medium text-foreground/80">{currentHero.year}</span>}
-                  {currentHero.genre && <Badge variant="secondary">{currentHero.genre}</Badge>}
+                  {currentHero.genre && (
+                    <Badge 
+                      variant="secondary"
+                      className="hero-themed"
+                      style={{
+                        backgroundColor: `rgba(${heroDominantColor.rgb}, 0.2)`,
+                        borderColor: `rgba(${heroDominantColor.rgb}, 0.4)`,
+                        color: heroDominantColor.hex
+                      }}
+                    >
+                      {currentHero.genre}
+                    </Badge>
+                  )}
                   {currentHero.rating && <Badge variant="outline">{currentHero.rating}</Badge>}
                 </div>
 
                 <div className="flex gap-3">
                   <Button 
                     size="lg" 
-                    className="gap-2 px-8"
+                    className="gap-2 px-8 hero-themed border"
+                    style={{
+                      backgroundColor: heroDominantColor.hex,
+                      borderColor: heroDominantColor.hex,
+                      color: 'white'
+                    }}
                     onClick={() => handleMovieClick(currentHero)}
                     data-testid="button-hero-play"
                   >
@@ -238,7 +343,12 @@ export default function BrowsePage() {
                   <Button 
                     size="lg" 
                     variant="secondary" 
-                    className="gap-2 px-8 backdrop-blur-md bg-background/20 hover:bg-background/30"
+                    className="gap-2 px-8 backdrop-blur-md hero-themed"
+                    style={{
+                      backgroundColor: `rgba(${heroDominantColor.rgb}, 0.15)`,
+                      borderColor: `rgba(${heroDominantColor.rgb}, 0.3)`,
+                      color: 'hsl(var(--foreground))'
+                    }}
                     onClick={() => handleMovieClick(currentHero)}
                     data-testid="button-hero-info"
                   >
@@ -250,15 +360,19 @@ export default function BrowsePage() {
             </div>
           </div>
 
-          {/* Carousel indicators */}
+          {/* Carousel indicators with themed color */}
           <div className="absolute bottom-8 right-4 md:right-12 z-20 flex gap-2">
             {featuredMovies.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentHeroIndex(index)}
-                className={`h-1 transition-all duration-300 ${
-                  index === currentHeroIndex ? 'w-8 bg-foreground' : 'w-6 bg-foreground/40 hover:bg-foreground/60'
-                }`}
+                className="h-1 transition-all duration-300"
+                style={{
+                  width: index === currentHeroIndex ? '32px' : '24px',
+                  backgroundColor: index === currentHeroIndex 
+                    ? heroDominantColor.hex 
+                    : `rgba(${heroDominantColor.rgb}, 0.4)`
+                }}
                 data-testid={`hero-indicator-${index}`}
               />
             ))}
