@@ -279,6 +279,12 @@
     scrollbar-width: none;
   }
 
+  /* Inertia/momentum scrolling for touch devices (phones/tablets) */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
   /* Hero color theming with smooth transitions */
   .hero-themed {
     transition: background-color 1s ease-in-out, border-color 1s ease-in-out, color 1s ease-in-out;

@@ -193,7 +193,7 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
       <div 
         ref={scrollContainerRef}
         onScroll={checkScroll}
-        className="flex gap-4 overflow-x-auto scrollbar-hide px-4 md:px-12 pb-4"
+        className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll px-4 md:px-12 pb-4"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {movies.map((movie, index) => (
@@ -249,7 +249,7 @@ export default function BrowsePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden" data-testid="page-browse">
+    <div className="min-h-screen bg-background overflow-x-hidden touch-scroll" data-testid="page-browse">
       {/* Hero Carousel Banner */}
       {currentHero && heroDominantColor && (
         <div 
