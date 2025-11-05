@@ -1,17 +1,37 @@
 import { Link, useLocation } from "wouter";
-import { Film, Zap, Tv } from "lucide-react";
+import { Zap, Tv, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface HeaderProps {
-  userId?: string;
-}
-
-export function Header({ userId }: HeaderProps) {
+export function Header() {
   const [location] = useLocation();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  const displayName = user 
+    ? (user.firstName && user.lastName 
+        ? `${user.firstName} ${user.lastName}` 
+        : user.email || 'User')
+    : '';
+  
+  const initials = user
+    ? (user.firstName && user.lastName
+        ? `${user.firstName[0]}${user.lastName[0]}`
+        : user.email?.[0]?.toUpperCase() || 'U')
+    : 'U';
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" data-testid="link-home">
+        <Link href="/browse" data-testid="link-home">
           <h1 className="cursor-pointer font-display text-3xl font-extrabold tracking-wider text-primary transition-colors hover-elevate">
             Krittics
           </h1>
@@ -30,18 +50,6 @@ export function Header({ userId }: HeaderProps) {
               <span className="hidden sm:inline">Browse</span>
             </button>
           </Link>
-          <Link href="/" data-testid="link-movie-player">
-            <button
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
-                location === "/"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Film className="h-4 w-4" />
-              <span className="hidden sm:inline">Player</span>
-            </button>
-          </Link>
           <Link href="/krossfire" data-testid="link-krossfire">
             <button
               className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
@@ -56,13 +64,50 @@ export function Header({ userId }: HeaderProps) {
           </Link>
         </nav>
 
-        {userId && (
-          <div className="hidden text-sm text-muted-foreground md:block" data-testid="text-user-id">
-            <span className="font-mono">
-              {userId.substring(0, 8)}...
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {!isLoading && !isAuthenticated && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={() => window.location.href = '/api/login'}
+              data-testid="button-sign-in"
+            >
+              <LogIn className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Sign In</span>
+            </Button>
+          )}
+
+          {isAuthenticated && user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 rounded-full hover-elevate"
+                  data-testid="button-user-menu"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage 
+                      src={user.profileImageUrl || undefined} 
+                      alt={displayName}
+                      className="object-cover"
+                    />
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline text-sm font-medium">{displayName}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => window.location.href = '/api/logout'}
+                  data-testid="menu-item-logout"
+                >
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </header>
   );

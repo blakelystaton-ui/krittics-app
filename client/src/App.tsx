@@ -1,11 +1,10 @@
 import { Switch, Route } from "wouter";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { FirebaseProvider, useFirebase } from "@/lib/firebase";
+import { FirebaseProvider } from "@/lib/firebase";
 import { Header } from "@/components/Header";
 import HomePage from "@/pages/HomePage";
 import BrowsePage from "@/pages/BrowsePage";
@@ -26,16 +25,13 @@ function Router() {
 }
 
 function AppContent() {
-  const { userId } = useFirebase();
+  useEffect(() => {
+    document.documentElement.classList.add('dark');
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="flex items-center justify-between">
-        <Header userId={userId || ""} />
-        <div className="absolute right-4 top-4 z-50">
-          <ThemeToggle />
-        </div>
-      </div>
+      <Header />
       <main className="flex-1">
         <Router />
       </main>
@@ -47,12 +43,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <FirebaseProvider>
-        <ThemeProvider>
-          <TooltipProvider>
-            <AppContent />
-            <Toaster />
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <AppContent />
+          <Toaster />
+        </TooltipProvider>
       </FirebaseProvider>
     </QueryClientProvider>
   );

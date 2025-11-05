@@ -2,9 +2,25 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateMovieTriviaWithRetry } from "./gemini";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware (REQUIRED for Replit Auth)
+  await setupAuth(app);
+
+  // Auth routes (REQUIRED for Replit Auth)
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Validation schemas
   const triviaGenerationSchema = z.object({
     movieTitle: z.string().min(1, "Movie title is required"),

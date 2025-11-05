@@ -113,14 +113,14 @@ function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProp
       </div>
       
       {/* Title on hover with colored accent */}
-      <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <h4 
-          className="font-semibold text-sm truncate"
+          className="font-semibold text-sm truncate line-clamp-1"
           style={{ color: dominantColor.hex }}
         >
           {movie.title}
         </h4>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
           {movie.year && <span className="text-xs text-muted-foreground">{movie.year}</span>}
           {movie.genre && <Badge variant="outline" className="text-xs">{movie.genre}</Badge>}
         </div>

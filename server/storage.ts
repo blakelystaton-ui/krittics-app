@@ -395,13 +395,22 @@ export class DatabaseStorage implements IStorage {
     const userMap = new Map(usersData.map(u => [u.id, u]));
 
     return Array.from(playerStats.entries())
-      .map(([userId, stats]) => ({
-        userId,
-        username: userMap.get(userId)?.username || 'Unknown Player',
-        totalScore: stats.totalScore,
-        gamesPlayed: stats.gamesPlayed,
-        averageScore: Math.round(stats.totalScore / stats.gamesPlayed),
-      }))
+      .map(([userId, stats]) => {
+        const user = userMap.get(userId);
+        const username = user 
+          ? (user.firstName && user.lastName 
+              ? `${user.firstName} ${user.lastName}` 
+              : user.email || 'Unknown Player')
+          : 'Unknown Player';
+        
+        return {
+          userId,
+          username,
+          totalScore: stats.totalScore,
+          gamesPlayed: stats.gamesPlayed,
+          averageScore: Math.round(stats.totalScore / stats.gamesPlayed),
+        };
+      })
       .sort((a, b) => {
         // Primary sort by total score (descending)
         if (b.totalScore !== a.totalScore) {
@@ -411,35 +420,6 @@ export class DatabaseStorage implements IStorage {
         return a.username.localeCompare(b.username);
       })
       .slice(0, limit);
-  }
-
-  // Users
-  async getUser(id: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
-  }
-
-  async getUserByFirebaseUid(firebaseUid: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.firebaseUid, firebaseUid)).limit(1);
-    return result[0];
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const result = await db.insert(users).values(insertUser).returning();
-    return result[0];
-  }
-
-  async updateUser(id: string, updates: Partial<User>): Promise<User> {
-    const result = await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.id, id))
-      .returning();
-    
-    if (!result[0]) {
-      throw new Error(`User ${id} not found`);
-    }
-    return result[0];
   }
 }
 
