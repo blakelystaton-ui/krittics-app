@@ -5,6 +5,7 @@ Krittics is an immersive movie trivia platform that combines cinematic experienc
 
 ## Current State (MVP)
 The application is a fully functional movie trivia platform with:
+- **Browse Page**: Netflix-style streaming homescreen with auto-rotating hero carousel, horizontal scrolling rows, hover effects, and quick actions
 - **Movie Player Interface**: Video player with controls, progress tracking, and trivia notification system
 - **Deep Dive Trivia**: AI-generated movie trivia with 5 unique questions per game
 - **Movie Library**: 16 movies with search by title/description and filters for genre and year
@@ -15,7 +16,15 @@ The application is a fully functional movie trivia platform with:
 - **Responsive Design**: Beautiful UI across all device sizes
 
 ## Recent Changes (November 2025)
-### Latest (November 3, 2025 - Phase 2)
+### Latest (November 5, 2025 - Phase 3)
+- **Netflix-Style Browse Page**: Built cinematic streaming homescreen with auto-rotating hero carousel (6s intervals), horizontal scrolling content rows, and movie cards with hover effects
+- **Hero Carousel**: 5 featured movies with large backdrop images, gradient overlays for readability, "Play Now" and "More Info" buttons, manual carousel indicators
+- **Content Rows**: Continue Watching (with progress bars), Trending Now, New Releases, Top Rated, and genre-based rows with smooth horizontal scrolling
+- **Movie Cards**: 16:9 thumbnails with scale-105 hover effect, quick action buttons overlay (Play, Add to List, Info), title/metadata on hover
+- **Navigation Enhancement**: Added "Browse" link to header navigation (Tv icon), integrated with existing routing
+- **Responsive Design**: Mobile-first with breakpoints, smooth 300ms transitions, scrollbar-hide utility for clean horizontal scrolling
+
+### Earlier (November 3, 2025 - Phase 2)
 - **Firebase Multiplayer Integration**: Integrated Firebase Firestore for real-time multiplayer features
 - **Private Rooms System**: Create rooms with unique 6-character codes, join via code input, real-time member lists, host controls (delete/leave)
 - **Live Chat**: Real-time chat within rooms using Firestore subcollections, auto-scroll to latest messages, timestamped messages
@@ -94,7 +103,7 @@ The application is a fully functional movie trivia platform with:
 client/
 ├── src/
 │   ├── components/
-│   │   ├── Header.tsx              # Navigation with page switcher
+│   │   ├── Header.tsx              # Navigation with Browse, Player, Library, Krossfire
 │   │   ├── MoviePlayer.tsx         # Video player with controls
 │   │   ├── DeepDiveTrivia.tsx     # Trivia game component
 │   │   ├── ThemeProvider.tsx       # Dark/light mode context
@@ -103,6 +112,7 @@ client/
 │   ├── lib/
 │   │   └── firebase.tsx            # Firebase config, auth, and useFirebase hook
 │   ├── pages/
+│   │   ├── BrowsePage.tsx          # Netflix-style homescreen with hero carousel
 │   │   ├── HomePage.tsx            # Movie player + trivia page
 │   │   ├── KrossfirePage.tsx       # Competitive mode lobby
 │   │   ├── MovieLibraryPage.tsx    # Movie library with search/filters
