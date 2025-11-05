@@ -5,15 +5,14 @@ Krittics is an immersive movie trivia platform that combines cinematic experienc
 
 ## Current State (MVP)
 The application is a fully functional movie trivia platform with:
-- **Browse Page**: Netflix-style streaming homescreen with auto-rotating hero carousel, horizontal scrolling rows, hover effects, and quick actions
+- **Browse Page**: Netflix-style streaming homescreen with auto-rotating hero carousel, dynamic color theming, horizontal scrolling rows with inertia scrolling for touch devices, hover effects, and quick actions (single location for movie discovery)
 - **Movie Player Interface**: Video player with controls, progress tracking, and trivia notification system
 - **Deep Dive Trivia**: AI-generated movie trivia with 5 unique questions per game
-- **Movie Library**: 16 movies with search by title/description and filters for genre and year
 - **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting
 - **Private Rooms**: Create/join rooms with unique codes, live chat, and real-time member list
 - **Krossfire Lobby**: Competitive mode UI with leaderboards and private room access
 - **Dark Mode**: Full dark/light theme support with smooth transitions
-- **Responsive Design**: Beautiful UI across all device sizes
+- **Responsive Design**: Beautiful UI across all device sizes with smooth momentum scrolling on mobile/tablet
 
 ## Recent Changes (November 2025)
 ### Latest (November 5, 2025 - Phase 3)
@@ -22,7 +21,8 @@ The application is a fully functional movie trivia platform with:
 - **Hero Carousel**: 5 featured movies with large backdrop images, color-themed gradient overlays, themed "Play Now" and "More Info" buttons, color-coordinated carousel indicators
 - **Content Rows**: Continue Watching (with colored progress bars), Trending Now, New Releases, Top Rated, and genre-based rows with smooth horizontal scrolling
 - **Movie Cards**: 16:9 thumbnails with scale-105 hover effect, colored titles on hover, quick action buttons overlay (Play, Add to List, Info), title/metadata display
-- **Navigation Enhancement**: Added "Browse" link to header navigation (Tv icon), integrated with existing routing
+- **Navigation Streamlining**: Removed Library page/link; Browse page is now the single location for movie discovery
+- **Mobile UX Enhancement**: Added inertia/momentum scrolling for touch devices (phones/tablets) with `-webkit-overflow-scrolling: touch` and `overscroll-behavior: contain` for smooth native-feeling scrolling on vertical and horizontal content
 - **Responsive Design**: Mobile-first with breakpoints, smooth transitions (300ms for cards, 1s for color theming), scrollbar-hide utility for clean horizontal scrolling
 
 ### Earlier (November 3, 2025 - Phase 2)
@@ -169,20 +169,21 @@ The app uses **Firebase Firestore** for real-time multiplayer features:
 Following `design_guidelines.md`:
 - **Spacing**: Consistent p-8 for cards, 4-unit gaps between elements
 - **Typography**: Outfit display font for headings, Inter for body
-- **Colors**: Primary blue (#1F5EAB), semantic tokens for different states
+- **Colors**: Primary blue (#1F5EAB), semantic tokens for different states, dynamic per-movie color theming on Browse page
 - **Components**: shadcn/ui Button, Card, Badge with hover-elevate utilities
 - **Responsive**: Mobile-first with breakpoints at 640px, 768px, 1024px, 1280px
-- **Animations**: Smooth 300ms transitions, subtle scale effects
+- **Animations**: Smooth 300ms transitions (cards), 1s transitions (color theming), subtle scale effects
+- **Touch UX**: Inertia/momentum scrolling on mobile devices via `-webkit-overflow-scrolling: touch`
 
 ## Known Limitations (MVP)
 - No actual video playback (mock player interface only)
 - Real-time Krossfire trivia gameplay not yet implemented (rooms and chat complete)
 - Firebase multiplayer optional (works in fallback mode without Firebase)
 - No user authentication system (using localStorage user IDs, anonymous Firebase fallback)
-- Movie library filters limited to genre/year (rating/duration deferred)
 - Deep Dive trivia sessions not fully persisted (answers not saved)
 - Private rooms: No presence cleanup for disconnected members (future enhancement)
 - Private rooms: Basic host controls only (kick/promote features deferred)
+- Browse page is the only movie discovery interface (no separate library/search page)
 
 ## Next Phase Features
 - Real video streaming integration
