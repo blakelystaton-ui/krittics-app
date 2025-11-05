@@ -9,6 +9,7 @@ import {
   type InsertAnswer,
   type User,
   type InsertUser,
+  type UpsertUser,
   movies,
   gameSessions,
   triviaQuestions,
@@ -21,6 +22,10 @@ import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
+  // User operations (REQUIRED for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+
   // Movies
   getMovie(id: string): Promise<Movie | undefined>;
   getAllMovies(): Promise<Movie[]>;
@@ -68,10 +73,22 @@ export class MemStorage implements IStorage {
       title: "The Grand Adventure of Elias",
       description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
       duration: 7200,
+      genre: null,
+      year: null,
+      rating: null,
       posterUrl: null,
       videoUrl: null,
     };
     this.movies.set(sampleMovie.id, sampleMovie);
+  }
+
+  // User operations (stub - not implemented for in-memory)
+  async getUser(id: string): Promise<User | undefined> {
+    throw new Error("MemStorage does not support user operations");
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    throw new Error("MemStorage does not support user operations");
   }
 
   // Movies
@@ -223,6 +240,27 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // User operations (REQUIRED for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
   // Movies
   async getMovie(id: string): Promise<Movie | undefined> {
     const result = await db.select().from(movies).where(eq(movies.id, id)).limit(1);
