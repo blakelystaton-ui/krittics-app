@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { FirebaseProvider, useFirebase } from "@/lib/firebase";
 import { Header } from "@/components/Header";
 import HomePage from "@/pages/HomePage";
+import BrowsePage from "@/pages/BrowsePage";
 import KrossfirePage from "@/pages/KrossfirePage";
 import MovieLibraryPage from "@/pages/MovieLibraryPage";
 import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
@@ -17,6 +18,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/browse" component={BrowsePage} />
       <Route path="/library" component={MovieLibraryPage} />
       <Route path="/krossfire" component={KrossfirePage} />
       <Route path="/private-rooms" component={PrivateRoomsPage} />

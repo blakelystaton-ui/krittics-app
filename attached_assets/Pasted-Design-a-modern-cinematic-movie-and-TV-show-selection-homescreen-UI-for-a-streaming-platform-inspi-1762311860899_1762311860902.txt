@@ -1,0 +1,35 @@
+Design a modern, cinematic movie and TV show selection homescreen UI for a streaming platform, inspired by the layout, functionality, and user experience of Netflix, Disney+, and Prime Video — but fully customized to match the visual identity of Krittics.
+
+**Core Layout & Functionality (must match big apps):**
+- Hero banner at the top: large auto-rotating carousel with 3–5 featured titles, each with a high-quality backdrop image, title logo, play button, info icon, and subtle animated hover effects.
+- Horizontal scrolling rows below the hero:
+- "Continue Watching" (with progress bars on thumbnails)
+- "Trending Now"
+- "New Releases"
+- "Top 10 in [Your Country]"
+- "Because You Watched [Movie Name]"
+- "Critically Acclaimed"
+- Each row has a bold section title, left/right scroll arrows (visible on hover), and smooth card sliding animation.
+- Thumbnail cards: rectangular (16:9), with subtle drop shadow, title on hover, play icon overlay, and progress bar for in-progress content.
+- Smooth hover/tap interactions: cards slightly enlarge, show quick actions (Play, Add to List, Info).
+- Top navigation bar: sticky, semi-transparent, with logo on left, search icon, profile avatar, and menu (Home, TV Shows, Movies, My List).
+- Responsive for desktop, tablet, and mobile (mobile: vertical scrolling, collapsible rows).
+
+**Visual Style – MUST Match Krittics:**
+- Color palette: Use exact brand colors from Krittics deep navy (#0A1D37), electric teal (#00E8C0), off-white (#F8F9FA), etc.]
+- Typography: Use [YOUR FONT FAMILY, e.g., "Satoshi", "Inter", "Poppins"] at exact weights and sizes seen on your site.
+- Background: [Describe: e.g., subtle dark gradient (#0F0F0F to #000000), or light mode with soft grain texture, or cosmic animated particles matching your hero section].
+- UI elements: Buttons, icons, cards, and scrollbars must use your site’s border radius, shadows, and micro-interactions.
+- Logo: Place your exact logo in the top-left corner, same size and style as on your homepage.
+- Overall tone: [e.g., premium minimalist, cyberpunk, retro-futuristic, warm cinematic] — must feel like a natural extension of your website.
+
+**Details to Include:**
+- Realistic screen lighting with subtle cinematic lens flare on hero banner.
+- Micro-animations: smooth parallax on hero, card lift on hover, shimmer on loading thumbnails.
+- Include 1–2 Easter eggs from your brand (e.g., a character from your mascot, a tagline in the UI).
+- 4K resolution, ultra-realistic mockup on a sleek monitor or TV screen with slight screen glow.
+
+**Output Format:**
+Ultra-detailed UI mockup (desktop + mobile versions), photorealistic device render, dark and light mode variants if applicable.
+
+**Reference apps:** Netflix, Disney+, Prime Video — but **100% branded as Krittics**.

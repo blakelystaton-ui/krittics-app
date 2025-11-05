@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Film, Zap, Library } from "lucide-react";
+import { Film, Zap, Library, Tv } from "lucide-react";
 
 interface HeaderProps {
   userId?: string;
@@ -18,6 +18,18 @@ export function Header({ userId }: HeaderProps) {
         </Link>
 
         <nav className="flex items-center gap-1">
+          <Link href="/browse" data-testid="link-browse">
+            <button
+              className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
+                location === "/browse"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              }`}
+            >
+              <Tv className="h-4 w-4" />
+              <span className="hidden sm:inline">Browse</span>
+            </button>
+          </Link>
           <Link href="/" data-testid="link-movie-player">
             <button
               className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
