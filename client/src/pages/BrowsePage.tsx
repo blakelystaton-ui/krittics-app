@@ -234,7 +234,7 @@ export default function BrowsePage() {
   const heroDominantColor = currentHero ? getMovieDominantColor(currentHero.id) : null;
 
   const handleMovieClick = (movie: Movie) => {
-    setLocation(`/?movieId=${movie.id}`);
+    setLocation(`/player?movieId=${movie.id}`);
   };
 
   if (isLoading) {
