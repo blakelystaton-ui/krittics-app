@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Film, Zap, Library, Tv } from "lucide-react";
+import { Film, Zap, Tv } from "lucide-react";
 
 interface HeaderProps {
   userId?: string;
@@ -40,18 +40,6 @@ export function Header({ userId }: HeaderProps) {
             >
               <Film className="h-4 w-4" />
               <span className="hidden sm:inline">Player</span>
-            </button>
-          </Link>
-          <Link href="/library" data-testid="link-library">
-            <button
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
-                location === "/library"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Library className="h-4 w-4" />
-              <span className="hidden sm:inline">Library</span>
             </button>
           </Link>
           <Link href="/krossfire" data-testid="link-krossfire">
