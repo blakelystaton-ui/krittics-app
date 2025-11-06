@@ -361,7 +361,7 @@ export default function BrowsePage() {
           </div>
 
           {/* Carousel indicators with themed color */}
-          <div className="absolute bottom-8 right-4 md:right-12 z-20 flex gap-2">
+          <div className="absolute bottom-20 right-4 md:right-12 z-20 flex gap-2">
             {featuredMovies.map((_, index) => (
               <button
                 key={index}
@@ -381,7 +381,7 @@ export default function BrowsePage() {
       )}
 
       {/* Content Rows */}
-      <div className="relative z-10 -mt-32 md:-mt-40">
+      <div className="relative z-10 -mt-16 md:-mt-24">
         <ContentRow 
           title="Continue Watching" 
           movies={movies.slice(0, 8)} 
