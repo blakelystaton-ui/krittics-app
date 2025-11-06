@@ -484,12 +484,12 @@
     right: 0;
     bottom: 0;
     color: transparent;
-    -webkit-text-stroke: 1.2px #e55c9d;
-    text-stroke: 1.2px #e55c9d;
+    -webkit-text-stroke: 1.2px #0d7377;
+    text-stroke: 1.2px #0d7377;
     paint-order: stroke fill;
     z-index: 3;
-    filter: drop-shadow(0 0 3px rgba(192, 72, 240, 0.6))
-            drop-shadow(0 0 6px rgba(229, 92, 157, 0.4));
+    filter: drop-shadow(0 0 3px rgba(13, 115, 119, 0.7))
+            drop-shadow(0 0 6px rgba(13, 115, 119, 0.4));
     pointer-events: none;
   }
 
