@@ -411,4 +411,97 @@
   .gradient-border-button:hover .gradient-border-content {
     background-color: hsl(var(--accent));
   }
+
+  /* === KRITTICS SHATTERED GLASS LOGO === */
+  .logo-container {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+  }
+
+  .logo-text {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: transparent;
+    background: #111;
+    -webkit-background-clip: text;
+    background-clip: text;
+    position: relative;
+    z-index: 2;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    text-shadow: 
+      0 2px 4px rgba(0,0,0,0.6),
+      0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  .logo-text::before {
+    content: 'KRITTICS';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.15) 3px,
+        rgba(0,0,0,0.15) 6px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 3px,
+        rgba(255,255,255,0.05) 3px,
+        rgba(255,255,255,0.05) 6px
+      );
+    background-size: cover, cover;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 1;
+    filter: contrast(1.3) brightness(0.95);
+    mix-blend-mode: multiply;
+  }
+
+  .logo-text::after {
+    content: 'KRITTICS';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    color: transparent;
+    -webkit-text-stroke: 1.2px #ffffff;
+    text-stroke: 1.2px #ffffff;
+    paint-order: stroke fill;
+    z-index: 3;
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.8))
+            drop-shadow(0 0 6px rgba(255,255,255,0.5));
+    pointer-events: none;
+  }
+
+  .crack {
+    position: absolute;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4), transparent);
+    width: 1px;
+    top: 0;
+    z-index: 4;
+    pointer-events: none;
+    filter: blur(0.3px);
+  }
+
+  .crack:nth-child(1) { left: 18%; height: 70%; top: 15%; transform: rotate(12deg); }
+  .crack:nth-child(2) { left: 28%; height: 55%; top: 20%; transform: rotate(-8deg); }
+  .crack:nth-child(3) { left: 38%; height: 80%; top: 10%; transform: rotate(5deg); }
+  .crack:nth-child(4) { left: 48%; height: 65%; top: 18%; transform: rotate(-15deg); }
+  .crack:nth-child(5) { left: 62%; height: 75%; top: 12%; transform: rotate(10deg); }
+  .crack:nth-child(6) { left: 75%; height: 60%; top: 22%; transform: rotate(-6deg); }
 }

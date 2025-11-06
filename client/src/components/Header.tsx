@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import logoImage from "@assets/IMG_8334_1762442077595.jpeg";
 
 export function Header() {
   const [location] = useLocation();
@@ -33,11 +32,17 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" data-testid="link-home">
-          <img 
-            src={logoImage} 
-            alt="Krittics" 
-            className="h-8 cursor-pointer transition-opacity hover:opacity-80"
-          />
+          <div className="logo-container cursor-pointer transition-opacity hover:opacity-80" aria-label="Krittics">
+            <div className="logo-text">
+              KRITTICS
+              <div className="crack"></div>
+              <div className="crack"></div>
+              <div className="crack"></div>
+              <div className="crack"></div>
+              <div className="crack"></div>
+              <div className="crack"></div>
+            </div>
+          </div>
         </Link>
 
         <nav className="flex items-center gap-2 ml-6 mr-6">

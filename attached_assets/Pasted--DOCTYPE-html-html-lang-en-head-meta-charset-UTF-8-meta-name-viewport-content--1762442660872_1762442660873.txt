@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KRITTICS Logo Replacement</title>
+  <style>
+    /* === CORE LOGO CONTAINER === */
+    .logo-container {
+      position: relative;
+      display: inline-block;
+      font-family: 'Arial Black', Arial, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      isolation: isolate; /* Ensures pseudo-elements don't bleed */
+    }
+
+    /* === MAIN TEXT STYLING === */
+    .logo-text {
+      font-size: 120px; /* Adjust scale as needed for your site */
+      letter-spacing: 8px;
+      color: transparent;
+      background: #111;
+      -webkit-background-clip: text;
+      background-clip: text;
+      position: relative;
+      z-index: 2;
+      line-height: 1;
+      margin: 0;
+      padding: 0 20px;
+      user-select: none;
+    }
+
+    /* === CRACKED TEXTURE OVERLAY (INNER FILL) === */
+    .logo-text::before {
+      content: 'KRITTICS';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 10px,
+          rgba(0,0,0,0.15) 10px,
+          rgba(0,0,0,0.15) 20px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 10px,
+          rgba(255,255,255,0.05) 10px,
+          rgba(255,255,255,0.05) 20px
+        ),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M0,50 Q25,45 30,55 T50,50 Q55,60 65,48 T80,55 Q85,45 100,50 L100,100 L0,100 Z" fill="%23111" opacity="0.8"/><path d="M10,48 Q20,52 25,45 T40,50 Q45,42 55,48 T70,45 Q75,52 85,48" stroke="%23000" stroke-width="1.5" fill="none" opacity="0.3"/><path d="M15,55 Q30,48 35,58 T52,50 Q58,60 75,48" stroke="%23fff" stroke-width="0.8" fill="none" opacity="0.1"/></svg>') repeat;
+      background-size: cover, cover, 40px 40px;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      z-index: 1;
+      filter: contrast(1.3) brightness(0.95);
+      mix-blend-mode: multiply;
+    }
+
+    /* === WHITE GLOWING OUTLINE (EXACT MATCH TO ORIGINAL) === */
+    .logo-text::after {
+      content: 'KRITTICS';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      color: transparent;
+      -webkit-text-stroke: 3.5px #ffffff;
+      text-stroke: 3.5px #ffffff;
+      paint-order: stroke fill;
+      z-index: 3;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.8))
+              drop-shadow(0 0 16px rgba(255,255,255,0.5));
+      pointer-events: none;
+    }
+
+    /* === SUBTLE INNER SHADOW FOR DEPTH === */
+    .logo-text {
+      text-shadow: 
+        0 4px 8px rgba(0,0,0,0.6),
+        0 2px 4px rgba(0,0,0,0.4),
+        inset 0 -2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* === CRACK LINES (MANUALLY CRAFTED TO MATCH PHOTO) === */
+    .crack {
+      position: absolute;
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4), transparent);
+      height: 100%;
+      width: 2px;
+      top: 0;
+      z-index: 4;
+      pointer-events: none;
+      filter: blur(0.5px);
+    }
+    .crack:nth-child(1) { left: 18%; height: 70%; top: 15%; transform: rotate(12deg); }
+    .crack:nth-child(2) { left: 28%; height: 55%; top: 20%; transform: rotate(-8deg); }
+    .crack:nth-child(3) { left: 38%; height: 80%; top: 10%; transform: rotate(5deg); }
+    .crack:nth-child(4) { left: 48%; height: 65%; top: 18%; transform: rotate(-15deg); }
+    .crack:nth-child(5) { left: 62%; height: 75%; top: 12%; transform: rotate(10deg); }
+    .crack:nth-child(6) { left: 75%; height: 60%; top: 22%; transform: rotate(-6deg); }
+
+    /* === RESPONSIVE SCALING === */
+    @media (max-width: 768px) {
+      .logo-text { font-size: 80px; letter-spacing: 5px; }
+      .logo-text::after { -webkit-text-stroke: 2.5px #ffffff; }
+    }
+    @media (max-width: 480px) {
+      .logo-text { font-size: 60px; letter-spacing: 3px; }
+      .logo-text::after { -webkit-text-stroke: 2px #ffffff; }
+    }
+
+    /* === CENTER ON PAGE (DEMO PURPOSES) === */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent; /* Your site background will show through */
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- REPLACE YOUR CURRENT LOGO WITH THIS EXACT BLOCK -->
+  <div class="logo-container" aria-label="Krittics">
+    <h1 class="logo-text">KRITTICS
+      <div class="crack"></div>
+      <div class="crack"></div>
+      <div class="crack"></div>
+      <div class="crack"></div>
+      <div class="crack"></div>
+      <div class="crack"></div>
+    </h1>
+  </div>
+  <!-- END LOGO BLOCK -->
+
+</body>
+</html>
