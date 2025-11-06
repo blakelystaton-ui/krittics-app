@@ -37,7 +37,7 @@ export function Header() {
           </h1>
         </Link>
 
-        <nav className="flex items-center gap-3">
+        <nav className="flex items-center gap-3 ml-12">
           <Link href="/" data-testid="link-browse">
             <button className="gradient-border-button">
               <span className="gradient-border-content">
@@ -54,12 +54,6 @@ export function Header() {
               </span>
             </button>
           </Link>
-          <button className="gradient-border-button" data-testid="button-learn-more">
-            <span className="gradient-border-content">
-              <Info className="h-4 w-4 mr-2" />
-              <span>Learn More</span>
-            </span>
-          </button>
         </nav>
 
         <div className="flex items-center gap-2">
