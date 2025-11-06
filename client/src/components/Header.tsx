@@ -42,7 +42,7 @@ export function Header() {
             <button className="gradient-border-button">
               <span className="gradient-border-content">
                 <Tv className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Browse</span>
+                <span>Browse</span>
               </span>
             </button>
           </Link>
@@ -50,14 +50,14 @@ export function Header() {
             <button className="gradient-border-button">
               <span className="gradient-border-content">
                 <Zap className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Krossfire</span>
+                <span>Krossfire</span>
               </span>
             </button>
           </Link>
           <button className="gradient-border-button" data-testid="button-learn-more">
             <span className="gradient-border-content">
               <Info className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Learn More</span>
+              <span>Learn More</span>
             </span>
           </button>
         </nav>
