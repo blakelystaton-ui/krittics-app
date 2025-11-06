@@ -37,29 +37,21 @@ export function Header() {
           </h1>
         </Link>
 
-        <nav className="flex items-center gap-1">
+        <nav className="flex items-center gap-3">
           <Link href="/" data-testid="link-browse">
-            <button
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
-                location === "/"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Tv className="h-4 w-4" />
-              <span className="hidden sm:inline">Browse</span>
+            <button className="gradient-border-button">
+              <span className="gradient-border-content">
+                <Tv className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Browse</span>
+              </span>
             </button>
           </Link>
           <Link href="/krossfire" data-testid="link-krossfire">
-            <button
-              className={`flex items-center gap-2 rounded-md px-4 py-2 text-base font-medium transition-all hover-elevate ${
-                location === "/krossfire"
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              <Zap className="h-4 w-4" />
-              <span className="hidden sm:inline">Krossfire</span>
+            <button className="gradient-border-button">
+              <span className="gradient-border-content">
+                <Zap className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Krossfire</span>
+              </span>
             </button>
           </Link>
         </nav>

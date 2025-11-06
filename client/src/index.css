@@ -378,4 +378,36 @@
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
   }
+
+  /* Gradient border button effect */
+  .gradient-border-button {
+    position: relative;
+    padding: 2px;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #c048f0, #e55c9d);
+    background-clip: padding-box;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-border-button:hover {
+    padding: 3px;
+  }
+
+  .gradient-border-content {
+    background-color: hsl(var(--background));
+    border-radius: 48px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-border-button:hover .gradient-border-content {
+    background-color: hsl(var(--accent));
+  }
 }
