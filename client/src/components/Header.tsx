@@ -37,11 +37,11 @@ export function Header() {
           </h1>
         </Link>
 
-        <nav className="flex items-center gap-3 ml-12">
+        <nav className="flex items-center gap-2 ml-6 mr-6">
           <Link href="/" data-testid="link-browse">
             <button className="gradient-border-button">
               <span className="gradient-border-content">
-                <Tv className="h-4 w-4 mr-2" />
+                <Tv className="h-3.5 w-3.5 mr-1.5" />
                 <span>Browse</span>
               </span>
             </button>
@@ -49,7 +49,7 @@ export function Header() {
           <Link href="/krossfire" data-testid="link-krossfire">
             <button className="gradient-border-button">
               <span className="gradient-border-content">
-                <Zap className="h-4 w-4 mr-2" />
+                <Zap className="h-3.5 w-3.5 mr-1.5" />
                 <span>Krossfire</span>
               </span>
             </button>
