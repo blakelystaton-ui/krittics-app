@@ -13,8 +13,8 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Get movieId from URL params
-  const params = new URLSearchParams(location.split('?')[1] || '');
+  // Get movieId from URL params (use window.location.search for query params)
+  const params = new URLSearchParams(window.location.search);
   const movieIdParam = params.get('movieId');
 
   // Fetch movies from API
@@ -23,27 +23,29 @@ export default function HomePage() {
   });
 
   // Select movie based on URL param or use first movie
-  let movie: Movie | undefined;
+  let selectedMovie: Movie | undefined;
+  
   if (movieIdParam && movies) {
-    movie = movies.find((m) => m.id === movieIdParam);
-  }
-  if (!movie && movies && movies.length > 0) {
-    movie = movies[0];
+    selectedMovie = movies.find((m) => m.id === movieIdParam);
   }
   
-  const defaultMovie: Movie = {
-    id: "1",
-    title: "The Grand Adventure of Elias",
-    description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
-    duration: 7200,
-    genre: null,
-    year: null,
-    rating: null,
-    posterUrl: null,
-    videoUrl: null,
-  };
-
-  const selectedMovie = movie || defaultMovie;
+  if (!selectedMovie && movies && movies.length > 0) {
+    selectedMovie = movies[0];
+  }
+  
+  if (!selectedMovie) {
+    selectedMovie = {
+      id: "1",
+      title: "The Grand Adventure of Elias",
+      description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
+      duration: 7200,
+      genre: null,
+      year: null,
+      rating: null,
+      posterUrl: null,
+      videoUrl: null,
+    };
+  }
 
   // Reset trivia when movie changes
   useEffect(() => {
