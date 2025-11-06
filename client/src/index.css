@@ -417,6 +417,11 @@
     position: relative;
     display: inline-block;
     isolation: isolate;
+    transition: opacity 0.3s ease;
+  }
+
+  .logo-container:hover {
+    opacity: 0.8;
   }
 
   .logo-text {

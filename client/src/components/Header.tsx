@@ -32,7 +32,7 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" data-testid="link-home">
-          <div className="logo-container cursor-pointer transition-opacity hover:opacity-80" aria-label="Krittics">
+          <div className="logo-container cursor-pointer" aria-label="Krittics">
             <div className="logo-text">
               KRITTICS
               <div className="crack"></div>
