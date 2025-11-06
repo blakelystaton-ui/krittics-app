@@ -66,15 +66,16 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           {!isLoading && !isAuthenticated && (
-            <Button 
-              variant="default" 
-              size="sm" 
+            <button 
+              className="gradient-border-button"
               onClick={() => window.location.href = '/api/login'}
               data-testid="button-sign-in"
             >
-              <LogIn className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Button>
+              <span className="gradient-border-content">
+                <LogIn className="h-3.5 w-3.5 mr-1.5" />
+                <span>Sign In</span>
+              </span>
+            </button>
           )}
 
           {isAuthenticated && user && (
