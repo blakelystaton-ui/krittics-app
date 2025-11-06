@@ -362,36 +362,47 @@ export default function BrowsePage() {
         </div>
       )}
 
-      {/* Carousel indicators in black space between hero and content */}
-      {currentHero && heroDominantColor && (
-        <div className="relative z-20 flex justify-center py-6">
-          <div className="flex gap-2">
-            {featuredMovies.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentHeroIndex(index)}
-                className="h-1 transition-all duration-300"
-                style={{
-                  width: index === currentHeroIndex ? '32px' : '24px',
-                  backgroundColor: index === currentHeroIndex 
-                    ? heroDominantColor.hex 
-                    : `rgba(${heroDominantColor.rgb}, 0.4)`
-                }}
-                data-testid={`hero-indicator-${index}`}
+      {/* Content Rows */}
+      <div className="relative z-10 pt-8">
+        {/* First row with carousel indicators aligned */}
+        <div className="relative group/row mb-12" data-testid="content-row-continue-watching">
+          <div className="flex items-center justify-between px-4 md:px-12 mb-4">
+            <h2 className="font-display text-2xl font-bold text-foreground">Continue Watching</h2>
+            
+            {/* Carousel indicators aligned on the right */}
+            {currentHero && heroDominantColor && (
+              <div className="flex gap-2">
+                {featuredMovies.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentHeroIndex(index)}
+                    className="h-1 transition-all duration-300"
+                    style={{
+                      width: index === currentHeroIndex ? '32px' : '24px',
+                      backgroundColor: index === currentHeroIndex 
+                        ? heroDominantColor.hex 
+                        : `rgba(${heroDominantColor.rgb}, 0.4)`
+                    }}
+                    data-testid={`hero-indicator-${index}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Movie cards for Continue Watching */}
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll px-4 md:px-12 pb-4">
+            {movies.slice(0, 8).map((movie, index) => (
+              <MovieCard 
+                key={movie.id} 
+                movie={movie} 
+                onClick={() => handleMovieClick(movie)}
+                showProgress={true}
+                progress={(index % 4) * 25 + 15}
               />
             ))}
           </div>
         </div>
-      )}
-
-      {/* Content Rows */}
-      <div className="relative z-10">
-        <ContentRow 
-          title="Continue Watching" 
-          movies={movies.slice(0, 8)} 
-          onMovieClick={handleMovieClick}
-          showProgress={true}
-        />
         
         <ContentRow 
           title="Trending Now" 
