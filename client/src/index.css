@@ -384,13 +384,15 @@
     position: relative;
     padding: 2px;
     border-radius: 50px;
-    background: linear-gradient(90deg, #c048f0, #e55c9d);
+    background: #1ba9af;
     background-clip: padding-box;
     transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(27, 169, 175, 0.3);
   }
 
   .gradient-border-button:hover {
     padding: 3px;
+    box-shadow: 0 0 12px rgba(27, 169, 175, 0.5);
   }
 
   .gradient-border-content {
