@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn } from "lucide-react";
+import { Zap, Tv, LogIn, Info } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,12 @@ export function Header() {
               </span>
             </button>
           </Link>
+          <button className="gradient-border-button" data-testid="button-learn-more">
+            <span className="gradient-border-content">
+              <Info className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Learn More</span>
+            </span>
+          </button>
         </nav>
 
         <div className="flex items-center gap-2">
