@@ -359,9 +359,13 @@ export default function BrowsePage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Carousel indicators with themed color */}
-          <div className="absolute bottom-20 right-4 md:right-12 z-20 flex gap-2">
+      {/* Carousel indicators in black space between hero and content */}
+      {currentHero && heroDominantColor && (
+        <div className="relative z-20 flex justify-center py-6">
+          <div className="flex gap-2">
             {featuredMovies.map((_, index) => (
               <button
                 key={index}
@@ -381,7 +385,7 @@ export default function BrowsePage() {
       )}
 
       {/* Content Rows */}
-      <div className="relative z-10 -mt-16 md:-mt-24">
+      <div className="relative z-10">
         <ContentRow 
           title="Continue Watching" 
           movies={movies.slice(0, 8)} 
