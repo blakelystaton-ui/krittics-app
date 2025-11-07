@@ -47,8 +47,15 @@ export default function KrossfirePage() {
           <div className="mx-auto max-w-5xl">
             {/* Hero Section */}
             <div className="mb-12 text-center">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                <Zap className="h-10 w-10 text-primary" />
+              <div 
+                className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full" 
+                style={{ 
+                  backgroundColor: 'rgba(27, 169, 175, 0.1)',
+                  boxShadow: '0 0 20px rgba(27, 169, 175, 0.2)',
+                  color: '#1ba9af'
+                }}
+              >
+                <Zap className="h-10 w-10" />
               </div>
               <h1 className="font-display text-5xl font-extrabold text-foreground">
                 Krittics Krossfire
@@ -61,8 +68,19 @@ export default function KrossfirePage() {
             {/* Game Modes */}
             <div className="mb-12 grid gap-6 md:grid-cols-2">
               <Card className="overflow-hidden transition-all hover-elevate active-elevate-2">
-                <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-8">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary">
+                <div 
+                  className="p-8"
+                  style={{
+                    background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+                  }}
+                >
+                  <div 
+                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-full" 
+                    style={{ 
+                      backgroundColor: '#1ba9af',
+                      boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
+                    }}
+                  >
                     <Users className="h-6 w-6 text-primary-foreground" />
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground">Quick Match</h3>
@@ -72,6 +90,11 @@ export default function KrossfirePage() {
                   <Button
                     size="lg"
                     className="mt-6 w-full"
+                    style={{ 
+                      backgroundColor: '#1ba9af',
+                      borderColor: '#158f94',
+                      color: 'white'
+                    }}
                     onClick={() => setGameMode("waiting")}
                     data-testid="button-quick-match"
                   >
@@ -81,9 +104,20 @@ export default function KrossfirePage() {
               </Card>
 
               <Card className="overflow-hidden transition-all hover-elevate active-elevate-2">
-                <div className="bg-gradient-to-br from-accent/20 to-accent/5 p-8">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
-                    <Crown className="h-6 w-6 text-accent-foreground" />
+                <div 
+                  className="p-8"
+                  style={{
+                    background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+                  }}
+                >
+                  <div 
+                    className="mb-4 flex h-12 w-12 items-center justify-center rounded-full" 
+                    style={{ 
+                      backgroundColor: '#1ba9af',
+                      boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
+                    }}
+                  >
+                    <Crown className="h-6 w-6 text-primary-foreground" />
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground">Private Room</h3>
                   <p className="mt-2 text-base text-muted-foreground">
@@ -92,6 +126,11 @@ export default function KrossfirePage() {
                   <Button
                     size="lg"
                     className="mt-6 w-full"
+                    style={{ 
+                      backgroundColor: '#1ba9af',
+                      borderColor: '#158f94',
+                      color: 'white'
+                    }}
                     onClick={() => setLocation('/private-rooms')}
                     data-testid="button-private-rooms"
                   >
@@ -106,7 +145,9 @@ export default function KrossfirePage() {
               <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <h2 className="font-display text-2xl font-bold text-foreground">Top Players</h2>
-                  <Trophy className="h-6 w-6 text-primary" />
+                  <span style={{ color: '#1ba9af' }}>
+                    <Trophy className="h-6 w-6" />
+                  </span>
                 </div>
                 <Select value={timePeriod} onValueChange={(v) => setTimePeriod(v as typeof timePeriod)}>
                   <SelectTrigger className="w-40" data-testid="select-time-period">
@@ -144,22 +185,35 @@ export default function KrossfirePage() {
                         key={entry.userId}
                         className={`flex items-center justify-between rounded-lg border p-4 transition-all ${
                           isCurrentUser
-                            ? "border-primary bg-primary/5"
+                            ? "bg-card hover-elevate"
                             : "border-border bg-card hover-elevate"
                         }`}
+                        style={isCurrentUser ? {
+                          borderColor: '#1ba9af',
+                          backgroundColor: 'rgba(27, 169, 175, 0.05)'
+                        } : undefined}
                         data-testid={`leaderboard-row-${index}`}
                       >
                         <div className="flex items-center gap-4">
                           <div
                             className={`flex h-10 w-10 items-center justify-center rounded-full font-display text-lg font-bold ${
                               index === 0
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : index === 1
-                                ? "bg-primary/60 text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : index === 2
-                                ? "bg-primary/30 text-foreground"
+                                ? "text-foreground"
                                 : "bg-muted text-muted-foreground"
                             }`}
+                            style={
+                              index === 0
+                                ? { backgroundColor: '#1ba9af', boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)' }
+                                : index === 1
+                                ? { backgroundColor: 'rgba(27, 169, 175, 0.6)', boxShadow: '0 0 10px rgba(27, 169, 175, 0.3)' }
+                                : index === 2
+                                ? { backgroundColor: 'rgba(27, 169, 175, 0.3)' }
+                                : undefined
+                            }
                           >
                             {index + 1}
                           </div>
@@ -177,7 +231,15 @@ export default function KrossfirePage() {
                             </div>
                           </div>
                         </div>
-                        <Badge variant={isCurrentUser ? "default" : "secondary"} className="font-display text-lg">
+                        <Badge 
+                          variant={isCurrentUser ? "default" : "secondary"} 
+                          className="font-display text-lg"
+                          style={isCurrentUser ? {
+                            backgroundColor: '#1ba9af',
+                            borderColor: '#158f94',
+                            color: 'white'
+                          } : undefined}
+                        >
                           {entry.totalScore}
                         </Badge>
                       </div>
@@ -218,8 +280,8 @@ export default function KrossfirePage() {
           <div className="mx-auto max-w-2xl">
             <Card className="p-12">
               <div className="text-center">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center">
-                  <Users className="h-12 w-12 animate-pulse text-primary" />
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center" style={{ color: '#1ba9af' }}>
+                  <Users className="h-12 w-12 animate-pulse" />
                 </div>
                 <h3 className="font-display text-2xl font-bold text-foreground">
                   Finding Players...
@@ -233,8 +295,11 @@ export default function KrossfirePage() {
                     {[...Array(4)].map((_, i) => (
                       <div
                         key={i}
-                        className="h-3 w-3 rounded-full bg-primary animate-pulse"
-                        style={{ animationDelay: `${i * 150}ms` }}
+                        className="h-3 w-3 rounded-full animate-pulse"
+                        style={{ 
+                          backgroundColor: '#1ba9af',
+                          animationDelay: `${i * 150}ms` 
+                        }}
                       />
                     ))}
                   </div>

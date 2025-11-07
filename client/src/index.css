@@ -83,6 +83,10 @@
   --font-mono: Menlo, Monaco, 'Courier New', monospace;
   --font-display: 'Outfit', 'Inter', sans-serif;
   --radius: .5rem; /* 8px */
+  
+  /* Teal theme colors for Krossfire section */
+  --teal: #1ba9af;
+  --teal-rgb: 27, 169, 175;
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
