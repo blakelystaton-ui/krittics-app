@@ -383,20 +383,39 @@
     inset: -1px;
   }
 
-  /* Gradient border button effect */
+  /* Gradient border button effect - matches Krittics logo gradient */
   .gradient-border-button {
     position: relative;
     padding: 2px;
     border-radius: 50px;
-    background: #1ba9af;
+    background: linear-gradient(135deg, 
+      #1ba9af 0%, 
+      #15d4dc 25%, 
+      #1ba9af 50%, 
+      #0e8a8f 75%, 
+      #1ba9af 100%
+    );
     background-clip: padding-box;
     transition: all 0.3s ease;
-    box-shadow: 0 0 8px rgba(27, 169, 175, 0.3);
+    box-shadow: 
+      0 0 3px rgba(27, 169, 175, 0.7),
+      0 0 6px rgba(27, 169, 175, 0.4),
+      0 0 10px rgba(27, 169, 175, 0.2);
   }
 
   .gradient-border-button:hover {
     padding: 3px;
-    box-shadow: 0 0 12px rgba(27, 169, 175, 0.5);
+    box-shadow: 
+      0 0 4px rgba(27, 169, 175, 0.9),
+      0 0 8px rgba(27, 169, 175, 0.6),
+      0 0 15px rgba(27, 169, 175, 0.3);
+    background: linear-gradient(135deg, 
+      #15d4dc 0%, 
+      #1ba9af 25%, 
+      #15d4dc 50%, 
+      #1ba9af 75%, 
+      #15d4dc 100%
+    );
   }
 
   .gradient-border-content {
