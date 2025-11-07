@@ -119,9 +119,9 @@ export default function KrossfirePage() {
                   >
                     <Crown className="h-6 w-6 text-primary-foreground" />
                   </div>
-                  <h3 className="font-display text-2xl font-bold text-foreground">Private Room</h3>
+                  <h3 className="font-display text-2xl font-bold text-foreground">Crew</h3>
                   <p className="mt-2 text-base text-muted-foreground">
-                    Create a room and invite your friends
+                    Create a crew and invite your friends
                   </p>
                   <Button
                     size="lg"
@@ -134,7 +134,7 @@ export default function KrossfirePage() {
                     onClick={() => setLocation('/private-rooms')}
                     data-testid="button-private-rooms"
                   >
-                    Create or Join Room
+                    Create or Join Crew
                   </Button>
                 </div>
               </Card>
