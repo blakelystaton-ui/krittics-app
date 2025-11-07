@@ -121,7 +121,7 @@ export default function KrossfirePage() {
                   </div>
                   <h3 className="font-display text-2xl font-bold text-foreground">Crew</h3>
                   <p className="mt-2 text-base text-muted-foreground">
-                    Create a crew and invite your friends
+                    invite your friends and create a Krossfire crew
                   </p>
                   <Button
                     size="lg"
