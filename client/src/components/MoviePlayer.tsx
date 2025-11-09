@@ -182,17 +182,14 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
           </div>
         </div>
 
-        {/* Movie Info */}
+        {/* Movie Title & Progress */}
         <div 
-          className="p-6"
+          className="p-6 pb-8"
           style={{
             background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
           }}
         >
-          <h2 className="font-display text-2xl font-bold text-foreground">{movie.title}</h2>
-          {movie.description && (
-            <p className="mt-2 text-base text-muted-foreground">{movie.description}</p>
-          )}
+          <h2 className="font-display text-3xl font-bold text-foreground">{movie.title}</h2>
           <div className="mt-4 flex items-center gap-2">
             <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(27, 169, 175, 0.2)' }}>
               <div
@@ -222,6 +219,27 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
             </button>
           )}
         </div>
+
+        {/* Gradient Transition - soft blend from teal to black */}
+        <div 
+          style={{
+            background: 'linear-gradient(to bottom, rgba(27, 169, 175, 0.05) 0%, rgba(0, 0, 0, 0.5) 50%, rgb(0, 0, 0) 100%)',
+            height: '80px'
+          }}
+        />
+
+        {/* Description/Synopsis Section */}
+        {movie.description && (
+          <div 
+            className="px-6 pb-6"
+            style={{
+              background: 'rgb(0, 0, 0)'
+            }}
+          >
+            <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
+            <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
+          </div>
+        )}
       </Card>
 
       {/* Trivia Ready Notification */}
