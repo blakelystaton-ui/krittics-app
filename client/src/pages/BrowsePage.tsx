@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -219,8 +219,23 @@ export default function BrowsePage() {
     queryKey: ['/api/movies'],
   });
 
-  // Hero carousel rotation
-  const featuredMovies = movies.slice(0, 5);
+  // Hero carousel rotation - randomly select 5 movies each time the app loads
+  const featuredMovies = useMemo(() => {
+    if (movies.length === 0) return [];
+    // Fisher-Yates shuffle for unbiased random selection
+    const shuffled = [...movies];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    // Take the first 5 from the shuffled array
+    return shuffled.slice(0, Math.min(5, shuffled.length));
+  }, [movies]);
+  
+  // Reset hero index when featured movies change to prevent out-of-bounds
+  useEffect(() => {
+    setCurrentHeroIndex(0);
+  }, [featuredMovies]);
   
   useEffect(() => {
     if (featuredMovies.length === 0) return;
