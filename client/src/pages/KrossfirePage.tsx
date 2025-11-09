@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Zap, Users, Trophy, Crown, Target, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,11 @@ export default function KrossfirePage() {
   const [, setLocation] = useLocation();
   const [gameMode, setGameMode] = useState<"lobby" | "waiting" | "playing">("lobby");
   const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'all-time'>('all-time');
+
+  // Scroll to top when page opens
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Get current user ID from localStorage
   const currentUserId = localStorage.getItem('krittics-user-id');
