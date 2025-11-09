@@ -183,16 +183,24 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
         </div>
 
         {/* Movie Info */}
-        <div className="p-6">
+        <div 
+          className="p-6"
+          style={{
+            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+          }}
+        >
           <h2 className="font-display text-2xl font-bold text-foreground">{movie.title}</h2>
           {movie.description && (
             <p className="mt-2 text-base text-muted-foreground">{movie.description}</p>
           )}
           <div className="mt-4 flex items-center gap-2">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: 'rgba(27, 169, 175, 0.2)' }}>
               <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-full transition-all duration-300"
+                style={{ 
+                  width: `${progress}%`,
+                  backgroundColor: '#1ba9af'
+                }}
               />
             </div>
             <span className="text-sm font-medium text-muted-foreground" data-testid="text-progress">
@@ -202,37 +210,51 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
           
           {/* Quick Start Trivia Button - for MVP/testing when no video available */}
           {!movie.videoUrl && (
-            <Button
+            <button
               onClick={onTriviaReady}
-              className="mt-4 w-full"
-              size="lg"
+              className="gradient-border-button mt-4 w-full"
               data-testid="button-quick-start-trivia"
             >
-              <Trophy className="mr-2 h-5 w-5" />
-              Start Deep Dive Trivia
-            </Button>
+              <span className="gradient-border-content px-6 py-3 text-base font-medium">
+                <Trophy className="mr-2 h-5 w-5 inline-block" />
+                Start Deep Dive Trivia
+              </span>
+            </button>
           )}
         </div>
       </Card>
 
       {/* Trivia Ready Notification */}
       {showTriviaNotification && (
-        <Card className="absolute -bottom-4 right-4 border-primary bg-primary/10 p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4">
+        <Card 
+          className="absolute -bottom-4 right-4 p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4"
+          style={{
+            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
+            borderColor: '#1ba9af'
+          }}
+        >
           <div className="flex items-start gap-3">
-            <div className="rounded-full bg-primary p-2">
-              <Trophy className="h-5 w-5 text-primary-foreground" />
+            <div 
+              className="rounded-full p-2" 
+              style={{ 
+                backgroundColor: '#1ba9af',
+                boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
+              }}
+            >
+              <Trophy className="h-5 w-5 text-white" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Deep Dive Ready!</h3>
               <p className="text-sm text-muted-foreground">Start your trivia challenge</p>
-              <Button
-                size="sm"
+              <button
                 onClick={onTriviaReady}
-                className="mt-2"
+                className="gradient-border-button mt-2"
                 data-testid="button-start-trivia"
               >
-                Start Now
-              </Button>
+                <span className="gradient-border-content px-4 py-1.5 text-sm font-medium">
+                  Start Now
+                </span>
+              </button>
             </div>
           </div>
         </Card>
