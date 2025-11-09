@@ -75,10 +75,10 @@ export function DeepDiveTrivia({
   // Loading state
   if (isGenerating) {
     return (
-      <Card className="mx-auto max-w-4xl p-12">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center">
-            <Sparkles className="h-12 w-12 animate-pulse text-primary" />
+      <Card className="mx-auto max-w-4xl overflow-hidden">
+        <div className="teal-gradient-bg p-12 text-center">
+          <div className="teal-icon-glow mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full">
+            <Sparkles className="h-12 w-12 animate-pulse text-white" />
           </div>
           <h3 className="font-display text-2xl font-bold text-foreground">
             Generating Deep Dive Trivia
@@ -114,10 +114,10 @@ export function DeepDiveTrivia({
   // Initial state
   if (gameStatus === "initial") {
     return (
-      <Card className="mx-auto max-w-4xl p-12">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-            <Trophy className="h-10 w-10 text-primary" />
+      <Card className="mx-auto max-w-4xl overflow-hidden">
+        <div className="teal-gradient-bg p-12 text-center">
+          <div className="teal-icon-subtle mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+            <Trophy className="h-10 w-10" />
           </div>
           <h3 className="font-display text-3xl font-extrabold text-foreground">
             End-of-Movie Deep Dive Trivia
@@ -126,15 +126,16 @@ export function DeepDiveTrivia({
             Test your recall on <span className="font-semibold text-foreground">{movieTitle}</span>'s plot, quotes, and
             behind-the-scenes facts.
           </p>
-          <Button
-            size="lg"
+          <button
             onClick={handleStart}
-            className="mt-8 px-8 py-6 text-lg font-bold"
+            className="gradient-border-button mt-8"
             data-testid="button-start-game"
           >
-            <Sparkles className="mr-2 h-5 w-5" />
-            Start Trivia Now
-          </Button>
+            <span className="gradient-border-content px-8 py-3 text-lg font-bold">
+              <Sparkles className="mr-2 h-5 w-5 inline-block" />
+              Start Trivia Now
+            </span>
+          </button>
         </div>
       </Card>
     );
@@ -149,35 +150,35 @@ export function DeepDiveTrivia({
 
     if (percentage === 100) {
       tier = "Perfect Score!";
-      tierColor = "text-primary";
+      tierColor = "var(--teal)";
       tierMessage = "You're a true cinema expert!";
     } else if (percentage >= 80) {
       tier = "Expert Critic!";
-      tierColor = "text-primary";
+      tierColor = "var(--teal)";
       tierMessage = "Impressive knowledge of the film!";
     } else if (percentage >= 60) {
       tier = "Movie Buff";
-      tierColor = "text-foreground";
+      tierColor = "hsl(var(--foreground))";
       tierMessage = "Good job! Keep watching!";
     } else {
       tier = "Keep Watching";
-      tierColor = "text-muted-foreground";
+      tierColor = "hsl(var(--muted-foreground))";
       tierMessage = "Practice makes perfect!";
     }
 
     return (
-      <Card className="mx-auto max-w-4xl p-12">
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-            <Trophy className="h-12 w-12 text-primary" />
+      <Card className="mx-auto max-w-4xl overflow-hidden">
+        <div className="teal-gradient-bg p-12 text-center">
+          <div className="teal-icon-subtle mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
+            <Trophy className="h-12 w-12" />
           </div>
-          <h3 className={`font-display text-4xl font-extrabold ${tierColor}`}>{tier}</h3>
+          <h3 className="font-display text-4xl font-extrabold" style={{ color: tierColor }}>{tier}</h3>
           <p className="mt-2 text-lg text-muted-foreground">{tierMessage}</p>
 
           <div className="mx-auto mt-8 max-w-md">
             <div className="flex items-center justify-center gap-12">
               <div>
-                <div className="font-display text-5xl font-extrabold text-primary" data-testid="text-final-score">
+                <div className="font-display text-5xl font-extrabold" style={{ color: 'var(--teal)' }} data-testid="text-final-score">
                   {score}/{questions?.length || 0}
                 </div>
                 <div className="mt-1 text-sm text-muted-foreground">Correct Answers</div>
@@ -192,15 +193,16 @@ export function DeepDiveTrivia({
           </div>
 
           <div className="mt-8 flex justify-center gap-4">
-            <Button
-              variant="outline"
+            <button
               onClick={handleRestart}
-              className="px-6"
+              className="gradient-border-button"
               data-testid="button-play-again"
             >
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Play Again
-            </Button>
+              <span className="gradient-border-content px-6 py-2.5 text-base font-medium">
+                <RotateCcw className="mr-2 h-4 w-4 inline-block" />
+                Play Again
+              </span>
+            </button>
           </div>
         </div>
       </Card>

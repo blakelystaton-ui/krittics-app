@@ -86,7 +86,11 @@
   
   /* Teal theme colors for Krossfire section */
   --teal: #1ba9af;
+  --teal-light: #15d4dc;
+  --teal-dark: #0e8a8f;
   --teal-rgb: 27, 169, 175;
+  --teal-light-rgb: 21, 212, 220;
+  --teal-dark-rgb: 14, 138, 143;
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.1), 0px 1px 2px -1px hsl(0 0% 0% / 0.1);
@@ -389,32 +393,32 @@
     padding: 2px;
     border-radius: 50px;
     background: linear-gradient(135deg, 
-      #1ba9af 0%, 
-      #15d4dc 25%, 
-      #1ba9af 50%, 
-      #0e8a8f 75%, 
-      #1ba9af 100%
+      var(--teal) 0%, 
+      var(--teal-light) 25%, 
+      var(--teal) 50%, 
+      var(--teal-dark) 75%, 
+      var(--teal) 100%
     );
     background-clip: padding-box;
     transition: all 0.3s ease;
     box-shadow: 
-      0 0 3px rgba(27, 169, 175, 0.7),
-      0 0 6px rgba(27, 169, 175, 0.4),
-      0 0 10px rgba(27, 169, 175, 0.2);
+      0 0 3px rgba(var(--teal-rgb), 0.7),
+      0 0 6px rgba(var(--teal-rgb), 0.4),
+      0 0 10px rgba(var(--teal-rgb), 0.2);
   }
 
   .gradient-border-button:hover {
     padding: 3px;
     box-shadow: 
-      0 0 4px rgba(27, 169, 175, 0.9),
-      0 0 8px rgba(27, 169, 175, 0.6),
-      0 0 15px rgba(27, 169, 175, 0.3);
+      0 0 4px rgba(var(--teal-rgb), 0.9),
+      0 0 8px rgba(var(--teal-rgb), 0.6),
+      0 0 15px rgba(var(--teal-rgb), 0.3);
     background: linear-gradient(135deg, 
-      #15d4dc 0%, 
-      #1ba9af 25%, 
-      #15d4dc 50%, 
-      #1ba9af 75%, 
-      #15d4dc 100%
+      var(--teal-light) 0%, 
+      var(--teal) 25%, 
+      var(--teal-light) 50%, 
+      var(--teal) 75%, 
+      var(--teal-light) 100%
     );
   }
 
@@ -435,6 +439,36 @@
 
   .gradient-border-button:hover .gradient-border-content {
     background-color: hsl(var(--accent));
+  }
+
+  /* Teal gradient background for Deep Dive trivia screens - saturated Krossfire ribbon */
+  .teal-gradient-bg {
+    background: linear-gradient(135deg,
+      var(--teal) 0%,
+      var(--teal-light) 30%,
+      var(--teal) 55%,
+      var(--teal-dark) 80%,
+      var(--teal) 100%
+    );
+  }
+
+  /* Teal icon glow container - multi-layer shadows matching Krossfire */
+  .teal-icon-glow {
+    background-color: var(--teal);
+    box-shadow: 
+      0 0 3px rgba(var(--teal-rgb), 0.7),
+      0 0 6px rgba(var(--teal-rgb), 0.4),
+      0 0 10px rgba(var(--teal-rgb), 0.2);
+  }
+
+  /* Teal icon container with subtle background */
+  .teal-icon-subtle {
+    background-color: rgba(var(--teal-rgb), 0.1);
+    color: var(--teal);
+    box-shadow: 
+      0 0 5px rgba(var(--teal-rgb), 0.3),
+      0 0 10px rgba(var(--teal-rgb), 0.2),
+      0 0 15px rgba(var(--teal-rgb), 0.1);
   }
 
   /* === KRITTICS SHATTERED GLASS LOGO === */
