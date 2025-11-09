@@ -87,19 +87,15 @@ export default function KrossfirePage() {
                   <p className="mt-2 text-base text-muted-foreground">
                     Jump into a random game with other players
                   </p>
-                  <Button
-                    size="lg"
-                    className="mt-6 w-full"
-                    style={{ 
-                      backgroundColor: '#1ba9af',
-                      borderColor: '#158f94',
-                      color: 'white'
-                    }}
+                  <button
+                    className="gradient-border-button mt-6 w-full"
                     onClick={() => setGameMode("waiting")}
                     data-testid="button-quick-match"
                   >
-                    Find Match
-                  </Button>
+                    <span className="gradient-border-content px-6 py-3 text-base font-medium">
+                      Find Match
+                    </span>
+                  </button>
                 </div>
               </Card>
 
@@ -123,19 +119,15 @@ export default function KrossfirePage() {
                   <p className="mt-2 text-base text-muted-foreground">
                     invite your friends and create a Krossfire crew
                   </p>
-                  <Button
-                    size="lg"
-                    className="mt-6 w-full"
-                    style={{ 
-                      backgroundColor: '#1ba9af',
-                      borderColor: '#158f94',
-                      color: 'white'
-                    }}
+                  <button
+                    className="gradient-border-button mt-6 w-full"
                     onClick={() => setLocation('/private-rooms')}
                     data-testid="button-private-rooms"
                   >
-                    Create or Join Crew
-                  </Button>
+                    <span className="gradient-border-content px-6 py-3 text-base font-medium">
+                      Create or Join Crew
+                    </span>
+                  </button>
                 </div>
               </Card>
             </div>
