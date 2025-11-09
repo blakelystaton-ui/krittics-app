@@ -82,7 +82,8 @@ export default function HomePage() {
   };
 
   const handleRestartTrivia = () => {
-    setShowTrivia(false);
+    // Keep showTrivia true so we stay in trivia mode
+    // Just reset the questions to trigger initial state in DeepDiveTrivia
     setTriviaQuestions([]);
     setError(null);
   };
