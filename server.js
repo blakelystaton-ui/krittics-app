@@ -1,5 +1,14 @@
 // server.js
+// index.js (or server.js) - ADD TO THE TOP OF THE FILE
 
+import express from "express";
+// 1. Import the main function from the gemini config file
+// The path may need adjustment (e.g., './config/gemini.js') based on your exact file location.
+import { generateAndSaveMovieMetadata } from "./config/gemini.js";
+
+const app = express();
+
+// ... other imports will be here ...
 import express from "express";
 // 1. Core security imports
 import { auth, db } from "./firebase-admin-init.js";
