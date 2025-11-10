@@ -488,14 +488,19 @@ export default function PrivateRoomsPage() {
     <div className="container mx-auto p-4 md:p-8 max-w-4xl">
       <div className="mb-6" />
       
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader className="teal-gradient-bg p-8 text-center">
           <CardTitle className="text-3xl text-foreground">Crew Command Center</CardTitle>
           <CardDescription className="text-foreground/80 mt-2">
             Crew HQ: sync-watch, unite or duel in trivia with the Crew
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent 
+          className="space-y-6"
+          style={{
+            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+          }}
+        >
           {statusMessage && (
             <Alert>
               <AlertDescription data-testid="text-status-message">{statusMessage}</AlertDescription>
