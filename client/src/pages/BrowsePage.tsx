@@ -218,6 +218,7 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
 export default function BrowsePage() {
   const [, setLocation] = useLocation();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [previousHeroIndex, setPreviousHeroIndex] = useState(0);
 
   // Fetch movies from API
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
@@ -240,18 +241,22 @@ export default function BrowsePage() {
   // Reset hero index when featured movies change to prevent out-of-bounds
   useEffect(() => {
     setCurrentHeroIndex(0);
+    setPreviousHeroIndex(0);
   }, [featuredMovies]);
   
   useEffect(() => {
     if (featuredMovies.length === 0) return;
     const interval = setInterval(() => {
+      setPreviousHeroIndex(currentHeroIndex);
       setCurrentHeroIndex((prev) => (prev + 1) % featuredMovies.length);
     }, 6000); // Rotate every 6 seconds
     return () => clearInterval(interval);
-  }, [featuredMovies.length]);
+  }, [featuredMovies.length, currentHeroIndex]);
 
   const currentHero = featuredMovies[currentHeroIndex];
+  const previousHero = featuredMovies[previousHeroIndex];
   const heroDominantColor = currentHero ? getMovieDominantColor(currentHero.id) : null;
+  const previousHeroDominantColor = previousHero ? getMovieDominantColor(previousHero.id) : null;
 
   const handleMovieClick = (movie: Movie) => {
     setLocation(`/player?movieId=${movie.id}`);
@@ -268,117 +273,125 @@ export default function BrowsePage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background overflow-x-hidden touch-scroll" data-testid="page-browse">
-      {/* Hero Carousel Banner */}
-      {currentHero && heroDominantColor && (
+  const renderHero = (hero: Movie, dominantColor: ReturnType<typeof getMovieDominantColor>, isVisible: boolean) => (
+    <div 
+      className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+      style={{ opacity: isVisible ? 1 : 0 }}
+    >
+      {/* Background Image with Dynamic Color Gradient Overlay */}
+      <div className="absolute inset-0">
+        {hero.posterUrl ? (
+          <img 
+            src={hero.posterUrl} 
+            alt={hero.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div 
+            className="h-full w-full bg-gradient-to-br"
+            style={{
+              background: `linear-gradient(135deg, rgba(${dominantColor.rgb}, 0.3) 0%, rgba(${dominantColor.rgb}, 0.1) 50%, hsl(var(--background)) 100%)`
+            }}
+          />
+        )}
+        {/* Dynamic themed gradient overlays for readability */}
         <div 
-          className="relative h-[70vh] md:h-[85vh] mb-8"
+          className="absolute inset-0 hero-gradient-overlay"
           style={{
-            '--hero-color-rgb': heroDominantColor.rgb,
-            '--hero-color-hex': heroDominantColor.hex
-          } as React.CSSProperties}
-        >
-          {/* Background Image with Dynamic Color Gradient Overlay */}
-          <div className="absolute inset-0">
-            {currentHero.posterUrl ? (
-              <img 
-                src={currentHero.posterUrl} 
-                alt={currentHero.title}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div 
-                className="h-full w-full bg-gradient-to-br"
-                style={{
-                  background: `linear-gradient(135deg, rgba(${heroDominantColor.rgb}, 0.3) 0%, rgba(${heroDominantColor.rgb}, 0.1) 50%, hsl(var(--background)) 100%)`
-                }}
-              />
-            )}
-            {/* Dynamic themed gradient overlays for readability */}
-            <div 
-              className="absolute inset-0 hero-gradient-overlay"
-              style={{
-                background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${heroDominantColor.rgb}, 0.4) 50%, transparent 100%)`
-              }}
-            />
-            <div 
-              className="absolute inset-0 hero-gradient-overlay"
-              style={{
-                background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${heroDominantColor.rgb}, 0.3) 40%, transparent 100%)`
-              }}
-            />
-          </div>
+            background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.4) 50%, transparent 100%)`
+          }}
+        />
+        <div 
+          className="absolute inset-0 hero-gradient-overlay"
+          style={{
+            background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.3) 40%, transparent 100%)`
+          }}
+        />
+      </div>
 
-          {/* Hero Content */}
-          <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
-            <div className="container mx-auto px-4 md:px-12">
-              <div className="max-w-2xl">
-                <h1 
-                  className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 hero-themed"
+      {/* Hero Content */}
+      <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
+        <div className="container mx-auto px-4 md:px-12">
+          <div className="max-w-2xl">
+            <h1 
+              className="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 hero-themed"
+              style={{
+                color: 'hsl(var(--foreground))',
+                textShadow: `0 0 40px rgba(${dominantColor.rgb}, 0.6), 0 0 80px rgba(${dominantColor.rgb}, 0.4), 0 4px 20px rgba(0, 0, 0, 0.8)`
+              }}
+            >
+              {hero.title}
+            </h1>
+            <p className="text-base md:text-lg text-foreground/90 mb-6 line-clamp-3 drop-shadow-lg">
+              {hero.description}
+            </p>
+            
+            <div className="flex items-center gap-3 mb-6">
+              {hero.year && <span className="text-sm font-medium text-foreground/80">{hero.year}</span>}
+              {hero.genre && (
+                <Badge 
+                  variant="secondary"
+                  className="hero-themed"
                   style={{
-                    color: 'hsl(var(--foreground))',
-                    textShadow: `0 0 40px rgba(${heroDominantColor.rgb}, 0.6), 0 0 80px rgba(${heroDominantColor.rgb}, 0.4), 0 4px 20px rgba(0, 0, 0, 0.8)`
+                    backgroundColor: `rgba(${dominantColor.rgb}, 0.2)`,
+                    borderColor: `rgba(${dominantColor.rgb}, 0.4)`,
+                    color: dominantColor.hex
                   }}
                 >
-                  {currentHero.title}
-                </h1>
-                <p className="text-base md:text-lg text-foreground/90 mb-6 line-clamp-3 drop-shadow-lg">
-                  {currentHero.description}
-                </p>
-                
-                <div className="flex items-center gap-3 mb-6">
-                  {currentHero.year && <span className="text-sm font-medium text-foreground/80">{currentHero.year}</span>}
-                  {currentHero.genre && (
-                    <Badge 
-                      variant="secondary"
-                      className="hero-themed"
-                      style={{
-                        backgroundColor: `rgba(${heroDominantColor.rgb}, 0.2)`,
-                        borderColor: `rgba(${heroDominantColor.rgb}, 0.4)`,
-                        color: heroDominantColor.hex
-                      }}
-                    >
-                      {currentHero.genre}
-                    </Badge>
-                  )}
-                  {currentHero.rating && <Badge variant="outline">{currentHero.rating}</Badge>}
-                </div>
+                  {hero.genre}
+                </Badge>
+              )}
+              {hero.rating && <Badge variant="outline">{hero.rating}</Badge>}
+            </div>
 
-                <div className="flex gap-3">
-                  <Button 
-                    size="lg" 
-                    className="gap-2 px-8 hero-themed border"
-                    style={{
-                      backgroundColor: heroDominantColor.hex,
-                      borderColor: heroDominantColor.hex,
-                      color: 'white'
-                    }}
-                    onClick={() => handleMovieClick(currentHero)}
-                    data-testid="button-hero-play"
-                  >
-                    <Play className="h-5 w-5" />
-                    Play Now
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    variant="secondary" 
-                    className="gap-2 px-8 backdrop-blur-md hero-themed"
-                    style={{
-                      backgroundColor: `rgba(${heroDominantColor.rgb}, 0.15)`,
-                      borderColor: `rgba(${heroDominantColor.rgb}, 0.3)`,
-                      color: 'hsl(var(--foreground))'
-                    }}
-                    onClick={() => handleMovieClick(currentHero)}
-                    data-testid="button-hero-info"
-                  >
-                    <Info className="h-5 w-5" />
-                    More Info
-                  </Button>
-                </div>
-              </div>
+            <div className="flex gap-3">
+              <Button 
+                size="lg" 
+                className="gap-2 px-8 hero-themed border"
+                style={{
+                  backgroundColor: dominantColor.hex,
+                  borderColor: dominantColor.hex,
+                  color: 'white'
+                }}
+                onClick={() => handleMovieClick(hero)}
+                data-testid="button-hero-play"
+              >
+                <Play className="h-5 w-5" />
+                Play Now
+              </Button>
+              <Button 
+                size="lg" 
+                variant="secondary" 
+                className="gap-2 px-8 backdrop-blur-md hero-themed"
+                style={{
+                  backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
+                  borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
+                  color: 'hsl(var(--foreground))'
+                }}
+                onClick={() => handleMovieClick(hero)}
+                data-testid="button-hero-info"
+              >
+                <Info className="h-5 w-5" />
+                More Info
+              </Button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background overflow-x-hidden touch-scroll" data-testid="page-browse">
+      {/* Hero Carousel Banner with Crossfade */}
+      {currentHero && heroDominantColor && (
+        <div className="relative h-[70vh] md:h-[85vh] mb-8">
+          {/* Previous Hero (fading out) */}
+          {previousHero && previousHeroDominantColor && previousHeroIndex !== currentHeroIndex && 
+            renderHero(previousHero, previousHeroDominantColor, false)
+          }
+          {/* Current Hero (fading in) */}
+          {renderHero(currentHero, heroDominantColor, true)}
         </div>
       )}
 
