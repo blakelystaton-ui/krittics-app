@@ -169,7 +169,7 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
       className="relative group/row mb-12 py-6 rounded-lg" 
       data-testid={`content-row-${title.toLowerCase().replace(/\s+/g, '-')}`}
       style={{
-        background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+        background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.35), rgba(27, 169, 175, 0.15))'
       }}
     >
       <h2 className="font-display text-2xl font-bold text-foreground mb-4 px-4 md:px-12">{title}</h2>
@@ -390,7 +390,7 @@ export default function BrowsePage() {
           className="relative group/row mb-12 py-6 rounded-lg" 
           data-testid="content-row-continue-watching"
           style={{
-            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.35), rgba(27, 169, 175, 0.15))'
           }}
         >
           <div className="flex items-center justify-between px-4 md:px-12 mb-4">
