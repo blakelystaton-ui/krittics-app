@@ -112,11 +112,10 @@ function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProp
         )}
       </div>
       
-      {/* Title on hover with colored accent */}
-      <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      {/* Title always visible with white color */}
+      <div className="mt-3">
         <h4 
-          className="font-semibold text-sm truncate line-clamp-1"
-          style={{ color: dominantColor.hex }}
+          className="font-semibold text-sm truncate line-clamp-1 text-white"
         >
           {movie.title}
         </h4>
