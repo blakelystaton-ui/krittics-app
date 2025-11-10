@@ -21,7 +21,12 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 ### Technical Implementations
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback and score tracking. Features teal gradient aesthetics with centralized CSS utilities (.teal-gradient-bg, .teal-icon-glow, .teal-icon-subtle) for consistent visual branding across loading, initial, and final score screens.
-- **Multiplayer Private Rooms**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore.
+- **Multiplayer Private Rooms**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Requires Firebase Anonymous Authentication to be enabled in the Firebase Console.
+- **Firebase Error States**: Tracks three distinct error types via `authError` state:
+  - `missing-secrets`: Environment variables not configured
+  - `anonymous-auth-disabled`: Firebase Anonymous Auth not enabled (auth/admin-restricted-operation)
+  - Other error codes: Network, initialization, or other Firebase failures
+  Each error type displays tailored guidance with actionable steps.
 - **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting, persisted in PostgreSQL.
 - **API Endpoints**: Comprehensive set of RESTful APIs for movies, trivia generation, game sessions, and leaderboards.
 - **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties (--teal, --teal-light, --teal-dark with RGB variants) for maintainable, reusable gradient effects. Includes 135° multi-stop gradient backgrounds and triple-layer glow effects for icons.
@@ -30,6 +35,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Hybrid Storage**: PostgreSQL for structured, persistent data and Firebase Firestore for real-time, dynamic data.
 - **AI Integration**: Gemini 2.5 Flash provides structured JSON output for trivia questions, including retry logic.
 - **Graceful Degradation**: Multiplayer features are designed to work in a fallback mode if Firebase is not configured.
+- **Smart Error Handling**: Firebase error handling differentiates between three error states (missing secrets, anonymous auth disabled, other errors) and provides contextually appropriate user guidance with actionable instructions.
 
 ## External Dependencies
 - **Replit Auth**: For user authentication and session management.
