@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Krittics Fade Carousel</title>
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: system-ui, sans-serif; background:#111; }
+
+    .carousel {
+      position: relative;
+      max-width: 800px;
+      margin: 40px auto;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    }
+
+    .slide {
+      position: relative;
+      display: none;
+      opacity: 0;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .slide.active { display: block; opacity: 1; }
+
+    .slide img { width:100%; height:auto; display:block; }
+
+    .caption {
+      position: absolute;
+      bottom: 20px; left: 20px;
+      background: rgba(0,0,0,.6);
+      color:#fff; padding:8px 16px;
+      border-radius:6px; font-weight:600;
+    }
+
+    .prev, .next {
+      position: absolute; top:50%; transform:translateY(-50%);
+      background:rgba(0,0,0,.5); color:#fff; border:none;
+      font-size:2rem; padding:12px; cursor:pointer;
+    }
+    .prev:hover, .next:hover { background:rgba(0,0,0,.8); }
+    .prev { left:10px; }
+    .next { right:10px; }
+
+    .dots {
+      text-align:center; padding:12px 0;
+      background:rgba(0,0,0,.3);
+    }
+    .dot {
+      display:inline-block; width:12px; height:12px;
+      margin:0 6px; background:#bbb; border-radius:50%;
+      cursor:pointer; transition:background .3s;
+    }
+    .dot.active, .dot:hover { background:#fff; }
+  </style>
+</head>
+<body>
+
+  <div class="carousel">
+
+    <div class="slide active">
+      <img src="https://picsum.photos/800/400?random=1" alt="Slide 1">
+      <div class="caption">First awesome thing</div>
+    </div>
+
+    <div class="slide">
+      <img src="https://picsum.photos/800/400?random=2" alt="Slide 2">
+      <div class="caption">Second awesome thing</div>
+    </div>
+
+    <div class="slide">
+      <img src="https://picsum.photos/800/400?random=3" alt="Slide 3">
+      <div class="caption">Third awesome thing</div>
+    </div>
+
+    <div class="dots">
+      <span class="dot active" data-index="0"></span>
+      <span class="dot" data-index="1"></span>
+      <span class="dot" data-index="2"></span>
+    </div>
+
+    <button class="prev">Previous</button>
+    <button class="next">Next</button>
+  </div>
+
+  <script>
+    const FADE_DURATION = 1200;
+    const AUTO_PLAY_INTERVAL = 4000;
+
+    const slides = document.querySelectorAll('.slide');
+    const dots   = document.querySelectorAll('.dot');
+    const prevBtn = document.querySelector('.prev');
+    const nextBtn = document.querySelector('.next');
+
+    let currentIndex = 0;
+    let timer = null;
+
+    function goTo(idx) {
+      idx = (idx + slides.length) % slides.length;
+      document.querySelector('.slide.active')?.classList.remove('active');
+      document.querySelector('.dot.active')?.classList.remove('active');
+      slides[idx].classList.add('active');
+      dots[idx].classList.add('active');
+      currentIndex = idx;
+    }
+
+    function next() { goTo(currentIndex + 1); }
+    function prev() { goTo(currentIndex - 1); }
+
+    prevBtn.onclick = () => { stopAuto(); prev(); startAuto(); };
+    nextBtn.onclick = () => { stopAuto(); next(); startAuto(); };
+
+    dots.forEach(d => d.onclick = () => {
+      const i = +d.dataset.index;
+      stopAuto(); goTo(i); startAuto();
+    });
+
+    function startAuto() {
+      if (!AUTO_PLAY_INTERVAL) return;
+      stopAuto();
+      timer = setInterval(next, AUTO_PLAY_INTERVAL);
+    }
+    function stopAuto() { if (timer) clearInterval(timer); }
+
+    goTo(0);
+    startAuto();
+  </script>
+</body>
+</html>
