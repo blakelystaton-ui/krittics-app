@@ -525,7 +525,7 @@ export default function PrivateRoomsPage() {
               data-testid="button-create-room"
             >
               <span className="gradient-border-content">
-                Generate Private Room
+                Generate Crew Call
               </span>
             </button>
           </div>
