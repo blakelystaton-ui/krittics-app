@@ -218,6 +218,7 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
 export default function BrowsePage() {
   const [, setLocation] = useLocation();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
 
   // Fetch movies from API
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
@@ -245,7 +246,13 @@ export default function BrowsePage() {
   useEffect(() => {
     if (featuredMovies.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => (prev + 1) % featuredMovies.length);
+      // Start fade out
+      setIsFading(true);
+      // After fade out completes, change the index and fade back in
+      setTimeout(() => {
+        setCurrentHeroIndex((prev) => (prev + 1) % featuredMovies.length);
+        setIsFading(false);
+      }, 800); // Fade out duration
     }, 6000); // Rotate every 6 seconds
     return () => clearInterval(interval);
   }, [featuredMovies.length]);
@@ -280,7 +287,10 @@ export default function BrowsePage() {
           } as React.CSSProperties}
         >
           {/* Background Image with Dynamic Color Gradient Overlay */}
-          <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
+            style={{ opacity: isFading ? 0 : 1 }}
+          >
             {currentHero.posterUrl ? (
               <img 
                 src={currentHero.posterUrl} 
@@ -311,7 +321,10 @@ export default function BrowsePage() {
           </div>
 
           {/* Hero Content */}
-          <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
+          <div 
+            className="relative z-10 flex h-full items-end pb-20 md:pb-32 transition-opacity duration-[800ms] ease-in-out"
+            style={{ opacity: isFading ? 0 : 1 }}
+          >
             <div className="container mx-auto px-4 md:px-12">
               <div className="max-w-2xl">
                 <h1 
