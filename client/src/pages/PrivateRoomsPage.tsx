@@ -46,7 +46,7 @@ const generateRoomCode = () => {
 
 export default function PrivateRoomsPage() {
   const [, setLocation] = useLocation();
-  const { db, userId, isAuthReady, isFirebaseConfigured } = useFirebase();
+  const { db, userId, isAuthReady, isFirebaseConfigured, authError } = useFirebase();
   const [roomCode, setRoomCode] = useState('');
   const [currentRoom, setCurrentRoom] = useState<RoomData | null>(null);
   const [joinInput, setJoinInput] = useState('');
@@ -231,6 +231,75 @@ export default function PrivateRoomsPage() {
   }
 
   if (!isFirebaseConfigured) {
+    // Determine error message based on error type
+    let errorTitle = "Firebase Configuration Required";
+    let errorContent;
+
+    if (authError === 'missing-secrets') {
+      errorTitle = "Firebase Secrets Not Configured";
+      errorContent = (
+        <>
+          <p className="text-sm mb-4">
+            Private rooms require Firebase to be configured. Please provide the following secrets in your Replit environment:
+          </p>
+          <div className="space-y-2 text-sm">
+            <code className="block p-2 bg-muted rounded text-xs">
+              VITE_FIREBASE_PROJECT_ID<br/>
+              VITE_FIREBASE_APP_ID<br/>
+              VITE_FIREBASE_API_KEY
+            </code>
+          </div>
+        </>
+      );
+    } else if (authError === 'anonymous-auth-disabled') {
+      errorTitle = "Firebase Anonymous Authentication Required";
+      errorContent = (
+        <>
+          <p className="text-sm mb-4">
+            Your Firebase secrets are configured, but Anonymous Authentication is not enabled in your Firebase project.
+          </p>
+          
+          <div className="space-y-3 text-sm">
+            <p className="font-semibold">To enable Anonymous Authentication:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-2">
+              <li>Go to <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Firebase Console</a></li>
+              <li>Select your project: <code className="bg-muted px-1.5 py-0.5 rounded text-xs">krittics-5bcc9</code></li>
+              <li>Click <strong>"Authentication"</strong> in the left sidebar</li>
+              <li>Click the <strong>"Sign-in method"</strong> tab</li>
+              <li>Find <strong>"Anonymous"</strong> in the providers list</li>
+              <li>Click on it and toggle <strong>"Enable"</strong> to ON</li>
+              <li>Click <strong>"Save"</strong></li>
+              <li>Refresh this page</li>
+            </ol>
+          </div>
+          
+          <div className="mt-4 p-3 bg-muted/50 rounded text-xs">
+            <p className="font-semibold mb-1">Why Anonymous Auth?</p>
+            <p>Anonymous authentication allows users to use multiplayer features without creating accounts, while still maintaining secure, user-specific sessions in Firebase.</p>
+          </div>
+        </>
+      );
+    } else {
+      // Other errors (network, initialization, etc.)
+      errorTitle = "Firebase Connection Error";
+      errorContent = (
+        <>
+          <p className="text-sm mb-4">
+            Unable to connect to Firebase. This could be due to network issues, invalid configuration, or Firebase service problems.
+          </p>
+          <div className="space-y-2 text-sm">
+            <p className="font-semibold">Error details:</p>
+            <code className="block p-2 bg-muted rounded text-xs break-all">
+              {authError || 'Unknown error'}
+            </code>
+            <p className="mt-3">
+              Please check your internet connection and Firebase configuration. If the problem persists, check the browser console for more details.
+            </p>
+          </div>
+        </>
+      );
+    }
+
     return (
       <div className="container mx-auto p-8 max-w-4xl">
         <Button 
@@ -243,17 +312,10 @@ export default function PrivateRoomsPage() {
           Back to Krossfire
         </Button>
         
-        <Alert>
+        <Alert className="border-yellow-500/50">
           <AlertDescription>
-            <h3 className="font-semibold mb-2">Firebase Not Configured</h3>
-            <p className="text-sm">
-              Private rooms require Firebase to be configured. Please set up your Firebase project and provide the required secrets:
-              <code className="block mt-2 p-2 bg-muted rounded text-xs">
-                VITE_FIREBASE_PROJECT_ID<br/>
-                VITE_FIREBASE_APP_ID<br/>
-                VITE_FIREBASE_API_KEY
-              </code>
-            </p>
+            <h3 className="font-semibold mb-3 text-lg">{errorTitle}</h3>
+            {errorContent}
           </AlertDescription>
         </Alert>
       </div>

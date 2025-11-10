@@ -19,6 +19,7 @@ interface FirebaseContextValue {
   userId: string | null;
   isAuthReady: boolean;
   isFirebaseConfigured: boolean;
+  authError: string | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextValue>({
@@ -28,6 +29,7 @@ const FirebaseContext = createContext<FirebaseContextValue>({
   userId: null,
   isAuthReady: false,
   isFirebaseConfigured: false,
+  authError: null,
 });
 
 export const useFirebase = () => useContext(FirebaseContext);
@@ -43,6 +45,7 @@ export function FirebaseProvider({ children }: FirebaseProviderProps): JSX.Eleme
   const [userId, setUserId] = useState<string | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isFirebaseConfigured, setIsFirebaseConfigured] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -64,6 +67,7 @@ export function FirebaseProvider({ children }: FirebaseProviderProps): JSX.Eleme
       setUserId(fallbackId);
       setIsAuthReady(true);
       setIsFirebaseConfigured(false);
+      setAuthError('missing-secrets');
       return;
     }
 
@@ -95,10 +99,26 @@ export function FirebaseProvider({ children }: FirebaseProviderProps): JSX.Eleme
       const authenticate = async () => {
         try {
           await signInAnonymously(firebaseAuth);
-        } catch (error) {
+          setAuthError(null);
+        } catch (error: any) {
           console.error("Firebase Auth Error:", error);
-          // Set configuration to false since auth failed
-          setIsFirebaseConfigured(false);
+          
+          // Identify specific error types
+          if (error?.code === 'auth/admin-restricted-operation') {
+            console.error(
+              "Anonymous authentication is not enabled in your Firebase project. " +
+              "Please enable it in the Firebase Console: " +
+              "Authentication > Sign-in method > Anonymous > Enable"
+            );
+            setAuthError('anonymous-auth-disabled');
+            setIsFirebaseConfigured(false);
+          } else {
+            // Other auth errors (network, permissions, etc.)
+            console.error("Firebase authentication failed:", error.code || error.message);
+            setAuthError(error?.code || 'auth-error');
+            setIsFirebaseConfigured(false);
+          }
+          
           const fallbackId = getFallbackId();
           setUserId(fallbackId);
           setIsAuthReady(true);
@@ -117,17 +137,18 @@ export function FirebaseProvider({ children }: FirebaseProviderProps): JSX.Eleme
 
       return () => unsubscribe();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error initializing Firebase:", error);
       const fallbackId = getFallbackId();
       setUserId(fallbackId);
       setIsAuthReady(true);
       setIsFirebaseConfigured(false);
+      setAuthError(error?.code || 'initialization-error');
     }
   }, []);
 
   return (
-    <FirebaseContext.Provider value={{ app, auth, db, userId, isAuthReady, isFirebaseConfigured }}>
+    <FirebaseContext.Provider value={{ app, auth, db, userId, isAuthReady, isFirebaseConfigured, authError }}>
       {children}
     </FirebaseContext.Provider>
   );
