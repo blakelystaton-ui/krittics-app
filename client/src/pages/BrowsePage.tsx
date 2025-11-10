@@ -275,7 +275,8 @@ export default function BrowsePage() {
 
   const renderHero = (hero: Movie, dominantColor: ReturnType<typeof getMovieDominantColor>, isVisible: boolean) => (
     <div 
-      className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+      key={hero.id}
+      className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
       style={{ opacity: isVisible ? 1 : 0 }}
     >
       {/* Background Image with Dynamic Color Gradient Overlay */}
@@ -414,7 +415,10 @@ export default function BrowsePage() {
                 {featuredMovies.map((_, index) => (
                   <button
                     key={index}
-                    onClick={() => setCurrentHeroIndex(index)}
+                    onClick={() => {
+                      setPreviousHeroIndex(currentHeroIndex);
+                      setCurrentHeroIndex(index);
+                    }}
                     className="h-1 transition-all duration-300"
                     style={{
                       width: index === currentHeroIndex ? '32px' : '24px',
