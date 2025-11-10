@@ -486,15 +486,7 @@ export default function PrivateRoomsPage() {
   // Create/Join view
   return (
     <div className="container mx-auto p-4 md:p-8 max-w-4xl">
-      <Button 
-        variant="ghost" 
-        onClick={() => setLocation('/krossfire')}
-        className="mb-6"
-        data-testid="button-back-to-krossfire"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Krossfire
-      </Button>
+      <div className="mb-6" />
       
       <Card>
         <CardHeader className="teal-gradient-bg p-8 text-center">
