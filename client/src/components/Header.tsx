@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -107,6 +107,12 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  data-testid="menu-item-help"
+                >
+                  <HelpCircle className="h-4 w-4 mr-2" />
+                  Help
+                </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => window.location.href = '/api/logout'}
                   data-testid="menu-item-logout"
