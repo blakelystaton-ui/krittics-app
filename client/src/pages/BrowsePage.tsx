@@ -105,7 +105,7 @@ function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProp
               className="h-full transition-all" 
               style={{ 
                 width: `${progress}%`,
-                backgroundColor: dominantColor.hex
+                backgroundColor: '#9dc0c4'
               }}
             />
           </div>
