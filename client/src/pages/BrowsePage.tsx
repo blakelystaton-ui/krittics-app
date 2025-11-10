@@ -165,7 +165,13 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
   if (movies.length === 0) return null;
 
   return (
-    <div className="relative group/row mb-12" data-testid={`content-row-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <div 
+      className="relative group/row mb-12 py-6 rounded-lg" 
+      data-testid={`content-row-${title.toLowerCase().replace(/\s+/g, '-')}`}
+      style={{
+        background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+      }}
+    >
       <h2 className="font-display text-2xl font-bold text-foreground mb-4 px-4 md:px-12">{title}</h2>
       
       {/* Scroll buttons */}
@@ -380,7 +386,13 @@ export default function BrowsePage() {
       {/* Content Rows */}
       <div className="relative z-10 pt-8">
         {/* First row with carousel indicators aligned */}
-        <div className="relative group/row mb-12" data-testid="content-row-continue-watching">
+        <div 
+          className="relative group/row mb-12 py-6 rounded-lg" 
+          data-testid="content-row-continue-watching"
+          style={{
+            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
+          }}
+        >
           <div className="flex items-center justify-between px-4 md:px-12 mb-4">
             <h2 className="font-display text-2xl font-bold text-foreground">Continue Watching</h2>
             
