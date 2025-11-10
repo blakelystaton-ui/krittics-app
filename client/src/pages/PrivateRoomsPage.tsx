@@ -586,18 +586,21 @@ export default function PrivateRoomsPage() {
                           data-testid="input-friend-search"
                         />
                       </div>
-                      <Button
+                      <button
                         onClick={() => {
                           if (friendSearchQuery.trim().length < 2) {
                             setStatusMessage('Please enter at least 2 characters to search');
                           }
                         }}
                         disabled={friendSearchQuery.trim().length < 2}
+                        className="gradient-border-button min-h-9 px-4"
                         data-testid="button-search-friends"
                       >
-                        <Search className="h-4 w-4 mr-2" />
-                        Search
-                      </Button>
+                        <span className="gradient-border-content flex items-center gap-2">
+                          <Search className="h-4 w-4" />
+                          Search
+                        </span>
+                      </button>
                     </div>
                   </div>
 
