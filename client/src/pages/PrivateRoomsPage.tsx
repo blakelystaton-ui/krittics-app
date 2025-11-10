@@ -526,7 +526,7 @@ export default function PrivateRoomsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent 
-          className="space-y-6"
+          className="space-y-6 pt-8"
           style={{
             background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
           }}
@@ -573,16 +573,32 @@ export default function PrivateRoomsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                   {/* Search Bar */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search for friends by name or email..."
-                      value={friendSearchQuery}
-                      onChange={(e) => setFriendSearchQuery(e.target.value)}
-                      className="pl-10"
-                      data-testid="input-friend-search"
-                    />
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="text"
+                          placeholder="Search for friends by name or email..."
+                          value={friendSearchQuery}
+                          onChange={(e) => setFriendSearchQuery(e.target.value)}
+                          className="pl-10"
+                          data-testid="input-friend-search"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => {
+                          if (friendSearchQuery.trim().length < 2) {
+                            setStatusMessage('Please enter at least 2 characters to search');
+                          }
+                        }}
+                        disabled={friendSearchQuery.trim().length < 2}
+                        data-testid="button-search-friends"
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        Search
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Search Results */}
@@ -684,35 +700,26 @@ export default function PrivateRoomsPage() {
             </div>
           </div>
 
-          {/* Join Room */}
+          {/* Player Requests */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-xl font-semibold mb-2">2. Join a Friend's Room</h3>
+              <h3 className="text-xl font-semibold mb-2">2. Player Requests</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Enter the code your friend shared to join their session
+                View and respond to play or watch requests from friends
               </p>
             </div>
-            <div className="flex gap-2">
-              <Input
-                type="text"
-                placeholder="Enter Room Code (e.g., A1B2C3)"
-                value={joinInput}
-                onChange={(e) => setJoinInput(e.target.value.toUpperCase())}
-                maxLength={6}
-                className="flex-1"
-                data-testid="input-room-code"
-              />
-              <button
-                onClick={handleJoinRoom}
-                disabled={!isAuthReady || joinInput.length !== 6}
-                className="gradient-border-button min-h-9 px-4"
-                data-testid="button-join-room"
-              >
-                <span className="gradient-border-content">
-                  Join Room
-                </span>
-              </button>
-            </div>
+            
+            <Card className="overflow-hidden" data-testid="card-player-requests">
+              <CardContent className="p-6">
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                  <p className="text-sm text-muted-foreground">No pending requests</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    When friends send you play or watch invitations, they'll appear here
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </CardContent>
       </Card>

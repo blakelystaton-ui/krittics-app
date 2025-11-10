@@ -131,6 +131,20 @@ export const friendInteractions = pgTable("friend_interactions", {
   lastInteractionAt: timestamp("last_interaction_at").defaultNow(),
 });
 
+// Player requests table (for play/watch invitations)
+export const playerRequests = pgTable("player_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  receiverId: varchar("receiver_id").references(() => users.id).notNull(),
+  requestType: text("request_type").notNull(), // 'play' or 'watch'
+  status: text("status").notNull().default('pending'), // 'pending', 'accepted', 'rejected', 'expired'
+  roomCode: varchar("room_code"),
+  roomStrategy: text("room_strategy").notNull().default('generate-on-accept'), // 'existing' or 'generate-on-accept'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -192,6 +206,12 @@ export const insertFriendInteractionSchema = createInsertSchema(friendInteractio
   lastInteractionAt: true,
 });
 
+export const insertPlayerRequestSchema = createInsertSchema(playerRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Select types
 export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
@@ -204,6 +224,7 @@ export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect;
 export type VideoProgress = typeof videoProgress.$inferSelect;
 export type Friendship = typeof friendships.$inferSelect;
 export type FriendInteraction = typeof friendInteractions.$inferSelect;
+export type PlayerRequest = typeof playerRequests.$inferSelect;
 
 // Insert types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -218,6 +239,7 @@ export type InsertLeaderboardEntry = z.infer<typeof insertLeaderboardEntrySchema
 export type InsertVideoProgress = z.infer<typeof insertVideoProgressSchema>;
 export type InsertFriendship = z.infer<typeof insertFriendshipSchema>;
 export type InsertFriendInteraction = z.infer<typeof insertFriendInteractionSchema>;
+export type InsertPlayerRequest = z.infer<typeof insertPlayerRequestSchema>;
 
 // API response types
 export interface TriviaGenerationRequest {
