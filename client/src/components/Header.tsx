@@ -110,8 +110,8 @@ export function Header() {
                 <DropdownMenuItem 
                   data-testid="menu-item-help"
                 >
-                  <HelpCircle className="h-4 w-4 mr-2" />
                   Help
+                  <HelpCircle className="h-4 w-4 ml-2" />
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => window.location.href = '/api/logout'}
