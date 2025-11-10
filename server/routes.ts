@@ -281,6 +281,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET /api/friends - Get user's friends sorted by interaction count
+  app.get("/api/friends", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const friends = await storage.getFriendsByUser(userId);
+      res.json(friends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+      res.status(500).json({ error: "Failed to fetch friends" });
+    }
+  });
+
+  // GET /api/friends/search - Search for users
+  app.get("/api/friends/search", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const query = req.query.q as string;
+      
+      if (!query || query.trim().length < 2) {
+        return res.json([]);
+      }
+
+      const users = await storage.searchUsers(query, userId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      res.status(500).json({ error: "Failed to search users" });
+    }
+  });
+
+  // POST /api/friends/:friendId - Add a friend
+  app.post("/api/friends/:friendId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { friendId } = req.params;
+
+      if (userId === friendId) {
+        return res.status(400).json({ error: "Cannot add yourself as a friend" });
+      }
+
+      const friendship = await storage.addFriend(userId, friendId);
+      res.json(friendship);
+    } catch (error) {
+      console.error("Error adding friend:", error);
+      res.status(500).json({ error: "Failed to add friend" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

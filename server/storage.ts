@@ -10,12 +10,18 @@ import {
   type User,
   type InsertUser,
   type UpsertUser,
+  type Friendship,
+  type InsertFriendship,
+  type FriendInteraction,
+  type InsertFriendInteraction,
   movies,
   gameSessions,
   triviaQuestions,
   answers,
   users,
   leaderboardEntries,
+  friendships,
+  friendInteractions,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -49,6 +55,12 @@ export interface IStorage {
 
   // Leaderboard
   getTopPlayersByMode(gameMode: string, limit?: number, period?: 'daily' | 'weekly' | 'all-time'): Promise<{ userId: string; username: string; totalScore: number; gamesPlayed: number; averageScore: number }[]>;
+
+  // Friends
+  getFriendsByUser(userId: string): Promise<(User & { interactionCount: number; lastInteractionAt: Date | null })[]>;
+  searchUsers(query: string, excludeUserId?: string): Promise<User[]>;
+  addFriend(userId: string, friendId: string): Promise<Friendship>;
+  trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -183,6 +195,23 @@ export class MemStorage implements IStorage {
     return Array.from(this.answers.values()).filter(
       (a) => a.sessionId === sessionId
     );
+  }
+
+  // Friends (stub - not implemented for in-memory)
+  async getFriendsByUser(userId: string): Promise<(User & { interactionCount: number; lastInteractionAt: Date | null })[]> {
+    throw new Error("MemStorage does not support friend operations");
+  }
+
+  async searchUsers(query: string, excludeUserId?: string): Promise<User[]> {
+    throw new Error("MemStorage does not support user search");
+  }
+
+  async addFriend(userId: string, friendId: string): Promise<Friendship> {
+    throw new Error("MemStorage does not support friend operations");
+  }
+
+  async trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void> {
+    throw new Error("MemStorage does not support friend operations");
   }
 
   // Leaderboard
@@ -420,6 +449,117 @@ export class DatabaseStorage implements IStorage {
         return a.username.localeCompare(b.username);
       })
       .slice(0, limit);
+  }
+
+  // Friends
+  async getFriendsByUser(userId: string): Promise<(User & { interactionCount: number; lastInteractionAt: Date | null })[]> {
+    const friendList = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        interactionCount: sql<number>`COALESCE(${friendInteractions.interactionCount}, 0)`,
+        lastInteractionAt: friendInteractions.lastInteractionAt,
+      })
+      .from(friendships)
+      .innerJoin(users, eq(friendships.friendId, users.id))
+      .leftJoin(
+        friendInteractions,
+        and(
+          eq(friendInteractions.userId, userId),
+          eq(friendInteractions.friendId, users.id)
+        )
+      )
+      .where(
+        and(
+          eq(friendships.userId, userId),
+          eq(friendships.status, 'accepted')
+        )
+      )
+      .orderBy(desc(sql`COALESCE(${friendInteractions.interactionCount}, 0)`))
+      .limit(10);
+
+    return friendList;
+  }
+
+  async searchUsers(query: string, excludeUserId?: string): Promise<User[]> {
+    const searchPattern = `%${query}%`;
+    const conditions = [
+      sql`(${users.email} ILIKE ${searchPattern} OR ${users.firstName} ILIKE ${searchPattern} OR ${users.lastName} ILIKE ${searchPattern})`
+    ];
+
+    if (excludeUserId) {
+      conditions.push(sql`${users.id} != ${excludeUserId}`);
+    }
+
+    return await db
+      .select()
+      .from(users)
+      .where(and(...conditions))
+      .limit(20);
+  }
+
+  async addFriend(userId: string, friendId: string): Promise<Friendship> {
+    const [friendship] = await db
+      .insert(friendships)
+      .values({
+        userId,
+        friendId,
+        status: 'accepted',
+      })
+      .onConflictDoNothing()
+      .returning();
+
+    // Also create reverse friendship for bidirectional access
+    await db
+      .insert(friendships)
+      .values({
+        userId: friendId,
+        friendId: userId,
+        status: 'accepted',
+      })
+      .onConflictDoNothing();
+
+    return friendship;
+  }
+
+  async trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void> {
+    const existing = await db
+      .select()
+      .from(friendInteractions)
+      .where(
+        and(
+          eq(friendInteractions.userId, userId),
+          eq(friendInteractions.friendId, friendId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      await db
+        .update(friendInteractions)
+        .set({
+          interactionCount: sql`${friendInteractions.interactionCount} + 1`,
+          lastInteractionAt: new Date(),
+        })
+        .where(
+          and(
+            eq(friendInteractions.userId, userId),
+            eq(friendInteractions.friendId, friendId)
+          )
+        );
+    } else {
+      await db.insert(friendInteractions).values({
+        userId,
+        friendId,
+        interactionType,
+        interactionCount: 1,
+      });
+    }
   }
 }
 

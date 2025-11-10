@@ -22,13 +22,14 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback and score tracking. Features teal gradient aesthetics with centralized CSS utilities (.teal-gradient-bg, .teal-icon-glow, .teal-icon-subtle) for consistent visual branding across loading, initial, and final score screens.
 - **Crew Command Center (Private Rooms)**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Requires Firebase Anonymous Authentication to be enabled in the Firebase Console. Features unified teal gradient aesthetics with gradient-bordered CTAs, teal-icon-glow host badges, and teal-accented chat messages for visual consistency with Deep Dive trivia. Hero section uses darkened teal gradient for optimal text visibility.
+  - **Friends System**: Integrated friend search and management within Private Rooms. When creating a crew call, users can search for friends by name/email and view their top 10 most frequent collaborators, sorted by interaction count. Friend interactions are automatically tracked across room joins, messages, and games. PostgreSQL stores friendships and interaction metrics for persistent friend rankings.
 - **Firebase Error States**: Tracks three distinct error types via `authError` state:
   - `missing-secrets`: Environment variables not configured
   - `anonymous-auth-disabled`: Firebase Anonymous Auth not enabled (auth/admin-restricted-operation)
   - Other error codes: Network, initialization, or other Firebase failures
   Each error type displays tailored guidance with actionable steps.
 - **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting, persisted in PostgreSQL.
-- **API Endpoints**: Comprehensive set of RESTful APIs for movies, trivia generation, game sessions, and leaderboards.
+- **API Endpoints**: Comprehensive set of RESTful APIs for movies, trivia generation, game sessions, leaderboards, and friend management (search, add, top friends).
 - **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties (--teal, --teal-light, --teal-dark with RGB variants) for maintainable, reusable gradient effects. Includes 135° multi-stop gradient backgrounds and triple-layer glow effects for icons.
 
 ### System Design Choices

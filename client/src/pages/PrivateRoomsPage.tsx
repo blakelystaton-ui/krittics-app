@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useFirebase } from '@/lib/firebase';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +22,8 @@ import {
   orderBy,
   serverTimestamp 
 } from 'firebase/firestore';
-import { ArrowLeft, Crown, Send, Users } from 'lucide-react';
+import { ArrowLeft, Crown, Send, Users, UserPlus, Search } from 'lucide-react';
+import type { User } from '@shared/schema';
 
 interface RoomData {
   roomCode: string;
@@ -53,9 +56,36 @@ export default function PrivateRoomsPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [showFriendsSection, setShowFriendsSection] = useState(false);
+  const [friendSearchQuery, setFriendSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   
   const roomsCollectionPath = useMemo(() => 'krittics/multiplayer/rooms', []);
+
+  // Fetch friends
+  const { data: friends = [] } = useQuery<(User & { interactionCount: number })[]>({
+    queryKey: ['/api/friends'],
+    enabled: isAuthReady && showFriendsSection,
+  });
+
+  // Search users
+  const { data: searchResults = [] } = useQuery<User[]>({
+    queryKey: ['/api/friends/search', friendSearchQuery],
+    enabled: isAuthReady && showFriendsSection && friendSearchQuery.trim().length >= 2,
+  });
+
+  // Add friend mutation
+  const addFriendMutation = useMutation({
+    mutationFn: async (friendId: string) => {
+      return await apiRequest('POST', `/api/friends/${friendId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/friends'] });
+      setFriendSearchQuery('');
+      setStatusMessage('Friend added successfully!');
+    },
+  });
 
   // Real-time listener for the current room
   useEffect(() => {
@@ -516,7 +546,10 @@ export default function PrivateRoomsPage() {
               </p>
             </div>
             <button
-              onClick={handleCreateRoom}
+              onClick={() => {
+                handleCreateRoom();
+                setShowFriendsSection(true);
+              }}
               disabled={!isAuthReady}
               className="gradient-border-button min-h-10 px-6"
               data-testid="button-create-room"
@@ -525,6 +558,121 @@ export default function PrivateRoomsPage() {
                 Generate Crew Call
               </span>
             </button>
+
+            {/* Friends Section */}
+            {showFriendsSection && isAuthReady && (
+              <Card className="mt-6 overflow-hidden" data-testid="card-friends-section">
+                <CardHeader className="bg-gradient-to-br from-[var(--teal)]/20 to-[var(--teal)]/5">
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="teal-icon-subtle flex h-8 w-8 items-center justify-center rounded-md">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    Invite Friends
+                  </CardTitle>
+                  <CardDescription>Search for friends or select from your most frequent collaborators</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder="Search for friends by name or email..."
+                      value={friendSearchQuery}
+                      onChange={(e) => setFriendSearchQuery(e.target.value)}
+                      className="pl-10"
+                      data-testid="input-friend-search"
+                    />
+                  </div>
+
+                  {/* Search Results */}
+                  {friendSearchQuery.trim().length >= 2 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Search Results</h4>
+                      {searchResults.length === 0 ? (
+                        <p className="text-sm text-muted-foreground py-4 text-center">No users found</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {searchResults.map((user) => (
+                            <div 
+                              key={user.id} 
+                              className="flex items-center justify-between p-3 rounded-md bg-muted hover-elevate"
+                              data-testid={`search-result-${user.id}`}
+                            >
+                              <div>
+                                <p className="text-sm font-medium">
+                                  {user.firstName && user.lastName 
+                                    ? `${user.firstName} ${user.lastName}` 
+                                    : user.email || 'Unknown User'}
+                                </p>
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => addFriendMutation.mutate(user.id)}
+                                disabled={addFriendMutation.isPending}
+                                data-testid={`button-add-friend-${user.id}`}
+                              >
+                                <UserPlus className="h-4 w-4 mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Top Friends */}
+                  {friendSearchQuery.trim().length < 2 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold text-muted-foreground">
+                        Your Top Friends {friends.length > 0 && `(${friends.length})`}
+                      </h4>
+                      {friends.length === 0 ? (
+                        <div className="text-center py-8">
+                          <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                          <p className="text-sm text-muted-foreground">No friends yet</p>
+                          <p className="text-xs text-muted-foreground mt-1">Use the search bar above to find and add friends</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2" data-testid="friends-list">
+                          {friends.map((friend, index) => (
+                            <div 
+                              key={friend.id} 
+                              className="flex items-center justify-between p-3 rounded-md bg-muted hover-elevate"
+                              data-testid={`friend-${friend.id}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--teal)]/20 border border-[var(--teal)]/40">
+                                  <span className="text-xs font-bold text-[var(--teal)]">#{index + 1}</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">
+                                    {friend.firstName && friend.lastName 
+                                      ? `${friend.firstName} ${friend.lastName}` 
+                                      : friend.email || 'Unknown User'}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {friend.interactionCount} interaction{friend.interactionCount !== 1 ? 's' : ''}
+                                  </p>
+                                </div>
+                              </div>
+                              <Badge 
+                                variant="secondary" 
+                                className="bg-[var(--teal)]/10 text-[var(--teal)] border-[var(--teal)]/30"
+                              >
+                                Friend
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
           
           <div className="relative">

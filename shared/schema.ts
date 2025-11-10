@@ -112,6 +112,25 @@ export const videoProgress = pgTable("video_progress", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Friendships table
+export const friendships = pgTable("friendships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  friendId: varchar("friend_id").references(() => users.id).notNull(),
+  status: text("status").notNull().default('accepted'), // 'pending', 'accepted', 'blocked'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Friend interactions table (tracks how often users interact)
+export const friendInteractions = pgTable("friend_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  friendId: varchar("friend_id").references(() => users.id).notNull(),
+  interactionType: text("interaction_type").notNull(), // 'room_join', 'message', 'game_played'
+  interactionCount: integer("interaction_count").notNull().default(1),
+  lastInteractionAt: timestamp("last_interaction_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -163,6 +182,16 @@ export const insertVideoProgressSchema = createInsertSchema(videoProgress).omit(
   updatedAt: true,
 });
 
+export const insertFriendshipSchema = createInsertSchema(friendships).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFriendInteractionSchema = createInsertSchema(friendInteractions).omit({
+  id: true,
+  lastInteractionAt: true,
+});
+
 // Select types
 export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
@@ -173,6 +202,8 @@ export type Achievement = typeof achievements.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;
 export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect;
 export type VideoProgress = typeof videoProgress.$inferSelect;
+export type Friendship = typeof friendships.$inferSelect;
+export type FriendInteraction = typeof friendInteractions.$inferSelect;
 
 // Insert types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -185,6 +216,8 @@ export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
 export type InsertLeaderboardEntry = z.infer<typeof insertLeaderboardEntrySchema>;
 export type InsertVideoProgress = z.infer<typeof insertVideoProgressSchema>;
+export type InsertFriendship = z.infer<typeof insertFriendshipSchema>;
+export type InsertFriendInteraction = z.infer<typeof insertFriendInteractionSchema>;
 
 // API response types
 export interface TriviaGenerationRequest {
