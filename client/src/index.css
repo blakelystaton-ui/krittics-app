@@ -444,11 +444,11 @@
   /* Teal gradient background for Deep Dive trivia screens - saturated Krossfire ribbon */
   .teal-gradient-bg {
     background: linear-gradient(135deg,
-      var(--teal) 0%,
-      var(--teal-light) 30%,
-      var(--teal) 55%,
-      var(--teal-dark) 80%,
-      var(--teal) 100%
+      var(--teal-dark) 0%,
+      var(--teal) 30%,
+      var(--teal-dark) 55%,
+      #0a6a6e 80%,
+      var(--teal-dark) 100%
     );
   }
 

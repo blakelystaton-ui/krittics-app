@@ -498,9 +498,9 @@ export default function PrivateRoomsPage() {
       
       <Card>
         <CardHeader className="teal-gradient-bg p-8 text-center">
-          <CardTitle className="text-3xl text-foreground">Private Social Viewing Rooms</CardTitle>
+          <CardTitle className="text-3xl text-foreground">Crew Command Center</CardTitle>
           <CardDescription className="text-foreground/80 mt-2">
-            Watch and play trivia together with friends in private rooms
+            Crew HQ: sync-watch, unite or duel in trivia with the Crew
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
