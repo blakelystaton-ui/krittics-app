@@ -331,15 +331,27 @@ export default function PrivateRoomsPage() {
           {/* Main content area - Room info and chat */}
           <div className="lg:col-span-2 space-y-6">
             <Card data-testid="card-room-lobby">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">{currentRoom.roomName}</CardTitle>
-                    <CardDescription className="mt-2">
-                      Room Code: <Badge variant="outline" className="ml-2 font-mono text-lg">{currentRoom.roomCode}</Badge>
+              <CardHeader className="teal-gradient-bg p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex-1">
+                    <CardTitle className="text-2xl text-foreground">{currentRoom.roomName}</CardTitle>
+                    <CardDescription className="mt-2 text-foreground/80 flex items-center flex-wrap gap-2">
+                      Room Code:
+                      <span className="gradient-border-button inline-flex min-h-0 px-3 py-1">
+                        <span className="gradient-border-content font-mono text-lg">
+                          {currentRoom.roomCode}
+                        </span>
+                      </span>
                     </CardDescription>
                   </div>
-                  {isHost && <Badge variant="default"><Crown className="mr-1 h-3 w-3" />Host</Badge>}
+                  {isHost && (
+                    <Badge variant="default" className="bg-[var(--teal)] hover:bg-[var(--teal-light)] flex-shrink-0">
+                      <div className="teal-icon-glow mr-1.5 flex h-4 w-4 items-center justify-center rounded-full p-0.5">
+                        <Crown className="h-3 w-3 text-white" />
+                      </div>
+                      Host
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -352,14 +364,16 @@ export default function PrivateRoomsPage() {
                     {isHost ? 'End Session (Delete Room)' : 'Leave Room'}
                   </Button>
                   {isHost && (
-                    <Button
+                    <button
                       onClick={() => setStatusMessage('Feature coming soon! This button will sync everyone to a selected movie.')}
-                      variant="default"
                       disabled
+                      className="gradient-border-button min-h-9 px-4 opacity-50 cursor-not-allowed"
                       data-testid="button-start-movie"
                     >
-                      Start Movie Sync
-                    </Button>
+                      <span className="gradient-border-content">
+                        Start Movie Sync
+                      </span>
+                    </button>
                   )}
                 </div>
 
@@ -390,7 +404,7 @@ export default function PrivateRoomsPage() {
                       >
                         <div className={`max-w-[75%] p-3 rounded-lg ${
                           msg.userId === userId 
-                            ? 'bg-primary text-primary-foreground rounded-br-none' 
+                            ? 'bg-[var(--teal)]/20 border border-[var(--teal)]/40 text-foreground rounded-br-none' 
                             : 'bg-muted rounded-tl-none'
                         }`}>
                           <p className="text-xs font-semibold mb-1 opacity-80">
@@ -431,7 +445,9 @@ export default function PrivateRoomsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
+                  <div className="teal-icon-subtle flex h-8 w-8 items-center justify-center rounded-md">
+                    <Users className="h-5 w-5" />
+                  </div>
                   Members ({currentRoom.members.length})
                 </CardTitle>
               </CardHeader>
@@ -449,8 +465,10 @@ export default function PrivateRoomsPage() {
                         {memberId === userId ? 'You' : `Krittic-${memberId.substring(0, 4)}`}
                       </span>
                       {memberId === currentRoom.hostId && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Crown className="mr-1 h-3 w-3" />
+                        <Badge variant="secondary" className="text-xs bg-[var(--teal)]/20 text-[var(--teal)] border-[var(--teal)]/30">
+                          <div className="teal-icon-glow mr-1 flex h-3 w-3 items-center justify-center rounded-full p-0.5">
+                            <Crown className="h-2 w-2 text-white" />
+                          </div>
                           HOST
                         </Badge>
                       )}
@@ -479,9 +497,9 @@ export default function PrivateRoomsPage() {
       </Button>
       
       <Card>
-        <CardHeader>
-          <CardTitle className="text-3xl">Private Social Viewing Rooms</CardTitle>
-          <CardDescription>
+        <CardHeader className="teal-gradient-bg p-8 text-center">
+          <CardTitle className="text-3xl text-foreground">Private Social Viewing Rooms</CardTitle>
+          <CardDescription className="text-foreground/80 mt-2">
             Watch and play trivia together with friends in private rooms
           </CardDescription>
         </CardHeader>
@@ -500,14 +518,16 @@ export default function PrivateRoomsPage() {
                 Become the host and get a unique code to share with friends
               </p>
             </div>
-            <Button
+            <button
               onClick={handleCreateRoom}
               disabled={!isAuthReady}
-              size="lg"
+              className="gradient-border-button min-h-10 px-6"
               data-testid="button-create-room"
             >
-              Generate Private Room
-            </Button>
+              <span className="gradient-border-content">
+                Generate Private Room
+              </span>
+            </button>
           </div>
           
           <div className="relative">
@@ -537,13 +557,16 @@ export default function PrivateRoomsPage() {
                 className="flex-1"
                 data-testid="input-room-code"
               />
-              <Button
+              <button
                 onClick={handleJoinRoom}
                 disabled={!isAuthReady || joinInput.length !== 6}
+                className="gradient-border-button min-h-9 px-4"
                 data-testid="button-join-room"
               >
-                Join Room
-              </Button>
+                <span className="gradient-border-content">
+                  Join Room
+                </span>
+              </button>
             </div>
           </div>
         </CardContent>
