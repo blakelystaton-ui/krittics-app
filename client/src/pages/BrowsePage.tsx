@@ -398,7 +398,30 @@ export default function BrowsePage() {
 
       {/* Content Rows */}
       <div className="relative z-10 pt-8">
-        {/* First row with carousel indicators aligned */}
+        {/* Carousel indicators positioned above Continue Watching section */}
+        {currentHero && heroDominantColor && (
+          <div className="flex justify-center gap-2 mb-6 px-4 md:px-12">
+            {featuredMovies.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setPreviousHeroIndex(currentHeroIndex);
+                  setCurrentHeroIndex(index);
+                }}
+                className="h-1 transition-all duration-300"
+                style={{
+                  width: index === currentHeroIndex ? '32px' : '24px',
+                  backgroundColor: index === currentHeroIndex 
+                    ? heroDominantColor.hex 
+                    : `rgba(${heroDominantColor.rgb}, 0.4)`
+                }}
+                data-testid={`hero-indicator-${index}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* First row - Continue Watching */}
         <div 
           className="relative group/row mb-12 py-6 rounded-lg" 
           data-testid="content-row-continue-watching"
@@ -406,32 +429,7 @@ export default function BrowsePage() {
             background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%), linear-gradient(135deg, rgba(21, 212, 220, 0.25) 0%, rgba(27, 169, 175, 0.3) 25%, rgba(14, 138, 143, 0.2) 50%, rgba(27, 169, 175, 0.25) 75%, rgba(21, 212, 220, 0.2) 100%)'
           }}
         >
-          <div className="flex items-center justify-between px-4 md:px-12 mb-4">
-            <h2 className="font-display text-2xl font-bold text-foreground">Continue Watching</h2>
-            
-            {/* Carousel indicators aligned on the right */}
-            {currentHero && heroDominantColor && (
-              <div className="flex gap-2">
-                {featuredMovies.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setPreviousHeroIndex(currentHeroIndex);
-                      setCurrentHeroIndex(index);
-                    }}
-                    className="h-1 transition-all duration-300"
-                    style={{
-                      width: index === currentHeroIndex ? '32px' : '24px',
-                      backgroundColor: index === currentHeroIndex 
-                        ? heroDominantColor.hex 
-                        : `rgba(${heroDominantColor.rgb}, 0.4)`
-                    }}
-                    data-testid={`hero-indicator-${index}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <h2 className="font-display text-2xl font-bold text-foreground mb-4 px-4 md:px-12">Continue Watching</h2>
           
           {/* Movie cards for Continue Watching */}
           <div className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll px-4 md:px-12 pb-4">
