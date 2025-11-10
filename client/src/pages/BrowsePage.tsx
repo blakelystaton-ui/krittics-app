@@ -276,7 +276,7 @@ export default function BrowsePage() {
   const renderHero = (hero: Movie, dominantColor: ReturnType<typeof getMovieDominantColor>, isVisible: boolean) => (
     <div 
       key={hero.id}
-      className="absolute inset-0 transition-opacity duration-[1500ms] ease-in-out"
+      className="absolute inset-0 transition-opacity duration-[2500ms] ease-in-out"
       style={{ opacity: isVisible ? 1 : 0 }}
     >
       {/* Background Image with Dynamic Color Gradient Overlay */}
