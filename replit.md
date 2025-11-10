@@ -21,7 +21,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 ### Technical Implementations
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback and score tracking. Features teal gradient aesthetics with centralized CSS utilities (.teal-gradient-bg, .teal-icon-glow, .teal-icon-subtle) for consistent visual branding across loading, initial, and final score screens.
-- **Multiplayer Private Rooms**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Requires Firebase Anonymous Authentication to be enabled in the Firebase Console.
+- **Multiplayer Private Rooms**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Requires Firebase Anonymous Authentication to be enabled in the Firebase Console. Features unified teal gradient aesthetics with gradient-bordered CTAs, teal-icon-glow host badges, and teal-accented chat messages for visual consistency with Deep Dive trivia.
 - **Firebase Error States**: Tracks three distinct error types via `authError` state:
   - `missing-secrets`: Environment variables not configured
   - `anonymous-auth-disabled`: Firebase Anonymous Auth not enabled (auth/admin-restricted-operation)
