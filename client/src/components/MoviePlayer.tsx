@@ -224,14 +224,14 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
         <div 
           style={{
             background: 'linear-gradient(to bottom, rgba(27, 169, 175, 0.05) 0%, rgba(0, 0, 0, 0.5) 50%, rgb(0, 0, 0) 100%)',
-            height: '80px'
+            height: '20px'
           }}
         />
 
         {/* Description/Synopsis Section */}
         {movie.description && (
           <div 
-            className="px-6 pb-6"
+            className="px-6 pb-6 pt-2"
             style={{
               background: 'rgb(0, 0, 0)'
             }}
