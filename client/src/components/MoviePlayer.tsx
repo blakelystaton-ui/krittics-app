@@ -236,39 +236,38 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
               background: 'rgb(0, 0, 0)'
             }}
           >
-            <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
-            
-            {/* Action buttons above synopsis */}
-            <div className="flex items-center gap-2 mb-3">
+            {/* Action buttons */}
+            <div className="flex items-center gap-2 mb-4">
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 rounded-full"
+                className="h-10 w-10 rounded-full"
                 onClick={(e) => e.stopPropagation()}
                 data-testid="button-bookmark-player"
               >
-                <Bookmark className="h-4 w-4" />
+                <Bookmark className="h-5 w-5" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 rounded-full"
+                className="h-10 w-10 rounded-full"
                 onClick={(e) => e.stopPropagation()}
                 data-testid="button-like-player"
               >
-                <ThumbsUp className="h-4 w-4" />
+                <ThumbsUp className="h-5 w-5" />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-8 w-8 rounded-full"
+                className="h-10 w-10 rounded-full"
                 onClick={(e) => e.stopPropagation()}
                 data-testid="button-dislike-player"
               >
-                <ThumbsDown className="h-4 w-4" />
+                <ThumbsDown className="h-5 w-5" />
               </Button>
             </div>
             
+            <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
             <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
           </div>
         )}

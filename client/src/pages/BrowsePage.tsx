@@ -423,12 +423,12 @@ export default function BrowsePage() {
               {hero.title}
             </h1>
             
-            {/* Action buttons above synopsis */}
-            <div className="flex items-center gap-2 mb-3">
+            {/* Action buttons */}
+            <div className="flex items-center gap-2 mb-6">
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 rounded-full backdrop-blur-md"
+                className="h-11 w-11 rounded-full backdrop-blur-md"
                 style={{
                   backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
                   borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
@@ -444,7 +444,7 @@ export default function BrowsePage() {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 rounded-full backdrop-blur-md"
+                className="h-11 w-11 rounded-full backdrop-blur-md"
                 style={{
                   backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
                   borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
@@ -457,7 +457,7 @@ export default function BrowsePage() {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 rounded-full backdrop-blur-md"
+                className="h-11 w-11 rounded-full backdrop-blur-md"
                 style={{
                   backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
                   borderColor: `rgba(${dominantColor.rgb}, 0.3)`,

@@ -206,47 +206,47 @@ export default function MovieLibraryPage() {
                     {movie.title}
                   </h3>
                   
-                  {/* Action buttons above synopsis */}
+                  {/* Action buttons */}
                   <div className="flex items-center gap-1 mt-2">
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7 rounded-full"
+                      className="h-8 w-8 rounded-full"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                       }}
                       data-testid={`button-bookmark-${movie.id}`}
                     >
-                      <Bookmark className="h-3.5 w-3.5" />
+                      <Bookmark className="h-4 w-4" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7 rounded-full"
+                      className="h-8 w-8 rounded-full"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                       }}
                       data-testid={`button-like-${movie.id}`}
                     >
-                      <ThumbsUp className="h-3.5 w-3.5" />
+                      <ThumbsUp className="h-4 w-4" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7 rounded-full"
+                      className="h-8 w-8 rounded-full"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                       }}
                       data-testid={`button-dislike-${movie.id}`}
                     >
-                      <ThumbsDown className="h-3.5 w-3.5" />
+                      <ThumbsDown className="h-4 w-4" />
                     </Button>
                   </div>
                   
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                  <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                     {movie.description}
                   </p>
 

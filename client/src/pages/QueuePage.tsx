@@ -85,40 +85,41 @@ function MovieCard({ movie, onClick, onRemove }: MovieCardProps) {
           Remove from Queue
         </Button>
         
-        {/* Action buttons above synopsis */}
-        <div className="flex items-center gap-2 mb-3">
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 mb-4">
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 rounded-full"
+            className="h-10 w-10 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               onRemove(e);
             }}
             data-testid="button-bookmark-synopsis"
           >
-            <Bookmark className="h-4 w-4" />
+            <Bookmark className="h-5 w-5" />
           </Button>
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 rounded-full"
+            className="h-10 w-10 rounded-full"
             onClick={(e) => e.stopPropagation()}
             data-testid="button-like"
           >
-            <ThumbsUp className="h-4 w-4" />
+            <ThumbsUp className="h-5 w-5" />
           </Button>
           <Button
             size="icon"
             variant="ghost"
-            className="h-8 w-8 rounded-full"
+            className="h-10 w-10 rounded-full"
             onClick={(e) => e.stopPropagation()}
             data-testid="button-dislike"
           >
-            <ThumbsDown className="h-4 w-4" />
+            <ThumbsDown className="h-5 w-5" />
           </Button>
         </div>
         
+        <h4 className="font-display text-base font-semibold text-foreground mb-2">Synopsis</h4>
         <p className="text-base text-muted-foreground line-clamp-3">
           {movie.description || "No synopsis available for this movie."}
         </p>
