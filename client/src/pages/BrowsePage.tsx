@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Info, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Play, Info, ChevronLeft, ChevronRight, Plus, Bookmark, Check } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { Movie } from '@shared/schema';
 
 // Generate vibrant dominant color for each movie based on ID
@@ -59,11 +61,13 @@ function getMovieDominantColor(movieId: string): { hex: string; rgb: string; hsl
 interface MovieCardProps {
   movie: Movie;
   onClick: () => void;
+  onAddToQueue: (e: React.MouseEvent) => void;
+  inQueue: boolean;
   showProgress?: boolean;
   progress?: number;
 }
 
-function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProps) {
+function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progress = 0 }: MovieCardProps) {
   const dominantColor = getMovieDominantColor(movie.id);
   
   return (
@@ -87,11 +91,26 @@ function MovieCard({ movie, onClick, showProgress, progress = 0 }: MovieCardProp
         
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-          <Button size="icon" variant="default" className="rounded-full" data-testid="button-play-quick">
+          <Button 
+            size="icon" 
+            variant="default" 
+            className="rounded-full" 
+            data-testid="button-play-quick"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
             <Play className="h-5 w-5" />
           </Button>
-          <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-add-list">
-            <Plus className="h-5 w-5" />
+          <Button 
+            size="icon" 
+            variant={inQueue ? "default" : "secondary"}
+            className="rounded-full" 
+            data-testid={inQueue ? "button-in-queue" : "button-add-list"}
+            onClick={onAddToQueue}
+          >
+            {inQueue ? <Check className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
           </Button>
           <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-info">
             <Info className="h-5 w-5" />
@@ -132,10 +151,12 @@ interface ContentRowProps {
   title: string;
   movies: Movie[];
   onMovieClick: (movie: Movie) => void;
+  onAddToQueue: (movieId: string) => (e: React.MouseEvent) => void;
+  queueMovieIds: Set<string>;
   showProgress?: boolean;
 }
 
-function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowProps) {
+function ContentRow({ title, movies, onMovieClick, onAddToQueue, queueMovieIds, showProgress }: ContentRowProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -206,6 +227,8 @@ function ContentRow({ title, movies, onMovieClick, showProgress }: ContentRowPro
             key={movie.id} 
             movie={movie} 
             onClick={() => onMovieClick(movie)}
+            onAddToQueue={onAddToQueue(movie.id)}
+            inQueue={queueMovieIds.has(movie.id)}
             showProgress={showProgress}
             progress={showProgress ? (index % 4) * 25 + 15 : 0}
           />
@@ -219,10 +242,46 @@ export default function BrowsePage() {
   const [, setLocation] = useLocation();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [previousHeroIndex, setPreviousHeroIndex] = useState(0);
+  const { toast } = useToast();
 
   // Fetch movies from API
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
     queryKey: ['/api/movies'],
+  });
+
+  // Fetch user's watchlist
+  const { data: watchlistMovies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/watchlist'],
+  });
+
+  // Create a Set of movie IDs in the watchlist for quick lookup
+  const queueMovieIds = useMemo(() => {
+    return new Set(watchlistMovies.map(m => m.id));
+  }, [watchlistMovies]);
+
+  // Add/Remove from watchlist mutation
+  const toggleWatchlist = useMutation({
+    mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean }) => {
+      if (inQueue) {
+        return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
+      } else {
+        return await apiRequest('POST', `/api/watchlist/${movieId}`);
+      }
+    },
+    onSuccess: (_, { inQueue }) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+      toast({
+        title: inQueue ? "Removed from Queue" : "Added to Queue",
+        description: inQueue ? "Movie has been removed from your queue" : "Movie has been added to your queue",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update queue",
+        variant: "destructive",
+      });
+    },
   });
 
   // Hero carousel rotation - randomly select 5 movies each time the app loads
@@ -260,6 +319,12 @@ export default function BrowsePage() {
 
   const handleMovieClick = (movie: Movie) => {
     setLocation(`/player?movieId=${movie.id}`);
+  };
+
+  const handleAddToQueue = (movieId: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const inQueue = queueMovieIds.has(movieId);
+    toggleWatchlist.mutate({ movieId, inQueue });
   };
 
   if (isLoading) {
@@ -438,6 +503,8 @@ export default function BrowsePage() {
                 key={movie.id} 
                 movie={movie} 
                 onClick={() => handleMovieClick(movie)}
+                onAddToQueue={handleAddToQueue(movie.id)}
+                inQueue={queueMovieIds.has(movie.id)}
                 showProgress={true}
                 progress={(index % 4) * 25 + 15}
               />
@@ -449,42 +516,56 @@ export default function BrowsePage() {
           title="Trending Now" 
           movies={movies.slice(3, 11)} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="New Releases" 
           movies={movies.slice(5, 13)} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="Top Rated" 
           movies={movies.slice(2, 10)} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="Action & Adventure" 
           movies={movies.filter(m => m.genre === 'Action' || m.genre === 'Adventure')} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="Drama & Thriller" 
           movies={movies.filter(m => m.genre === 'Drama' || m.genre === 'Thriller')} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="Sci-Fi & Fantasy" 
           movies={movies.filter(m => m.genre === 'Sci-Fi' || m.genre === 'Fantasy')} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
         
         <ContentRow 
           title="Comedy & Romance" 
           movies={movies.filter(m => m.genre === 'Comedy' || m.genre === 'Romance')} 
           onMovieClick={handleMovieClick}
+          onAddToQueue={handleAddToQueue}
+          queueMovieIds={queueMovieIds}
         />
       </div>
 
