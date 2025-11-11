@@ -13,46 +13,53 @@ interface MovieCardProps {
 function MovieCard({ movie, onClick }: MovieCardProps) {
   return (
     <div 
-      className="group relative flex-shrink-0 w-[350px] cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10"
+      className="group flex gap-6 cursor-pointer transition-all duration-300 hover-elevate p-4 rounded-lg"
       onClick={onClick}
       data-testid={`queue-movie-card-${movie.id}`}
     >
-      <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
-        {movie.posterUrl ? (
-          <img 
-            src={movie.posterUrl} 
-            alt={movie.title}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
-            <Play className="h-16 w-16 text-primary opacity-40" />
+      {/* Movie Poster - Left Side */}
+      <div className="relative flex-shrink-0 w-[280px]">
+        <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
+          {movie.posterUrl ? (
+            <img 
+              src={movie.posterUrl} 
+              alt={movie.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+              <Play className="h-16 w-16 text-primary opacity-40" />
+            </div>
+          )}
+          
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+            <Button size="icon" variant="default" className="rounded-full" data-testid="button-play-queue">
+              <Play className="h-5 w-5" />
+            </Button>
+            <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-remove-queue">
+              <Bookmark className="h-5 w-5 fill-current" />
+            </Button>
+            <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-info-queue">
+              <Info className="h-5 w-5" />
+            </Button>
           </div>
-        )}
-        
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-          <Button size="icon" variant="default" className="rounded-full" data-testid="button-play-queue">
-            <Play className="h-5 w-5" />
-          </Button>
-          <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-remove-queue">
-            <Bookmark className="h-5 w-5 fill-current" />
-          </Button>
-          <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-info-queue">
-            <Info className="h-5 w-5" />
-          </Button>
         </div>
       </div>
       
-      {/* Title */}
-      <div className="mt-3">
-        <h4 className="font-semibold text-sm truncate line-clamp-1 text-white">
+      {/* Movie Info - Right Side */}
+      <div className="flex-1 flex flex-col justify-center">
+        <h3 className="font-display text-2xl font-bold text-foreground mb-2">
           {movie.title}
-        </h4>
-        <div className="flex items-center gap-2 mt-1 flex-wrap">
-          {movie.year && <span className="text-xs text-muted-foreground">{movie.year}</span>}
-          {movie.genre && <Badge variant="outline" className="text-xs">{movie.genre}</Badge>}
+        </h3>
+        <div className="flex items-center gap-3 mb-4">
+          {movie.year && <span className="text-sm text-muted-foreground">{movie.year}</span>}
+          {movie.genre && <Badge variant="outline" className="text-sm">{movie.genre}</Badge>}
+          {movie.rating && <Badge variant="secondary">{movie.rating}</Badge>}
         </div>
+        <p className="text-base text-muted-foreground line-clamp-3">
+          {movie.description || "No synopsis available for this movie."}
+        </p>
       </div>
     </div>
   );
@@ -118,10 +125,7 @@ export default function QueuePage() {
             </Button>
           </div>
         ) : (
-          <div 
-            className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll pb-4"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
+          <div className="flex flex-col gap-4">
             {movies.map((movie) => (
               <MovieCard 
                 key={movie.id} 
