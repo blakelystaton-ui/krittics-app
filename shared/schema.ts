@@ -139,6 +139,16 @@ export const friendInteractions = pgTable("friend_interactions", {
   lastInteractionAt: timestamp("last_interaction_at").defaultNow(),
 });
 
+// Movie reactions table (user likes/dislikes)
+export const movieReactions = pgTable("movie_reactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  movieId: varchar("movie_id").references(() => movies.id).notNull(),
+  reaction: text("reaction").notNull(), // 'like' or 'dislike'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Player requests table (for play/watch invitations)
 export const playerRequests = pgTable("player_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -225,6 +235,12 @@ export const insertPlayerRequestSchema = createInsertSchema(playerRequests).omit
   updatedAt: true,
 });
 
+export const insertMovieReactionSchema = createInsertSchema(movieReactions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Select types
 export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
@@ -238,6 +254,7 @@ export type VideoProgress = typeof videoProgress.$inferSelect;
 export type Watchlist = typeof watchlist.$inferSelect;
 export type Friendship = typeof friendships.$inferSelect;
 export type FriendInteraction = typeof friendInteractions.$inferSelect;
+export type MovieReaction = typeof movieReactions.$inferSelect;
 export type PlayerRequest = typeof playerRequests.$inferSelect;
 
 // Insert types
@@ -254,6 +271,7 @@ export type InsertVideoProgress = z.infer<typeof insertVideoProgressSchema>;
 export type InsertWatchlist = z.infer<typeof insertWatchlistSchema>;
 export type InsertFriendship = z.infer<typeof insertFriendshipSchema>;
 export type InsertFriendInteraction = z.infer<typeof insertFriendInteractionSchema>;
+export type InsertMovieReaction = z.infer<typeof insertMovieReactionSchema>;
 export type InsertPlayerRequest = z.infer<typeof insertPlayerRequestSchema>;
 
 // API response types

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Film, Clock, Calendar, Star } from "lucide-react";
+import { Search, Film, Clock, Calendar, Star, Bookmark, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,6 +205,47 @@ export default function MovieLibraryPage() {
                   >
                     {movie.title}
                   </h3>
+                  
+                  {/* Action buttons above synopsis */}
+                  <div className="flex items-center gap-1 mt-2">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      data-testid={`button-bookmark-${movie.id}`}
+                    >
+                      <Bookmark className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      data-testid={`button-like-${movie.id}`}
+                    >
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7 rounded-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      data-testid={`button-dislike-${movie.id}`}
+                    >
+                      <ThumbsDown className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                  
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                     {movie.description}
                   </p>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Play, Info, Plus, Bookmark, X } from 'lucide-react';
+import { Play, Info, Plus, Bookmark, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -84,6 +84,40 @@ function MovieCard({ movie, onClick, onRemove }: MovieCardProps) {
           <X className="h-4 w-4 mr-2" />
           Remove from Queue
         </Button>
+        
+        {/* Action buttons above synopsis */}
+        <div className="flex items-center gap-2 mb-3">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(e);
+            }}
+            data-testid="button-bookmark-synopsis"
+          >
+            <Bookmark className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full"
+            onClick={(e) => e.stopPropagation()}
+            data-testid="button-like"
+          >
+            <ThumbsUp className="h-4 w-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full"
+            onClick={(e) => e.stopPropagation()}
+            data-testid="button-dislike"
+          >
+            <ThumbsDown className="h-4 w-4" />
+          </Button>
+        </div>
         
         <p className="text-base text-muted-foreground line-clamp-3">
           {movie.description || "No synopsis available for this movie."}
