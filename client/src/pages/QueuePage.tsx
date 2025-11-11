@@ -196,10 +196,16 @@ export default function QueuePage() {
             <p className="text-muted-foreground mb-6">
               Start adding movies you want to watch to build your personal queue
             </p>
-            <Button onClick={() => setLocation('/')} data-testid="button-browse-movies">
-              <Play className="h-4 w-4 mr-2" />
-              Browse Movies
-            </Button>
+            <button 
+              className="gradient-border-button"
+              onClick={() => setLocation('/')} 
+              data-testid="button-browse-movies"
+            >
+              <span className="gradient-border-content">
+                <Play className="h-3.5 w-3.5 mr-1.5" />
+                <span>Browse Movies</span>
+              </span>
+            </button>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
