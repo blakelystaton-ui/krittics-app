@@ -66,7 +66,7 @@ export function Header() {
             <button className="gradient-border-button">
               <span className="gradient-border-content">
                 <Bookmark className="h-3.5 w-3.5 mr-1.5" />
-                <span>My Watch List</span>
+                <span>Queue</span>
               </span>
             </button>
           </Link>
