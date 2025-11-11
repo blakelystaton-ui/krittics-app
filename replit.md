@@ -13,10 +13,11 @@ Krittics is an immersive movie trivia platform that combines cinematic experienc
 The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadcn/ui) and an **Express.js** backend (TypeScript). Data persistence uses **PostgreSQL** with **Drizzle ORM** for core application data (users, movies, games) and **Firebase Firestore** for real-time multiplayer features (rooms, chat). **Google Gemini 2.5 Flash** (via Replit AI Integrations) is used for AI-powered trivia generation. **TanStack Query v5** manages frontend data fetching, and **Wouter** handles client-side routing.
 
 ### UI/UX Decisions
-- **Netflix-style Browse Page**: Features an auto-rotating hero carousel, dynamic color theming based on featured movies, horizontal scrolling content rows, and movie cards with hover effects.
+- **Netflix-style Browse Page**: Features an auto-rotating hero carousel with 2.5-second crossfade transitions, dynamic color theming based on featured movies, carousel indicators positioned above content sections, horizontal scrolling content rows, and movie cards with hover effects.
+- **Queue Page**: Personal watchlist where users can manage movies they want to watch, featuring a teal gradient hero section and grid layout for saved movies.
 - **Dynamic Color Theming**: Movies influence the UI's accent colors for buttons, badges, and text, with smooth transitions.
 - **Responsive Design**: Mobile-first approach with smooth momentum scrolling on touch devices.
-- **Header Authentication UI**: Avatar with dropdown for logged-in users, sign-in button otherwise, integrated with Replit Auth.
+- **Header Navigation**: Browse, Krossfire, and Queue buttons with teal gradient aesthetic. Avatar with dropdown (Help, Sign Out) for logged-in users, sign-in button otherwise, integrated with Replit Auth.
 
 ### Technical Implementations
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.

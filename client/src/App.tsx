@@ -10,6 +10,7 @@ import HomePage from "@/pages/HomePage";
 import BrowsePage from "@/pages/BrowsePage";
 import KrossfirePage from "@/pages/KrossfirePage";
 import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
+import QueuePage from "@/pages/QueuePage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/player" component={HomePage} />
       <Route path="/krossfire" component={KrossfirePage} />
       <Route path="/private-rooms" component={PrivateRoomsPage} />
+      <Route path="/watchlist" component={QueuePage} />
       <Route component={NotFound} />
     </Switch>
   );
