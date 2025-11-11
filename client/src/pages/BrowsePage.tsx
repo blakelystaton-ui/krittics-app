@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Info, ChevronLeft, ChevronRight, Plus, Bookmark, Check } from 'lucide-react';
+import { Play, Info, ChevronLeft, ChevronRight, Plus, Bookmark, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { Movie } from '@shared/schema';
@@ -422,6 +422,53 @@ export default function BrowsePage() {
             >
               {hero.title}
             </h1>
+            
+            {/* Action buttons above synopsis */}
+            <div className="flex items-center gap-2 mb-3">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9 rounded-full backdrop-blur-md"
+                style={{
+                  backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
+                  borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToQueue(hero.id)(e);
+                }}
+                data-testid="button-hero-bookmark"
+              >
+                {queueMovieIds.has(hero.id) ? <Check className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9 rounded-full backdrop-blur-md"
+                style={{
+                  backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
+                  borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
+                }}
+                onClick={(e) => e.stopPropagation()}
+                data-testid="button-hero-like"
+              >
+                <ThumbsUp className="h-5 w-5" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9 rounded-full backdrop-blur-md"
+                style={{
+                  backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
+                  borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
+                }}
+                onClick={(e) => e.stopPropagation()}
+                data-testid="button-hero-dislike"
+              >
+                <ThumbsDown className="h-5 w-5" />
+              </Button>
+            </div>
+            
             <p className="text-base md:text-lg text-foreground/90 mb-6 line-clamp-3 drop-shadow-lg">
               {hero.description}
             </p>
