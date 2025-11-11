@@ -13,7 +13,7 @@ interface MovieCardProps {
 function MovieCard({ movie, onClick }: MovieCardProps) {
   return (
     <div 
-      className="group relative flex-shrink-0 w-[280px] cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10"
+      className="group relative flex-shrink-0 w-[350px] cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10"
       onClick={onClick}
       data-testid={`queue-movie-card-${movie.id}`}
     >
@@ -118,7 +118,10 @@ export default function QueuePage() {
             </Button>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4">
+          <div 
+            className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll pb-4"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {movies.map((movie) => (
               <MovieCard 
                 key={movie.id} 
