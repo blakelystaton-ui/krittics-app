@@ -22,6 +22,7 @@ import {
   leaderboardEntries,
   friendships,
   friendInteractions,
+  watchlist,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -61,6 +62,12 @@ export interface IStorage {
   searchUsers(query: string, excludeUserId?: string): Promise<User[]>;
   addFriend(userId: string, friendId: string): Promise<Friendship>;
   trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void>;
+
+  // Watchlist
+  addToWatchlist(userId: string, movieId: string): Promise<void>;
+  removeFromWatchlist(userId: string, movieId: string): Promise<void>;
+  getWatchlistByUser(userId: string): Promise<Movie[]>;
+  isInWatchlist(userId: string, movieId: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -212,6 +219,23 @@ export class MemStorage implements IStorage {
 
   async trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void> {
     throw new Error("MemStorage does not support friend operations");
+  }
+
+  // Watchlist (stub - not implemented for in-memory)
+  async addToWatchlist(userId: string, movieId: string): Promise<void> {
+    throw new Error("MemStorage does not support watchlist operations");
+  }
+
+  async removeFromWatchlist(userId: string, movieId: string): Promise<void> {
+    throw new Error("MemStorage does not support watchlist operations");
+  }
+
+  async getWatchlistByUser(userId: string): Promise<Movie[]> {
+    throw new Error("MemStorage does not support watchlist operations");
+  }
+
+  async isInWatchlist(userId: string, movieId: string): Promise<boolean> {
+    throw new Error("MemStorage does not support watchlist operations");
   }
 
   // Leaderboard
@@ -560,6 +584,64 @@ export class DatabaseStorage implements IStorage {
         interactionCount: 1,
       });
     }
+  }
+
+  // Watchlist operations
+  async addToWatchlist(userId: string, movieId: string): Promise<void> {
+    await db
+      .insert(watchlist)
+      .values({
+        userId,
+        movieId,
+      })
+      .onConflictDoNothing();
+  }
+
+  async removeFromWatchlist(userId: string, movieId: string): Promise<void> {
+    await db
+      .delete(watchlist)
+      .where(
+        and(
+          eq(watchlist.userId, userId),
+          eq(watchlist.movieId, movieId)
+        )
+      );
+  }
+
+  async getWatchlistByUser(userId: string): Promise<Movie[]> {
+    const result = await db
+      .select({
+        id: movies.id,
+        title: movies.title,
+        description: movies.description,
+        duration: movies.duration,
+        genre: movies.genre,
+        year: movies.year,
+        rating: movies.rating,
+        posterUrl: movies.posterUrl,
+        videoUrl: movies.videoUrl,
+      })
+      .from(watchlist)
+      .innerJoin(movies, eq(watchlist.movieId, movies.id))
+      .where(eq(watchlist.userId, userId))
+      .orderBy(desc(watchlist.addedAt));
+
+    return result;
+  }
+
+  async isInWatchlist(userId: string, movieId: string): Promise<boolean> {
+    const result = await db
+      .select()
+      .from(watchlist)
+      .where(
+        and(
+          eq(watchlist.userId, userId),
+          eq(watchlist.movieId, movieId)
+        )
+      )
+      .limit(1);
+
+    return result.length > 0;
   }
 }
 

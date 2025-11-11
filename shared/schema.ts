@@ -112,6 +112,14 @@ export const videoProgress = pgTable("video_progress", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Watchlist table (user's saved movies/queue)
+export const watchlist = pgTable("watchlist", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  movieId: varchar("movie_id").references(() => movies.id).notNull(),
+  addedAt: timestamp("added_at").defaultNow(),
+});
+
 // Friendships table
 export const friendships = pgTable("friendships", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -196,6 +204,11 @@ export const insertVideoProgressSchema = createInsertSchema(videoProgress).omit(
   updatedAt: true,
 });
 
+export const insertWatchlistSchema = createInsertSchema(watchlist).omit({
+  id: true,
+  addedAt: true,
+});
+
 export const insertFriendshipSchema = createInsertSchema(friendships).omit({
   id: true,
   createdAt: true,
@@ -222,6 +235,7 @@ export type Achievement = typeof achievements.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;
 export type LeaderboardEntry = typeof leaderboardEntries.$inferSelect;
 export type VideoProgress = typeof videoProgress.$inferSelect;
+export type Watchlist = typeof watchlist.$inferSelect;
 export type Friendship = typeof friendships.$inferSelect;
 export type FriendInteraction = typeof friendInteractions.$inferSelect;
 export type PlayerRequest = typeof playerRequests.$inferSelect;
@@ -237,6 +251,7 @@ export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
 export type InsertLeaderboardEntry = z.infer<typeof insertLeaderboardEntrySchema>;
 export type InsertVideoProgress = z.infer<typeof insertVideoProgressSchema>;
+export type InsertWatchlist = z.infer<typeof insertWatchlistSchema>;
 export type InsertFriendship = z.infer<typeof insertFriendshipSchema>;
 export type InsertFriendInteraction = z.infer<typeof insertFriendInteractionSchema>;
 export type InsertPlayerRequest = z.infer<typeof insertPlayerRequestSchema>;

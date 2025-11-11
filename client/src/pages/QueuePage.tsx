@@ -1,16 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Play, Info, Plus, Bookmark } from 'lucide-react';
+import { Play, Info, Plus, Bookmark, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import type { Movie } from '@shared/schema';
 
 interface MovieCardProps {
   movie: Movie;
   onClick: () => void;
+  onRemove: (e: React.MouseEvent) => void;
 }
 
-function MovieCard({ movie, onClick }: MovieCardProps) {
+function MovieCard({ movie, onClick, onRemove }: MovieCardProps) {
   return (
     <div 
       className="group flex gap-6 cursor-pointer transition-all duration-300 hover-elevate p-4 rounded-lg"
@@ -34,14 +37,26 @@ function MovieCard({ movie, onClick }: MovieCardProps) {
           
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-            <Button size="icon" variant="default" className="rounded-full" data-testid="button-play-queue">
+            <Button 
+              size="icon" 
+              variant="default" 
+              className="rounded-full" 
+              data-testid="button-play-queue"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+            >
               <Play className="h-5 w-5" />
             </Button>
-            <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-remove-queue">
-              <Bookmark className="h-5 w-5 fill-current" />
-            </Button>
-            <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-info-queue">
-              <Info className="h-5 w-5" />
+            <Button 
+              size="icon" 
+              variant="destructive" 
+              className="rounded-full" 
+              data-testid="button-remove-queue"
+              onClick={onRemove}
+            >
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
@@ -57,6 +72,19 @@ function MovieCard({ movie, onClick }: MovieCardProps) {
           {movie.genre && <Badge variant="outline" className="text-sm">{movie.genre}</Badge>}
           {movie.rating && <Badge variant="secondary">{movie.rating}</Badge>}
         </div>
+        
+        {/* Remove from Queue Button */}
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-fit mb-4 teal-gradient-bg border-0 text-foreground hover:opacity-90"
+          onClick={onRemove}
+          data-testid="button-remove-from-queue"
+        >
+          <X className="h-4 w-4 mr-2" />
+          Remove from Queue
+        </Button>
+        
         <p className="text-base text-muted-foreground line-clamp-3">
           {movie.description || "No synopsis available for this movie."}
         </p>
@@ -67,14 +95,41 @@ function MovieCard({ movie, onClick }: MovieCardProps) {
 
 export default function QueuePage() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
-  // Fetch movies from API
+  // Fetch user's watchlist
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
-    queryKey: ['/api/movies'],
+    queryKey: ['/api/watchlist'],
+  });
+
+  // Remove from watchlist mutation
+  const removeFromWatchlist = useMutation({
+    mutationFn: async (movieId: string) => {
+      return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+      toast({
+        title: "Removed from Queue",
+        description: "Movie has been removed from your queue",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove movie from queue",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleMovieClick = (movie: Movie) => {
     setLocation(`/player?movieId=${movie.id}`);
+  };
+
+  const handleRemove = (movieId: string) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeFromWatchlist.mutate(movieId);
   };
 
   if (isLoading) {
@@ -131,6 +186,7 @@ export default function QueuePage() {
                 key={movie.id} 
                 movie={movie} 
                 onClick={() => handleMovieClick(movie)}
+                onRemove={handleRemove(movie.id)}
               />
             ))}
           </div>

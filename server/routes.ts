@@ -329,6 +329,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GET /api/watchlist - Get user's watchlist
+  app.get("/api/watchlist", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const watchlist = await storage.getWatchlistByUser(userId);
+      res.json(watchlist);
+    } catch (error) {
+      console.error("Error fetching watchlist:", error);
+      res.status(500).json({ error: "Failed to fetch watchlist" });
+    }
+  });
+
+  // POST /api/watchlist/:movieId - Add movie to watchlist
+  app.post("/api/watchlist/:movieId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { movieId } = req.params;
+
+      await storage.addToWatchlist(userId, movieId);
+      res.json({ success: true, message: "Movie added to watchlist" });
+    } catch (error) {
+      console.error("Error adding to watchlist:", error);
+      res.status(500).json({ error: "Failed to add to watchlist" });
+    }
+  });
+
+  // DELETE /api/watchlist/:movieId - Remove movie from watchlist
+  app.delete("/api/watchlist/:movieId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { movieId } = req.params;
+
+      await storage.removeFromWatchlist(userId, movieId);
+      res.json({ success: true, message: "Movie removed from watchlist" });
+    } catch (error) {
+      console.error("Error removing from watchlist:", error);
+      res.status(500).json({ error: "Failed to remove from watchlist" });
+    }
+  });
+
+  // GET /api/watchlist/:movieId/status - Check if movie is in watchlist
+  app.get("/api/watchlist/:movieId/status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { movieId } = req.params;
+
+      const inWatchlist = await storage.isInWatchlist(userId, movieId);
+      res.json({ inWatchlist });
+    } catch (error) {
+      console.error("Error checking watchlist status:", error);
+      res.status(500).json({ error: "Failed to check watchlist status" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
