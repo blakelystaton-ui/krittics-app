@@ -102,24 +102,46 @@ export default function QueuePage() {
     queryKey: ['/api/watchlist'],
   });
 
-  // Remove from watchlist mutation
+  // Remove from watchlist mutation with optimistic updates
   const removeFromWatchlist = useMutation({
     mutationFn: async (movieId: string) => {
       return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+    onMutate: async (movieId) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['/api/watchlist'] });
+      
+      // Snapshot the previous value
+      const previousWatchlist = queryClient.getQueryData<Movie[]>(['/api/watchlist']);
+      
+      // Optimistically remove from the list
+      queryClient.setQueryData<Movie[]>(['/api/watchlist'], (old = []) => {
+        return old.filter(movie => movie.id !== movieId);
+      });
+      
+      // Show toast immediately
       toast({
         title: "Removed from Queue",
         description: "Movie has been removed from your queue",
       });
+      
+      // Return context with the snapshot
+      return { previousWatchlist };
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      // Rollback to the previous value on error
+      if (context?.previousWatchlist) {
+        queryClient.setQueryData(['/api/watchlist'], context.previousWatchlist);
+      }
       toast({
         title: "Error",
-        description: "Failed to remove movie from queue",
+        description: "Failed to remove movie from queue. Changes have been reverted.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency with server
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
     },
   });
 

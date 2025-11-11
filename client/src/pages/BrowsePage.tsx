@@ -259,7 +259,7 @@ export default function BrowsePage() {
     return new Set(watchlistMovies.map(m => m.id));
   }, [watchlistMovies]);
 
-  // Add/Remove from watchlist mutation
+  // Add/Remove from watchlist mutation with optimistic updates
   const toggleWatchlist = useMutation({
     mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean }) => {
       if (inQueue) {
@@ -268,19 +268,51 @@ export default function BrowsePage() {
         return await apiRequest('POST', `/api/watchlist/${movieId}`);
       }
     },
-    onSuccess: (_, { inQueue }) => {
-      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+    onMutate: async ({ movieId, inQueue }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['/api/watchlist'] });
+      
+      // Snapshot the previous value
+      const previousWatchlist = queryClient.getQueryData<Movie[]>(['/api/watchlist']);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData<Movie[]>(['/api/watchlist'], (old = []) => {
+        if (inQueue) {
+          // Remove from queue
+          return old.filter(movie => movie.id !== movieId);
+        } else {
+          // Add to queue - find the movie from the movies list
+          const movieToAdd = movies.find(m => m.id === movieId);
+          if (movieToAdd && !old.some(m => m.id === movieId)) {
+            return [...old, movieToAdd];
+          }
+          return old;
+        }
+      });
+      
+      // Show toast immediately
       toast({
         title: inQueue ? "Removed from Queue" : "Added to Queue",
         description: inQueue ? "Movie has been removed from your queue" : "Movie has been added to your queue",
       });
+      
+      // Return context with the snapshot
+      return { previousWatchlist };
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      // Rollback to the previous value on error
+      if (context?.previousWatchlist) {
+        queryClient.setQueryData(['/api/watchlist'], context.previousWatchlist);
+      }
       toast({
         title: "Error",
-        description: "Failed to update queue",
+        description: "Failed to update queue. Changes have been reverted.",
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency with server
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
     },
   });
 
