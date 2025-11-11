@@ -123,6 +123,7 @@ export default function QueuePage() {
       toast({
         title: "Removed from Queue",
         description: "Movie has been removed from your queue",
+        duration: 1000,
       });
       
       // Return context with the snapshot
@@ -137,6 +138,7 @@ export default function QueuePage() {
         title: "Error",
         description: "Failed to remove movie from queue. Changes have been reverted.",
         variant: "destructive",
+        duration: 1000,
       });
     },
     onSettled: () => {

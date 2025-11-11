@@ -294,6 +294,7 @@ export default function BrowsePage() {
       toast({
         title: inQueue ? "Removed from Queue" : "Added to Queue",
         description: inQueue ? "Movie has been removed from your queue" : "Movie has been added to your queue",
+        duration: 1000,
       });
       
       // Return context with the snapshot
@@ -308,6 +309,7 @@ export default function BrowsePage() {
         title: "Error",
         description: "Failed to update queue. Changes have been reverted.",
         variant: "destructive",
+        duration: 1000,
       });
     },
     onSettled: () => {
