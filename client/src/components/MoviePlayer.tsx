@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -237,6 +237,38 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
             }}
           >
             <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
+            
+            {/* Action buttons above synopsis */}
+            <div className="flex items-center gap-2 mb-3">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 rounded-full"
+                onClick={(e) => e.stopPropagation()}
+                data-testid="button-bookmark-player"
+              >
+                <Bookmark className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 rounded-full"
+                onClick={(e) => e.stopPropagation()}
+                data-testid="button-like-player"
+              >
+                <ThumbsUp className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 rounded-full"
+                onClick={(e) => e.stopPropagation()}
+                data-testid="button-dislike-player"
+              >
+                <ThumbsDown className="h-4 w-4" />
+              </Button>
+            </div>
+            
             <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
           </div>
         )}
