@@ -261,14 +261,14 @@ export default function BrowsePage() {
 
   // Add/Remove from watchlist mutation with optimistic updates
   const toggleWatchlist = useMutation({
-    mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean }) => {
+    mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean; movie?: Movie }) => {
       if (inQueue) {
         return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
       } else {
         return await apiRequest('POST', `/api/watchlist/${movieId}`);
       }
     },
-    onMutate: async ({ movieId, inQueue }) => {
+    onMutate: async ({ movieId, inQueue, movie: passedMovie }) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['/api/watchlist'] });
       
@@ -281,8 +281,8 @@ export default function BrowsePage() {
           // Remove from queue
           return old.filter(movie => movie.id !== movieId);
         } else {
-          // Add to queue - find the movie from the movies list
-          const movieToAdd = movies.find(m => m.id === movieId);
+          // Add to queue - use passed movie object or find from movies list
+          const movieToAdd = passedMovie || movies.find(m => m.id === movieId);
           if (movieToAdd && !old.some(m => m.id === movieId)) {
             return [...old, movieToAdd];
           }
@@ -355,10 +355,10 @@ export default function BrowsePage() {
     setLocation(`/player?movieId=${movie.id}`);
   };
 
-  const handleAddToQueue = (movieId: string) => (e: React.MouseEvent) => {
+  const handleAddToQueue = (movieId: string, movie?: Movie) => (e: React.MouseEvent) => {
     e.stopPropagation();
     const inQueue = queueMovieIds.has(movieId);
-    toggleWatchlist.mutate({ movieId, inQueue });
+    toggleWatchlist.mutate({ movieId, inQueue, movie });
   };
 
   if (isLoading) {
@@ -375,7 +375,7 @@ export default function BrowsePage() {
   const renderHero = (hero: Movie, dominantColor: ReturnType<typeof getMovieDominantColor>, isVisible: boolean) => (
     <div 
       key={hero.id}
-      className="absolute inset-0 transition-opacity duration-[2500ms] ease-in-out"
+      className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${!isVisible ? 'pointer-events-none' : ''}`}
       style={{ opacity: isVisible ? 1 : 0 }}
     >
       {/* Background Image with Dynamic Color Gradient Overlay */}
@@ -433,10 +433,7 @@ export default function BrowsePage() {
                   backgroundColor: `rgba(${dominantColor.rgb}, 0.15)`,
                   borderColor: `rgba(${dominantColor.rgb}, 0.3)`,
                 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddToQueue(hero.id)(e);
-                }}
+                onClick={handleAddToQueue(hero.id, hero)}
                 data-testid="button-hero-bookmark"
               >
                 {queueMovieIds.has(hero.id) ? <Check className="h-5 w-5" /> : <Bookmark className="h-5 w-5" />}
