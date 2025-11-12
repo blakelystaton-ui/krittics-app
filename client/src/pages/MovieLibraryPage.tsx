@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, Film, Clock, Calendar, Star, Bookmark, ThumbsUp, ThumbsDown } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Search, Film, Clock, Calendar, Star, Bookmark, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,12 +13,15 @@ import {
 } from "@/components/ui/select";
 import type { Movie } from "@shared/schema";
 import { Link } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function MovieLibraryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [genreFilter, setGenreFilter] = useState<string>("");
   const [yearFilter, setYearFilter] = useState<string>("");
   const [ratingFilter, setRatingFilter] = useState<string>("");
+  const { toast } = useToast();
 
   // Build query params
   const params = new URLSearchParams();
@@ -35,6 +38,82 @@ export default function MovieLibraryPage() {
   const { data: movies, isLoading } = useQuery<Movie[]>({
     queryKey: [endpoint],
   });
+
+  // Fetch user's watchlist
+  const { data: watchlistMovies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/watchlist'],
+  });
+
+  // Create a Set of movie IDs in the watchlist for quick lookup
+  const queueMovieIds = useMemo(() => {
+    return new Set(watchlistMovies.map(m => m.id));
+  }, [watchlistMovies]);
+
+  // Add/Remove from watchlist mutation with optimistic updates
+  const toggleWatchlist = useMutation({
+    mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean }) => {
+      if (inQueue) {
+        return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
+      } else {
+        return await apiRequest('POST', `/api/watchlist/${movieId}`);
+      }
+    },
+    onMutate: async ({ movieId, inQueue }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['/api/watchlist'] });
+      
+      // Snapshot the previous value
+      const previousWatchlist = queryClient.getQueryData<Movie[]>(['/api/watchlist']);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData<Movie[]>(['/api/watchlist'], (old = []) => {
+        if (inQueue) {
+          // Remove from queue
+          return old.filter(movie => movie.id !== movieId);
+        } else {
+          // Add to queue - find the movie from the movies list
+          const movieToAdd = movies?.find(m => m.id === movieId);
+          if (movieToAdd && !old.some(m => m.id === movieId)) {
+            return [...old, movieToAdd];
+          }
+          return old;
+        }
+      });
+      
+      // Show toast immediately
+      toast({
+        title: inQueue ? "Removed from Queue" : "Added to Queue",
+        description: inQueue ? "Movie has been removed from your queue" : "Movie has been added to your queue",
+        duration: 1000,
+      });
+      
+      // Return context with the snapshot
+      return { previousWatchlist };
+    },
+    onError: (err, variables, context) => {
+      // Rollback to the previous value on error
+      if (context?.previousWatchlist) {
+        queryClient.setQueryData(['/api/watchlist'], context.previousWatchlist);
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update queue. Changes have been reverted.",
+        variant: "destructive",
+        duration: 1000,
+      });
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency with server
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+    },
+  });
+
+  const handleAddToQueue = (movieId: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const inQueue = queueMovieIds.has(movieId);
+    toggleWatchlist.mutate({ movieId, inQueue });
+  };
 
   // Extract unique values for filters
   const allMovies = movies || [];
@@ -195,6 +274,21 @@ export default function MovieLibraryPage() {
                       {movie.rating}
                     </div>
                   )}
+                  
+                  {/* Bookmark button - bottom right */}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute bottom-2 right-2 h-10 w-10 rounded-full bg-background/90 backdrop-blur-sm hover:bg-background"
+                    onClick={handleAddToQueue(movie.id)}
+                    data-testid={`button-bookmark-${movie.id}`}
+                  >
+                    {queueMovieIds.has(movie.id) ? (
+                      <Check className="h-5 w-5 text-primary" />
+                    ) : (
+                      <Bookmark className="h-5 w-5" />
+                    )}
+                  </Button>
                 </div>
 
                 {/* Movie Info */}
@@ -205,46 +299,6 @@ export default function MovieLibraryPage() {
                   >
                     {movie.title}
                   </h3>
-                  
-                  {/* Action buttons */}
-                  <div className="flex items-center gap-1 mt-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 rounded-full"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      data-testid={`button-bookmark-${movie.id}`}
-                    >
-                      <Bookmark className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 rounded-full"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      data-testid={`button-like-${movie.id}`}
-                    >
-                      <ThumbsUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 rounded-full"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      data-testid={`button-dislike-${movie.id}`}
-                    >
-                      <ThumbsDown className="h-4 w-4" />
-                    </Button>
-                  </div>
                   
                   <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
                     {movie.description}
