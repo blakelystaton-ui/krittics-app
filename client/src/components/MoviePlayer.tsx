@@ -1,26 +1,42 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import type { Movie } from "@shared/schema";
+import { useReactions } from "@/lib/reactions";
+import { useToast } from "@/hooks/use-toast";
 
 interface MoviePlayerProps {
   movie: Movie;
   onTriviaReady: () => void;
+  inQueue?: boolean;
+  onToggleQueue?: () => void;
 }
 
-export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
+export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQueue }: MoviePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(movie.duration || 0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
+  const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
+  const { toast } = useToast();
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // Load user's reaction for this movie
+  useEffect(() => {
+    const loadReaction = async () => {
+      const reaction = await getReaction(movie.id);
+      setCurrentReaction(reaction);
+    };
+    loadReaction();
+  }, [movie.id, getReaction]);
 
   // Show trivia notification when 95% complete
   useEffect(() => {
@@ -28,6 +44,101 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
       setShowTriviaNotification(true);
     }
   }, [progress, showTriviaNotification]);
+
+  // Handler for bookmark button
+  const handleBookmark = () => {
+    if (onToggleQueue) {
+      onToggleQueue();
+    }
+  };
+
+  // Handler for like button
+  const handleLike = async () => {
+    if (!isFirebaseConfigured) {
+      toast({
+        title: "Feature unavailable",
+        description: "Firebase not configured. Reactions cannot be saved.",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    try {
+      if (currentReaction === "like") {
+        // Remove like
+        const success = await removeReaction(movie.id);
+        if (success) {
+          setCurrentReaction(null);
+          toast({
+            title: "Reaction removed",
+            duration: 1000,
+          });
+        }
+      } else {
+        // Add like
+        const success = await saveReaction(movie.id, "like");
+        if (success) {
+          setCurrentReaction("like");
+          toast({
+            title: "Liked",
+            duration: 1000,
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save reaction",
+        variant: "destructive",
+        duration: 1000,
+      });
+    }
+  };
+
+  // Handler for dislike button
+  const handleDislike = async () => {
+    if (!isFirebaseConfigured) {
+      toast({
+        title: "Feature unavailable",
+        description: "Firebase not configured. Reactions cannot be saved.",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    try {
+      if (currentReaction === "dislike") {
+        // Remove dislike
+        const success = await removeReaction(movie.id);
+        if (success) {
+          setCurrentReaction(null);
+          toast({
+            title: "Reaction removed",
+            duration: 1000,
+          });
+        }
+      } else {
+        // Add dislike
+        const success = await saveReaction(movie.id, "dislike");
+        if (success) {
+          setCurrentReaction("dislike");
+          toast({
+            title: "Disliked",
+            duration: 1000,
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save reaction",
+        variant: "destructive",
+        duration: 1000,
+      });
+    }
+  };
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -242,28 +353,28 @@ export function MoviePlayer({ movie, onTriviaReady }: MoviePlayerProps) {
                 size="icon"
                 variant="ghost"
                 className="h-10 w-10 rounded-full"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleBookmark}
                 data-testid="button-bookmark-player"
               >
-                <Bookmark className="h-5 w-5" />
+                {inQueue ? <Check className="h-5 w-5 text-primary" /> : <Bookmark className="h-5 w-5" />}
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
                 className="h-10 w-10 rounded-full"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleLike}
                 data-testid="button-like-player"
               >
-                <ThumbsUp className="h-5 w-5" />
+                <ThumbsUp className={`h-5 w-5 ${currentReaction === "like" ? "fill-primary text-primary" : ""}`} />
               </Button>
               <Button
                 size="icon"
                 variant="ghost"
                 className="h-10 w-10 rounded-full"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleDislike}
                 data-testid="button-dislike-player"
               >
-                <ThumbsDown className="h-5 w-5" />
+                <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
               </Button>
             </div>
             

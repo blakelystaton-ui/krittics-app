@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { MoviePlayer } from "@/components/MoviePlayer";
 import { DeepDiveTrivia } from "@/components/DeepDiveTrivia";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { Movie, GeneratedTriviaQuestion } from "@shared/schema";
 
 export default function HomePage() {
@@ -12,6 +13,7 @@ export default function HomePage() {
   const [triviaQuestions, setTriviaQuestions] = useState<GeneratedTriviaQuestion[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Get movieId from URL params (use window.location.search for query params)
   const params = new URLSearchParams(window.location.search);
@@ -20,6 +22,65 @@ export default function HomePage() {
   // Fetch movies from API
   const { data: movies, isLoading: moviesLoading } = useQuery<Movie[]>({
     queryKey: ["/api/movies"],
+  });
+
+  // Fetch user's watchlist
+  const { data: watchlistMovies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/watchlist'],
+  });
+
+  // Create a Set of movie IDs in the watchlist for quick lookup
+  const queueMovieIds = useMemo(() => {
+    return new Set(watchlistMovies.map(m => m.id));
+  }, [watchlistMovies]);
+
+  // Add/Remove from watchlist mutation with optimistic updates
+  const toggleWatchlist = useMutation({
+    mutationFn: async ({ movieId, inQueue }: { movieId: string; inQueue: boolean }) => {
+      if (inQueue) {
+        return await apiRequest('DELETE', `/api/watchlist/${movieId}`);
+      } else {
+        return await apiRequest('POST', `/api/watchlist/${movieId}`);
+      }
+    },
+    onMutate: async ({ movieId, inQueue }) => {
+      await queryClient.cancelQueries({ queryKey: ['/api/watchlist'] });
+      const previousWatchlist = queryClient.getQueryData<Movie[]>(['/api/watchlist']);
+      
+      queryClient.setQueryData<Movie[]>(['/api/watchlist'], (old = []) => {
+        if (inQueue) {
+          return old.filter(movie => movie.id !== movieId);
+        } else {
+          const movieToAdd = movies?.find(m => m.id === movieId);
+          if (movieToAdd && !old.some(m => m.id === movieId)) {
+            return [...old, movieToAdd];
+          }
+          return old;
+        }
+      });
+      
+      toast({
+        title: inQueue ? "Removed from Queue" : "Added to Queue",
+        description: inQueue ? "Movie has been removed from your queue" : "Movie has been added to your queue",
+        duration: 1000,
+      });
+      
+      return { previousWatchlist };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousWatchlist) {
+        queryClient.setQueryData(['/api/watchlist'], context.previousWatchlist);
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update queue. Changes have been reverted.",
+        variant: "destructive",
+        duration: 1000,
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlist'] });
+    },
   });
 
   // Select movie based on URL param or use first movie
@@ -88,6 +149,13 @@ export default function HomePage() {
     setError(null);
   };
 
+  const handleToggleQueue = () => {
+    if (selectedMovie) {
+      const inQueue = queueMovieIds.has(selectedMovie.id);
+      toggleWatchlist.mutate({ movieId: selectedMovie.id, inQueue });
+    }
+  };
+
   if (moviesLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -107,7 +175,12 @@ export default function HomePage() {
             <h2 className="mb-6 font-display text-3xl font-bold text-foreground">
               Now Playing
             </h2>
-            <MoviePlayer movie={selectedMovie} onTriviaReady={handleTriviaReady} />
+            <MoviePlayer 
+              movie={selectedMovie} 
+              onTriviaReady={handleTriviaReady}
+              inQueue={queueMovieIds.has(selectedMovie.id)}
+              onToggleQueue={handleToggleQueue}
+            />
           </div>
         ) : (
           <div className="py-8">

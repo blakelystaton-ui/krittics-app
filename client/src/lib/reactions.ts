@@ -1,5 +1,6 @@
 import { useFirebase } from "./firebase";
 import { doc, setDoc, deleteDoc, getDoc } from "firebase/firestore";
+import { useCallback } from "react";
 
 export type ReactionType = "like" | "dislike";
 
@@ -16,10 +17,10 @@ export interface UserReaction {
 export function useReactions() {
   const { db, userId, isFirebaseConfigured } = useFirebase();
 
-  const saveReaction = async (movieId: string, type: ReactionType): Promise<void> => {
+  const saveReaction = useCallback(async (movieId: string, type: ReactionType): Promise<boolean> => {
     if (!isFirebaseConfigured || !db || !userId) {
       console.warn("Firebase not configured. Reaction not saved.");
-      return;
+      return false;
     }
 
     try {
@@ -32,28 +33,30 @@ export function useReactions() {
       };
 
       await setDoc(reactionDoc, reaction);
+      return true;
     } catch (error) {
       console.error("Error saving reaction:", error);
       throw error;
     }
-  };
+  }, [db, userId, isFirebaseConfigured]);
 
-  const removeReaction = async (movieId: string): Promise<void> => {
+  const removeReaction = useCallback(async (movieId: string): Promise<boolean> => {
     if (!isFirebaseConfigured || !db || !userId) {
       console.warn("Firebase not configured. Reaction not removed.");
-      return;
+      return false;
     }
 
     try {
       const reactionDoc = doc(db, "reactions", `${userId}_${movieId}`);
       await deleteDoc(reactionDoc);
+      return true;
     } catch (error) {
       console.error("Error removing reaction:", error);
       throw error;
     }
-  };
+  }, [db, userId, isFirebaseConfigured]);
 
-  const getReaction = async (movieId: string): Promise<ReactionType | null> => {
+  const getReaction = useCallback(async (movieId: string): Promise<ReactionType | null> => {
     if (!isFirebaseConfigured || !db || !userId) {
       return null;
     }
@@ -71,7 +74,7 @@ export function useReactions() {
       console.error("Error getting reaction:", error);
       return null;
     }
-  };
+  }, [db, userId, isFirebaseConfigured]);
 
   return {
     saveReaction,
