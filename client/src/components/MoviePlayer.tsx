@@ -6,6 +6,8 @@ import { Slider } from "@/components/ui/slider";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
+import videojs from 'video.js';
+import 'video.js/dist/video-js.css';
 
 interface MoviePlayerProps {
   movie: Movie;
@@ -23,11 +25,48 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<any>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // Initialize video.js player
+  useEffect(() => {
+    if (!videoRef.current || !movie.videoUrl) return;
+
+    // Initialize video.js player
+    const player = videojs(videoRef.current, {
+      controls: false, // We're using custom controls
+      fluid: true,
+      preload: 'auto',
+    });
+
+    playerRef.current = player;
+
+    // Setup event listeners
+    player.on('play', () => setIsPlaying(true));
+    player.on('pause', () => setIsPlaying(false));
+    player.on('timeupdate', () => {
+      setCurrentTime(player.currentTime() || 0);
+    });
+    player.on('loadedmetadata', () => {
+      setDuration(player.duration() || movie.duration || 0);
+    });
+    player.on('volumechange', () => {
+      setVolume(player.volume() || 0);
+      setIsMuted(player.muted() || false);
+    });
+
+    // Cleanup
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
+    };
+  }, [movie.videoUrl, movie.duration]);
 
   // Load user's reaction for this movie
   useEffect(() => {
@@ -141,7 +180,14 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const togglePlay = () => {
-    if (videoRef.current) {
+    if (playerRef.current) {
+      if (isPlaying) {
+        playerRef.current.pause();
+      } else {
+        playerRef.current.play();
+      }
+    } else if (videoRef.current) {
+      // Fallback for when video.js isn't initialized (no videoUrl)
       if (isPlaying) {
         videoRef.current.pause();
       } else {
@@ -152,28 +198,33 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const handleTimeUpdate = () => {
-    if (videoRef.current) {
+    if (!playerRef.current && videoRef.current) {
       setCurrentTime(videoRef.current.currentTime);
     }
   };
 
   const handleLoadedMetadata = () => {
-    if (videoRef.current) {
+    if (!playerRef.current && videoRef.current) {
       setDuration(videoRef.current.duration);
     }
   };
 
   const handleSeek = (value: number[]) => {
-    if (videoRef.current) {
-      const newTime = (value[0] / 100) * duration;
+    const newTime = (value[0] / 100) * duration;
+    if (playerRef.current) {
+      playerRef.current.currentTime(newTime);
+    } else if (videoRef.current) {
       videoRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     }
   };
 
   const handleVolumeChange = (value: number[]) => {
-    if (videoRef.current) {
-      const newVolume = value[0] / 100;
+    const newVolume = value[0] / 100;
+    if (playerRef.current) {
+      playerRef.current.volume(newVolume);
+      playerRef.current.muted(newVolume === 0);
+    } else if (videoRef.current) {
       videoRef.current.volume = newVolume;
       setVolume(newVolume);
       setIsMuted(newVolume === 0);
@@ -181,14 +232,22 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
+    if (playerRef.current) {
+      playerRef.current.muted(!playerRef.current.muted());
+    } else if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
   };
 
   const toggleFullscreen = () => {
-    if (videoRef.current) {
+    if (playerRef.current) {
+      if (playerRef.current.isFullscreen()) {
+        playerRef.current.exitFullscreen();
+      } else {
+        playerRef.current.requestFullscreen();
+      }
+    } else if (videoRef.current) {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
@@ -211,11 +270,13 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             <video
               ref={videoRef}
               src={movie.videoUrl}
-              className="h-full w-full"
+              className="video-js vjs-default-skin h-full w-full"
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               data-testid="video-player"
-            />
+            >
+              <source src={movie.videoUrl} type="video/mp4" />
+            </video>
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
               <div className="text-center">
