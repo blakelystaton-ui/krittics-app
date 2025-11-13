@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Movie } from "@shared/schema";
 
 export function Header() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch all movies for search
+  const { data: movies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/movies'],
+    enabled: isSearchOpen,
+  });
+
+  // Filter movies based on search query
+  const filteredMovies = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    movie.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const displayName = user 
     ? (user.firstName && user.lastName 
@@ -27,6 +51,12 @@ export function Header() {
         ? `${user.firstName[0]}${user.lastName[0]}`
         : user.email?.[0]?.toUpperCase() || 'U')
     : 'U';
+
+  const handleMovieClick = (movieId: string) => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setLocation(`/player?movieId=${movieId}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -73,6 +103,18 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Search Icon */}
+          <button 
+            className="gradient-border-button"
+            onClick={() => setIsSearchOpen(true)}
+            data-testid="button-search"
+            aria-label="Search movies"
+          >
+            <span className="gradient-border-content">
+              <Search className="h-3.5 w-3.5" />
+            </span>
+          </button>
+
           {!isLoading && !isAuthenticated && (
             <button 
               className="gradient-border-button"
@@ -124,6 +166,81 @@ export function Header() {
           )}
         </div>
       </div>
+
+      {/* Search Dialog */}
+      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Search Movies</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              type="text"
+              placeholder="Search by title or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+              autoFocus
+              data-testid="input-search"
+            />
+            <div className="max-h-[400px] overflow-y-auto space-y-2">
+              {searchQuery.length > 0 && filteredMovies.length === 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  No movies found matching "{searchQuery}"
+                </p>
+              )}
+              {searchQuery.length === 0 && movies.length > 0 && (
+                <p className="text-center text-muted-foreground py-8">
+                  Start typing to search through {movies.length} movies
+                </p>
+              )}
+              {filteredMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-border hover-elevate cursor-pointer"
+                  onClick={() => handleMovieClick(movie.id)}
+                  data-testid={`search-result-${movie.id}`}
+                >
+                  {movie.posterUrl && (
+                    <img
+                      src={movie.posterUrl}
+                      alt={movie.title}
+                      className="w-16 h-24 object-cover rounded"
+                    />
+                  )}
+                  {!movie.posterUrl && (
+                    <div className="w-16 h-24 bg-muted rounded flex items-center justify-center">
+                      <Tv className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                      {movie.title}
+                      <span className="text-xs text-muted-foreground">
+                        ({movie.year})
+                      </span>
+                    </h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      {movie.description}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
+                        {movie.genre}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+                      </span>
+                    </div>
+                  </div>
+                  <Button size="icon" variant="ghost" className="shrink-0">
+                    <Play className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
