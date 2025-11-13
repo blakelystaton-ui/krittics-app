@@ -83,15 +83,17 @@ export default function HomePage() {
     },
   });
 
-  // Select movie based on URL param or use first movie
+  // Select movie based on URL param or prioritize "The Grand Adventure of Elias"
   let selectedMovie: Movie | undefined;
   
   if (movieIdParam && movies) {
     selectedMovie = movies.find((m) => m.id === movieIdParam);
   }
   
+  // Prioritize "The Grand Adventure of Elias" (has real video for testing)
   if (!selectedMovie && movies && movies.length > 0) {
-    selectedMovie = movies[0];
+    const elias = movies.find((m) => m.id === '46541562-37bd-42d6-a31c-d58960a5b962');
+    selectedMovie = elias || movies[0];
   }
   
   if (!selectedMovie) {
