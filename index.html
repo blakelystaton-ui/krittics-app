@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Krittics AVOD Player</title>
+
+        <link
+            href="https://vjs.zencdn.net/8.10.0/video-js.css"
+            rel="stylesheet"
+        />
+
+        <style>
+            body {
+                background-color: #121212;
+                color: white;
+            }
+            .video-container {
+                max-width: 960px;
+                margin: 50px auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="video-container">
+            <video
+                id="krittics-player"
+                class="video-js vjs-default-skin"
+                controls
+                preload="auto"
+                poster="YOUR_VIDEO_POSTER_IMAGE_URL.jpg"
+                data-setup="{}"
+            >
+                <source
+                    src="https://vjs.zencdn.net/v/oceans.mp4"
+                    type="video/mp4"
+                />
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript, and consider
+                    upgrading to a web browser that
+                    <a
+                        href="https://videojs.com/html5-video-support/"
+                        target="_blank"
+                        >supports HTML5 video</a
+                    >
+                </p>
+            </video>
+        </div>
+
+        <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+
+        <script src="trivia-trigger-plugin.js"></script>
+
+        <script>
+            // *** START OF YOUR KRITTICS LOGIC ***
+
+            // This is the data structure. It SIMULATES data fetched from your Firebase Firestore
+            // for the specific movie being watched.
+            const VIDEO_TRIGGER_POINTS = [
+                {
+                    time: 30, // 30 seconds into the video
+                    type: "ad", // Action: Show an advertisement
+                    data_id: "AD_001", // ID for your AdManager/AdMob call
+                },
+                {
+                    time: 125, // 2 minutes and 5 seconds into the video
+                    type: "trivia", // Action: Show a trivia question
+                    data_id: "Q_987", // ID for your Firebase/Gemini trivia question
+                },
+                {
+                    time: 350,
+                    type: "ad",
+                    data_id: "AD_002",
+                },
+            ];
+
+            // 5. Initialize the Video.js player and pass the trigger data to your plugin
+            const player = videojs("krittics-player", {
+                // Player configuration options go here
+                autoplay: false,
+                fluid: true,
+
+                // *** THIS IS WHERE WE PASS THE DATA TO THE PLUGIN ***
+                plugins: {
+                    // 'triviaTriggerPlugin' is the name we will give our custom plugin
+                    triviaTriggerPlugin: {
+                        triggers: VIDEO_TRIGGER_POINTS, // Passes the array to the plugin
+                    },
+                },
+            });
+
+            // The custom plugin must be initialized, which we will do in Step 2.
+            // For now, this is enough to define the data array and set up the passing mechanism.
+
+            console.log(
+                "Krittics Player Setup Complete. Trigger data defined.",
+            );
+        </script>
+    </body>
+</html>
