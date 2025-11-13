@@ -84,6 +84,20 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   }, [progress, showTriviaNotification]);
 
+  // Simulated playback timer when no actual video exists
+  useEffect(() => {
+    if (!movie.videoUrl && isPlaying && currentTime < duration) {
+      const interval = setInterval(() => {
+        setCurrentTime((prev) => {
+          const newTime = prev + 1;
+          return newTime >= duration ? duration : newTime;
+        });
+      }, 1000); // Increment every second
+
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying, movie.videoUrl, currentTime, duration]);
+
   // Handler for bookmark button
   const handleBookmark = () => {
     if (onToggleQueue) {
@@ -194,6 +208,9 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         videoRef.current.play();
       }
       setIsPlaying(!isPlaying);
+    } else {
+      // Simulated playback when no video element exists (for MVP/testing)
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -216,6 +233,9 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     } else if (videoRef.current) {
       videoRef.current.currentTime = newTime;
       setCurrentTime(newTime);
+    } else {
+      // Simulated seeking when no video element exists
+      setCurrentTime(newTime);
     }
   };
 
@@ -228,6 +248,10 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       videoRef.current.volume = newVolume;
       setVolume(newVolume);
       setIsMuted(newVolume === 0);
+    } else {
+      // Simulated volume control when no video element exists
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
     }
   };
 
@@ -236,6 +260,9 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       playerRef.current.muted(!playerRef.current.muted());
     } else if (videoRef.current) {
       videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    } else {
+      // Simulated mute toggle when no video element exists
       setIsMuted(!isMuted);
     }
   };
