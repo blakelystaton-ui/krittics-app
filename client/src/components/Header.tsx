@@ -105,14 +105,27 @@ export function Header() {
         <div className="flex items-center gap-2">
           {/* Search Icon */}
           <button 
-            className="gradient-border-button"
             onClick={() => setIsSearchOpen(true)}
             data-testid="button-search"
             aria-label="Search movies"
+            className="hover-elevate p-2 rounded-md"
           >
-            <span className="gradient-border-content">
-              <Search className="h-3.5 w-3.5" />
-            </span>
+            <Search 
+              className="h-5 w-5" 
+              style={{
+                stroke: 'url(#searchGradient)',
+                strokeWidth: 2
+              }}
+            />
+            <svg width="0" height="0">
+              <defs>
+                <linearGradient id="searchGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1ba9af" />
+                  <stop offset="50%" stopColor="#2dd4bf" />
+                  <stop offset="100%" stopColor="#1ba9af" />
+                </linearGradient>
+              </defs>
+            </svg>
           </button>
 
           {!isLoading && !isAuthenticated && (
