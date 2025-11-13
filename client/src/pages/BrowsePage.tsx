@@ -318,17 +318,24 @@ export default function BrowsePage() {
     },
   });
 
-  // Hero carousel rotation - randomly select 5 movies each time the app loads
+  // Hero carousel rotation - prioritize "The Grand Adventure of Elias" then random selection
   const featuredMovies = useMemo(() => {
     if (movies.length === 0) return [];
-    // Fisher-Yates shuffle for unbiased random selection
-    const shuffled = [...movies];
+    
+    // Always put "The Grand Adventure of Elias" first (has real video)
+    const elias = movies.find((m) => m.id === '46541562-37bd-42d6-a31c-d58960a5b962');
+    const otherMovies = movies.filter((m) => m.id !== '46541562-37bd-42d6-a31c-d58960a5b962');
+    
+    // Fisher-Yates shuffle for the remaining movies
+    const shuffled = [...otherMovies];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    // Take the first 5 from the shuffled array
-    return shuffled.slice(0, Math.min(5, shuffled.length));
+    
+    // Put Elias first, then take 4 more random movies
+    const featured = elias ? [elias, ...shuffled.slice(0, 4)] : shuffled.slice(0, 5);
+    return featured;
   }, [movies]);
   
   // Reset hero index when featured movies change to prevent out-of-bounds
