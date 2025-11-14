@@ -23,6 +23,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
@@ -59,6 +60,18 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('volumechange', handleVolumeChange);
+    };
+  }, []);
+
+  // Track fullscreen state changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
 
@@ -374,52 +387,95 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         {/* Description/Synopsis Section */}
         {movie.description && (
           <div 
-            className="px-6 pb-6 pt-2"
+            className="px-6 pb-6 pt-2 relative"
             style={{
               background: 'rgb(0, 0, 0)'
             }}
           >
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 rounded-full"
-                onClick={handleBookmark}
-                data-testid="button-bookmark-player"
-              >
-                {inQueue ? <Check className="h-5 w-5 text-primary" /> : <Bookmark className="h-5 w-5" />}
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 rounded-full"
-                onClick={handleLike}
-                data-testid="button-like-player"
-              >
-                <ThumbsUp className={`h-5 w-5 ${currentReaction === "like" ? "fill-primary text-primary" : ""}`} />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 rounded-full"
-                onClick={handleDislike}
-                data-testid="button-dislike-player"
-              >
-                <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
-              </Button>
+            <div className="flex gap-6">
+              {/* Left side: Action buttons and Synopsis */}
+              <div className="flex-1">
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 mb-4">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-full"
+                    onClick={handleBookmark}
+                    data-testid="button-bookmark-player"
+                  >
+                    {inQueue ? <Check className="h-5 w-5 text-primary" /> : <Bookmark className="h-5 w-5" />}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-full"
+                    onClick={handleLike}
+                    data-testid="button-like-player"
+                  >
+                    <ThumbsUp className={`h-5 w-5 ${currentReaction === "like" ? "fill-primary text-primary" : ""}`} />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-full"
+                    onClick={handleDislike}
+                    data-testid="button-dislike-player"
+                  >
+                    <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
+                  </Button>
+                </div>
+                
+                <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
+                <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
+              </div>
+
+              {/* Right side: Trivia notification when NOT in fullscreen */}
+              {showTriviaNotification && !isFullscreen && (
+                <div className="flex-shrink-0">
+                  <Card 
+                    className="p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-72"
+                    style={{
+                      background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
+                      borderColor: '#1ba9af'
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div 
+                        className="rounded-full p-2" 
+                        style={{ 
+                          backgroundColor: '#1ba9af',
+                          boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
+                        }}
+                      >
+                        <Trophy className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">Deep Dive Ready!</h3>
+                        <p className="text-sm text-muted-foreground">Start your trivia challenge</p>
+                        <button
+                          onClick={onTriviaReady}
+                          className="gradient-border-button mt-2"
+                          data-testid="button-start-trivia"
+                        >
+                          <span className="gradient-border-content px-4 py-1.5 text-sm font-medium">
+                            Start Now
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              )}
             </div>
-            
-            <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
-            <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
           </div>
         )}
       </Card>
 
-      {/* Trivia Ready Notification */}
-      {showTriviaNotification && (
+      {/* Trivia Ready Notification - Bottom Right when in fullscreen */}
+      {showTriviaNotification && isFullscreen && (
         <Card 
-          className="absolute -bottom-4 right-4 p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4"
+          className="fixed bottom-4 right-4 p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 z-50"
           style={{
             background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
             borderColor: '#1ba9af'
