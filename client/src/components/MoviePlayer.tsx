@@ -279,6 +279,11 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const toggleFullscreen = () => {
+    // Temporarily commented out to prevent browser security error
+    // Fullscreen requires direct user interaction context
+    // TODO: Re-implement with proper user interaction handling
+    
+    /* 
     if (playerRef.current) {
       if (playerRef.current.isFullscreen()) {
         playerRef.current.exitFullscreen();
@@ -292,6 +297,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         videoRef.current.requestFullscreen();
       }
     }
+    */
   };
 
   const formatTime = (seconds: number) => {
