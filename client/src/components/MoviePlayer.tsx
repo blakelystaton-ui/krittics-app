@@ -52,6 +52,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       controls: false, // We're using custom controls
       fluid: true,
       preload: 'auto',
+      autoplay: false, // Explicitly disable autoplay to prevent browser policy violations
       sources: [{
         src: movie.videoUrl,
         type: 'video/mp4'
