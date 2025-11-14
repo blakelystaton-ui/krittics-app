@@ -36,6 +36,17 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   useEffect(() => {
     if (!videoRef.current || !movie.videoUrl) return;
 
+    // Ensure the element is in the DOM before initializing
+    if (!document.body.contains(videoRef.current)) {
+      return;
+    }
+
+    // Clean up any existing player instance first
+    if (playerRef.current) {
+      playerRef.current.dispose();
+      playerRef.current = null;
+    }
+
     // Initialize video.js player
     const player = videojs(videoRef.current, {
       controls: false, // We're using custom controls
@@ -66,7 +77,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         playerRef.current = null;
       }
     };
-  }, [movie.videoUrl, movie.duration]);
+  }, [movie.id, movie.videoUrl]);
 
   // Load user's reaction for this movie
   useEffect(() => {
@@ -296,10 +307,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
           {movie.videoUrl ? (
             <video
               ref={videoRef}
-              src={movie.videoUrl}
               className="video-js vjs-default-skin h-full w-full"
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
               data-testid="video-player"
             >
               <source src={movie.videoUrl} type="video/mp4" />
