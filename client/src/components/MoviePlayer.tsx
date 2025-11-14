@@ -42,24 +42,46 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     };
     const handlePause = () => setIsPlaying(false);
     const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-    const handleLoadedMetadata = () => setDuration(video.duration);
+    const handleLoadedMetadata = () => {
+      console.log('Video metadata loaded. Duration:', video.duration);
+      setDuration(video.duration);
+    };
     const handleVolumeChange = () => {
       setVolume(video.volume);
       setIsMuted(video.muted);
+    };
+    const handleError = (e: Event) => {
+      console.error('Video error:', e);
+    };
+    const handleLoadedData = () => {
+      console.log('Video data loaded');
     };
 
     video.addEventListener('play', handlePlay);
     video.addEventListener('pause', handlePause);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('loadeddata', handleLoadedData);
     video.addEventListener('volumechange', handleVolumeChange);
+    video.addEventListener('error', handleError);
+
+    // Force the video to load metadata
+    if (video.readyState >= 1) {
+      // Metadata already loaded
+      setDuration(video.duration);
+    } else {
+      // Try to load metadata
+      video.load();
+    }
 
     return () => {
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
       video.removeEventListener('timeupdate', handleTimeUpdate);
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('loadeddata', handleLoadedData);
       video.removeEventListener('volumechange', handleVolumeChange);
+      video.removeEventListener('error', handleError);
     };
   }, []);
 
