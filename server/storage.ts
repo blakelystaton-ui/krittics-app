@@ -121,7 +121,16 @@ export class MemStorage implements IStorage {
 
   async createMovie(insertMovie: InsertMovie): Promise<Movie> {
     const id = randomUUID();
-    const movie: Movie = { ...insertMovie, id };
+    const movie: Movie = { 
+      ...insertMovie, 
+      id,
+      description: insertMovie.description ?? null,
+      genre: insertMovie.genre ?? null,
+      year: insertMovie.year ?? null,
+      rating: insertMovie.rating ?? null,
+      posterUrl: insertMovie.posterUrl ?? null,
+      videoUrl: insertMovie.videoUrl ?? null,
+    };
     this.movies.set(id, movie);
     return movie;
   }
@@ -137,6 +146,10 @@ export class MemStorage implements IStorage {
     const session: GameSession = {
       ...insertSession,
       id,
+      movieId: insertSession.movieId ?? null,
+      status: insertSession.status ?? 'playing',
+      score: insertSession.score ?? 0,
+      totalQuestions: insertSession.totalQuestions ?? 5,
       createdAt: now,
       completedAt: null,
     };
@@ -176,6 +189,7 @@ export class MemStorage implements IStorage {
     const question: TriviaQuestion = {
       ...insertQuestion,
       id,
+      movieId: insertQuestion.movieId ?? null,
       createdAt: new Date(),
     };
     this.triviaQuestions.set(id, question);
@@ -192,6 +206,8 @@ export class MemStorage implements IStorage {
     const answer: Answer = {
       ...insertAnswer,
       id,
+      sessionId: insertAnswer.sessionId ?? null,
+      questionId: insertAnswer.questionId ?? null,
       answeredAt: new Date(),
     };
     this.answers.set(id, answer);
@@ -257,7 +273,7 @@ export class MemStorage implements IStorage {
     const sessions = Array.from(this.gameSessions.values()).filter(
       (s) => {
         if (s.gameMode !== gameMode || s.status !== "completed") return false;
-        if (cutoffDate && s.createdAt < cutoffDate) return false;
+        if (cutoffDate && s.createdAt && s.createdAt < cutoffDate) return false;
         return true;
       }
     );
@@ -316,12 +332,32 @@ export class DatabaseStorage implements IStorage {
 
   // Movies
   async getMovie(id: string): Promise<Movie | undefined> {
-    const result = await db.select().from(movies).where(eq(movies.id, id)).limit(1);
+    const result = await db.select({
+      id: movies.id,
+      title: movies.title,
+      description: movies.description,
+      duration: movies.duration,
+      genre: movies.genre,
+      year: movies.year,
+      rating: movies.rating,
+      posterUrl: movies.posterUrl,
+      videoUrl: movies.videoUrl,
+    }).from(movies).where(eq(movies.id, id)).limit(1);
     return result[0];
   }
 
   async getAllMovies(): Promise<Movie[]> {
-    return await db.select().from(movies);
+    return await db.select({
+      id: movies.id,
+      title: movies.title,
+      description: movies.description,
+      duration: movies.duration,
+      genre: movies.genre,
+      year: movies.year,
+      rating: movies.rating,
+      posterUrl: movies.posterUrl,
+      videoUrl: movies.videoUrl,
+    }).from(movies);
   }
 
   async createMovie(insertMovie: InsertMovie): Promise<Movie> {

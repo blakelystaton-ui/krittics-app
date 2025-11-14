@@ -388,11 +388,13 @@ export default function BrowsePage() {
       {/* Background Image with Dynamic Color Gradient Overlay */}
       <div className="absolute inset-0">
         {hero.posterUrl ? (
-          <img 
-            src={hero.posterUrl} 
-            alt={hero.title}
-            className="h-full w-full object-cover"
-          />
+          <div className="h-full w-full bg-black flex items-center justify-center">
+            <img 
+              src={hero.posterUrl} 
+              alt={hero.title}
+              className="h-full w-full object-contain"
+            />
+          </div>
         ) : (
           <div 
             className="h-full w-full bg-gradient-to-br"
