@@ -385,11 +385,11 @@ export default function BrowsePage() {
       className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${!isVisible ? 'pointer-events-none' : ''}`}
       style={{ opacity: isVisible ? 1 : 0 }}
     >
-      {/* Background Layer - z-0 */}
-      <div className="absolute inset-0 z-0 bg-black" />
+      {/* Background Layer */}
+      <div className="absolute inset-0 bg-black" style={{ zIndex: 0 }} />
       
-      {/* Poster Image Layer - z-[1] */}
-      <div className="absolute inset-0 z-[1]">
+      {/* Poster Image Layer - in front of background */}
+      <div className="absolute inset-0" style={{ zIndex: 1 }}>
         {hero.posterUrl ? (
           <div className="h-full w-full flex items-center justify-center">
             <img 
@@ -408,16 +408,18 @@ export default function BrowsePage() {
         )}
       </div>
       
-      {/* Dynamic themed gradient overlays for readability - z-[2] */}
+      {/* Dynamic themed gradient overlays for readability - in front of poster */}
       <div 
-        className="absolute inset-0 z-[2] hero-gradient-overlay"
+        className="absolute inset-0 hero-gradient-overlay"
         style={{
+          zIndex: 2,
           background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.4) 50%, transparent 100%)`
         }}
       />
       <div 
-        className="absolute inset-0 z-[2] hero-gradient-overlay"
+        className="absolute inset-0 hero-gradient-overlay"
         style={{
+          zIndex: 2,
           background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.3) 40%, transparent 100%)`
         }}
       />
