@@ -79,7 +79,7 @@ async function seed() {
         year: 2017,
         rating: "PG",
         posterUrl: "/posters/agent-327.jpg",
-        videoUrl: "https://archive.org/download/agent327operationbarbershop/agent327.mp4",
+        videoUrl: "https://archive.org/download/agent327operationbarbershop/agent327.webm",
       },
       {
         title: "Caminandes: Llama Drama",
