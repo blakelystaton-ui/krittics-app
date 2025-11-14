@@ -197,14 +197,8 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         await videoRef.current.play();
       }
     } catch (error) {
+      // Log the error but don't show toast - some videos may not be compatible with all browsers
       console.error('Playback error:', error);
-      // Show a toast for user feedback
-      toast({
-        title: "Playback Error",
-        description: "Unable to play video. Please try again.",
-        variant: "destructive",
-        duration: 2000,
-      });
     }
   };
 
