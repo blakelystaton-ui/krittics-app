@@ -388,8 +388,24 @@ export default function BrowsePage() {
       {/* Background Layer */}
       <div className="absolute inset-0 bg-black" style={{ zIndex: 0 }} />
       
-      {/* Poster Image Layer - in front of background */}
-      <div className="absolute inset-0" style={{ zIndex: 1 }}>
+      {/* Gradient overlays - behind the poster */}
+      <div 
+        className="absolute inset-0 hero-gradient-overlay"
+        style={{
+          zIndex: 1,
+          background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.2) 50%, transparent 100%)`
+        }}
+      />
+      <div 
+        className="absolute inset-0 hero-gradient-overlay"
+        style={{
+          zIndex: 1,
+          background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.15) 40%, transparent 100%)`
+        }}
+      />
+      
+      {/* Poster Image Layer - on top of gradients */}
+      <div className="absolute inset-0" style={{ zIndex: 2 }}>
         {hero.posterUrl ? (
           <div className="h-full w-full flex items-center justify-center">
             <img 
@@ -407,22 +423,6 @@ export default function BrowsePage() {
           />
         )}
       </div>
-      
-      {/* Dynamic themed gradient overlays for readability - in front of poster */}
-      <div 
-        className="absolute inset-0 hero-gradient-overlay"
-        style={{
-          zIndex: 2,
-          background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.2) 50%, transparent 100%)`
-        }}
-      />
-      <div 
-        className="absolute inset-0 hero-gradient-overlay"
-        style={{
-          zIndex: 2,
-          background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.15) 40%, transparent 100%)`
-        }}
-      />
 
       {/* Hero Content */}
       <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
