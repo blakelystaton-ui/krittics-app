@@ -74,12 +74,12 @@ async function seed() {
       {
         title: "Agent 327: Operation Barbershop",
         description: "The suave spy Agent 327 investigates a barbershop suspected of being a front for nefarious activities in this action-packed espionage adventure.",
-        duration: 234,
+        duration: 232,
         genre: "Action",
         year: 2017,
         rating: "PG",
         posterUrl: "/posters/agent-327.jpg",
-        videoUrl: "https://archive.org/download/agent-327-operation-barbershop/Agent327OperationBarbershop_4K.mp4",
+        videoUrl: "https://archive.org/download/agent327operationbarbershop/agent327-1080.mp4",
       },
       {
         title: "Caminandes: Llama Drama",
