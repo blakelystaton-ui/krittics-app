@@ -22,6 +22,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [isMuted, setIsMuted] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
+  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
@@ -34,7 +35,10 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     const video = videoRef.current;
     if (!video) return;
 
-    const handlePlay = () => setIsPlaying(true);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setHasStartedPlaying(true);
+    };
     const handlePause = () => setIsPlaying(false);
     const handleTimeUpdate = () => setCurrentTime(video.currentTime);
     const handleLoadedMetadata = () => setDuration(video.duration);
@@ -222,12 +226,28 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       <Card className="overflow-hidden bg-card">
         <div className="relative aspect-video bg-black">
           {movie.videoUrl ? (
-            <video
-              ref={videoRef}
-              src={movie.videoUrl}
-              className="h-full w-full"
-              data-testid="video-player"
-            />
+            <>
+              <video
+                ref={videoRef}
+                src={movie.videoUrl}
+                className="h-full w-full"
+                data-testid="video-player"
+              />
+              
+              {/* Poster Overlay - Shows until video starts playing */}
+              {!hasStartedPlaying && movie.posterUrl && (
+                <div className="absolute inset-0 bg-black">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="h-full w-full object-cover"
+                    data-testid="img-video-poster"
+                  />
+                  {/* Dark overlay for better control visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
+                </div>
+              )}
+            </>
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
               <div className="text-center">
