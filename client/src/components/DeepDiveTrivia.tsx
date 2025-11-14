@@ -31,8 +31,11 @@ export function DeepDiveTrivia({
 
   const currentQuestion = questions?.[currentQuestionIndex];
 
-  const handleAnswer = (option: string) => {
+  const handleAnswer = (option: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists
+
+    // Remove focus from the button to prevent grey highlight on next question
+    (event.currentTarget as HTMLButtonElement).blur();
 
     setSelectedAnswer(option);
     const correct = option === currentQuestion.correctAnswer;
@@ -266,7 +269,7 @@ export function DeepDiveTrivia({
             <button
               key={index}
               className="gradient-border-button min-h-[4rem] text-left"
-              onClick={() => handleAnswer(option)}
+              onClick={(e) => handleAnswer(option, e)}
               disabled={selectedAnswer !== null}
               data-testid={`button-option-${index}`}
             >
