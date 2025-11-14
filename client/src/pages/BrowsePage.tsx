@@ -425,15 +425,15 @@ export default function BrowsePage() {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
-        <div className="container mx-auto px-4 md:px-12">
+      <div className="relative z-10 flex h-full items-end justify-start pb-12 md:pb-20">
+        <div className="px-6 md:px-12">
           <div className="max-w-2xl relative">
             {/* Text background shading - only behind this text area */}
             <div 
               className="absolute inset-0 -inset-x-8 -inset-y-6"
               style={{
                 zIndex: -1,
-                background: `radial-gradient(ellipse at bottom left, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.5) 40%, transparent 70%)`
+                background: `linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 100%)`
               }}
             />
             <h1 
