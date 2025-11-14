@@ -67,12 +67,20 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     player.on('timeupdate', () => {
       setCurrentTime(player.currentTime() || 0);
     });
-    player.on('loadedmetadata', () => {
+    
+    // Multiple events to catch duration
+    const updateDuration = () => {
       const videoDuration = player.duration();
       if (videoDuration && !isNaN(videoDuration) && isFinite(videoDuration)) {
         setDuration(videoDuration);
       }
-    });
+    };
+    
+    player.on('loadedmetadata', updateDuration);
+    player.on('loadeddata', updateDuration);
+    player.on('canplay', updateDuration);
+    player.on('durationchange', updateDuration);
+    
     player.on('volumechange', () => {
       setVolume(player.volume() || 0);
       setIsMuted(player.muted() || false);
