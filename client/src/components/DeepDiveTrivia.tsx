@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Check, X, Trophy, RotateCcw, Sparkles } from "lucide-react";
+import { Check, X, Trophy, RotateCcw, Sparkles, Film } from "lucide-react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { GeneratedTriviaQuestion } from "@shared/schema";
@@ -21,6 +22,7 @@ export function DeepDiveTrivia({
   onGenerate,
   onRestart,
 }: DeepDiveTriviaProps) {
+  const [, setLocation] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -203,6 +205,16 @@ export function DeepDiveTrivia({
                 Play Again
               </span>
             </button>
+            <button
+              onClick={() => setLocation("/")}
+              className="gradient-border-button"
+              data-testid="button-back-to-browse"
+            >
+              <span className="gradient-border-content px-6 py-2.5 text-base font-medium">
+                <Film className="mr-2 h-4 w-4 inline-block" />
+                Back to Browse
+              </span>
+            </button>
           </div>
         </div>
       </Card>
@@ -221,13 +233,14 @@ export function DeepDiveTrivia({
           {questions && Array.from({ length: questions.length }).map((_, index) => (
             <div
               key={index}
-              className={`h-2 w-8 rounded-full transition-all ${
-                index < currentQuestionIndex
-                  ? "bg-primary"
+              className="h-2 w-8 rounded-full transition-all"
+              style={{
+                backgroundColor: index < currentQuestionIndex
+                  ? '#1ba9af'
                   : index === currentQuestionIndex
-                  ? "bg-primary/50"
-                  : "bg-muted"
-              }`}
+                  ? 'rgba(27, 169, 175, 0.5)'
+                  : 'rgba(27, 169, 175, 0.15)'
+              }}
               data-testid={`progress-dot-${index}`}
             />
           ))}
@@ -250,14 +263,24 @@ export function DeepDiveTrivia({
           const showFeedback = selectedAnswer !== null;
 
           let buttonClasses = "h-auto min-h-[4rem] justify-start text-left p-4 font-medium text-base transition-all";
+          let buttonStyle = {};
 
           if (showFeedback) {
             if (isSelected && isCorrect) {
-              buttonClasses += " bg-primary text-primary-foreground border-primary";
+              buttonClasses += " text-white";
+              buttonStyle = {
+                backgroundColor: '#1ba9af',
+                borderColor: '#1ba9af'
+              };
             } else if (isSelected && !isCorrect) {
               buttonClasses += " bg-destructive text-destructive-foreground border-destructive";
             } else if (isCorrectOption) {
-              buttonClasses += " bg-primary/20 text-primary border-primary";
+              buttonClasses += " text-foreground";
+              buttonStyle = {
+                backgroundColor: 'rgba(27, 169, 175, 0.2)',
+                borderColor: '#1ba9af',
+                color: '#1ba9af'
+              };
             }
           } else {
             buttonClasses += " hover-elevate";
@@ -268,6 +291,7 @@ export function DeepDiveTrivia({
               key={index}
               variant={showFeedback ? "default" : "outline"}
               className={buttonClasses}
+              style={showFeedback ? buttonStyle : undefined}
               onClick={() => handleAnswer(option)}
               disabled={selectedAnswer !== null}
               data-testid={`button-option-${index}`}
