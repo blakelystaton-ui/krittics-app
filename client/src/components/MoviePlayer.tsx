@@ -186,15 +186,25 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   };
 
-  const togglePlay = () => {
-    if (videoRef.current) {
+  const togglePlay = async () => {
+    if (!videoRef.current) return;
+
+    try {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play().catch((error) => {
-          console.error('Playback error:', error);
-        });
+        // Ensure the video is ready before playing
+        await videoRef.current.play();
       }
+    } catch (error) {
+      console.error('Playback error:', error);
+      // Show a toast for user feedback
+      toast({
+        title: "Playback Error",
+        description: "Unable to play video. Please try again.",
+        variant: "destructive",
+        duration: 2000,
+      });
     }
   };
 
@@ -219,11 +229,31 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const toggleFullscreen = () => {
-    if (videoRef.current) {
-      if (document.fullscreenElement) {
+    if (!videoRef.current) return;
+
+    const video = videoRef.current as any; // Type assertion for vendor-prefixed methods
+
+    // Check if already in fullscreen
+    if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
         document.exitFullscreen();
-      } else {
-        videoRef.current.requestFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    } else {
+      // Enter fullscreen - try different methods for cross-browser compatibility
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        // iOS Safari uses this method
+        video.webkitEnterFullscreen();
+      } else if (video.mozRequestFullScreen) {
+        video.mozRequestFullScreen();
+      } else if (video.msRequestFullscreen) {
+        video.msRequestFullscreen();
       }
     }
   };
