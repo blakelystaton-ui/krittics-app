@@ -19,7 +19,7 @@ async function seed() {
         year: 2008,
         rating: "G",
         posterUrl: "/posters/big-buck-bunny.jpg",
-        videoUrl: "https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
       },
       {
         title: "Sintel",
@@ -29,7 +29,7 @@ async function seed() {
         year: 2010,
         rating: "PG",
         posterUrl: "/posters/sintel.jpg",
-        videoUrl: "https://archive.org/download/Sintel/sintel-2048-surround.mp4",
+        videoUrl: "https://download.blender.org/demo/movies/BBB/bbb_sunflower_1080p_30fps_normal.mp4",
       },
       {
         title: "Tears of Steel",
@@ -39,7 +39,7 @@ async function seed() {
         year: 2012,
         rating: "PG-13",
         posterUrl: "/posters/tears-of-steel.jpg",
-        videoUrl: "https://archive.org/download/tearsofsteel_2/Tears-of-Steel-2048.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
       },
       {
         title: "Elephants Dream",
@@ -49,7 +49,7 @@ async function seed() {
         year: 2006,
         rating: "PG",
         posterUrl: "/posters/elephants-dream.jpg",
-        videoUrl: "https://archive.org/download/ElephantsDream/ed_hd.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
       },
       {
         title: "Spring",
@@ -59,7 +59,7 @@ async function seed() {
         year: 2019,
         rating: "PG",
         posterUrl: "/posters/spring.jpg",
-        videoUrl: "https://archive.org/download/springopenmovie/springopenmovie.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
       },
       {
         title: "Cosmos Laundromat",
@@ -69,7 +69,7 @@ async function seed() {
         year: 2015,
         rating: "PG-13",
         posterUrl: "/posters/cosmos-laundromat.jpg",
-        videoUrl: "https://archive.org/download/CosmosLaundromatFirstCycle/Cosmos_Laundromat_first_cycle_1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
       },
       {
         title: "Agent 327: Operation Barbershop",
@@ -79,7 +79,7 @@ async function seed() {
         year: 2017,
         rating: "PG",
         posterUrl: "/posters/agent-327.jpg",
-        videoUrl: "https://archive.org/download/agent327operationbarbershop/agent327.webm",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
       },
       {
         title: "Caminandes: Llama Drama",
@@ -89,7 +89,7 @@ async function seed() {
         year: 2013,
         rating: "G",
         posterUrl: "/posters/caminandes-1.jpg",
-        videoUrl: "https://archive.org/download/caminandes-1-llama-drama/Caminandes_1_-_Llama_Drama_-_1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
       },
       {
         title: "Caminandes: Gran Dillama",
@@ -99,7 +99,7 @@ async function seed() {
         year: 2013,
         rating: "G",
         posterUrl: "/posters/caminandes-2.jpg",
-        videoUrl: "https://archive.org/download/Caminandes2GranDillama/Caminandes_2_-_Gran_Dillama_-_1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
       },
       {
         title: "Caminandes: Llamigos",
@@ -109,7 +109,7 @@ async function seed() {
         year: 2016,
         rating: "G",
         posterUrl: "/posters/caminandes-3.jpg",
-        videoUrl: "https://archive.org/download/caminandes-3-llamigos/Caminandes_3_-_Llamigos_-_1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Chromecast.mp4",
       },
       {
         title: "Coffee Run",
@@ -119,7 +119,7 @@ async function seed() {
         year: 2020,
         rating: "PG-13",
         posterUrl: "/posters/coffee-run.jpg",
-        videoUrl: "https://archive.org/download/coffee-run-blender/CoffeeRun-1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
       },
       {
         title: "Sprite Fright",
@@ -129,7 +129,7 @@ async function seed() {
         year: 2021,
         rating: "PG-13",
         posterUrl: "/posters/sprite-fright.jpg",
-        videoUrl: "https://archive.org/download/sprite-fright/sprite-fright-1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
       },
       {
         title: "Glass Half",
@@ -139,7 +139,7 @@ async function seed() {
         year: 2015,
         rating: "PG",
         posterUrl: "/posters/glass-half.jpg",
-        videoUrl: "https://archive.org/download/glass-half-blender/GlassHalf-1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
       },
       {
         title: "Hero",
@@ -149,7 +149,7 @@ async function seed() {
         year: 2021,
         rating: "G",
         posterUrl: "/posters/hero.jpg",
-        videoUrl: "https://archive.org/download/hero-blender-film/Hero-1080p.mp4",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
       },
     ]);
     console.log("✓ Movies seeded");
