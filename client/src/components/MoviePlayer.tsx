@@ -429,7 +429,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             {/* Trivia notification when NOT in fullscreen - positioned absolutely */}
             {showTriviaNotification && !isFullscreen && (
               <Card 
-                className="absolute top-2 right-6 p-3 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-64"
+                className="absolute top-16 right-6 p-2.5 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-52"
                 style={{
                   background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
                   borderColor: '#1ba9af'
@@ -437,23 +437,23 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               >
                 <div className="flex items-start gap-2">
                   <div 
-                    className="rounded-full p-1.5" 
+                    className="rounded-full p-1.5 flex-shrink-0" 
                     style={{ 
                       backgroundColor: '#1ba9af',
                       boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
                     }}
                   >
-                    <Trophy className="h-4 w-4 text-white" />
+                    <Trophy className="h-3.5 w-3.5 text-white" />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground text-sm">Deep Dive Ready!</h3>
-                    <p className="text-xs text-muted-foreground">Start trivia challenge</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground text-xs">Deep Dive Ready!</h3>
+                    <p className="text-xs text-muted-foreground leading-tight">Start trivia</p>
                     <button
                       onClick={onTriviaReady}
-                      className="gradient-border-button mt-2"
+                      className="gradient-border-button mt-1.5 w-full"
                       data-testid="button-start-trivia"
                     >
-                      <span className="gradient-border-content px-3 py-1 text-xs font-medium">
+                      <span className="gradient-border-content px-2 py-1 text-xs font-medium">
                         Start Now
                       </span>
                     </button>
