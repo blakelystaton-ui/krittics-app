@@ -429,7 +429,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             {/* Trivia notification when NOT in fullscreen - positioned absolutely */}
             {showTriviaNotification && !isFullscreen && (
               <Card 
-                className="absolute top-16 right-6 p-2.5 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-52"
+                className="absolute top-2 -right-60 p-2.5 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-52"
                 style={{
                   background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
                   borderColor: '#1ba9af'
