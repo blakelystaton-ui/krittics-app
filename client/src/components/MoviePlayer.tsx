@@ -19,7 +19,7 @@ interface MoviePlayerProps {
 export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQueue }: MoviePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(movie.duration || 0);
+  const [duration, setDuration] = useState(0); // Start with 0, will be set from video metadata
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
@@ -68,7 +68,10 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       setCurrentTime(player.currentTime() || 0);
     });
     player.on('loadedmetadata', () => {
-      setDuration(player.duration() || movie.duration || 0);
+      const videoDuration = player.duration();
+      if (videoDuration && !isNaN(videoDuration) && isFinite(videoDuration)) {
+        setDuration(videoDuration);
+      }
     });
     player.on('volumechange', () => {
       setVolume(player.volume() || 0);
