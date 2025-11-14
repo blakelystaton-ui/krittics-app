@@ -360,20 +360,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               {Math.round(progress)}%
             </span>
           </div>
-          
-          {/* Deep Dive Trivia Button - available anytime, hidden when notification shows */}
-          {!showTriviaNotification && (
-            <button
-              onClick={onTriviaReady}
-              className="gradient-border-button mt-4 w-full"
-              data-testid="button-deep-dive"
-            >
-              <span className="gradient-border-content px-6 py-3 text-base font-medium">
-                <Trophy className="mr-2 h-5 w-5 inline-block" />
-                Start Deep Dive Trivia
-              </span>
-            </button>
-          )}
         </div>
 
         {/* Gradient Transition - soft blend from teal to black */}
