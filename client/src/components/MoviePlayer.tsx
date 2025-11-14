@@ -6,8 +6,6 @@ import { Slider } from "@/components/ui/slider";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
 
 interface MoviePlayerProps {
   movie: Movie;
@@ -19,81 +17,46 @@ interface MoviePlayerProps {
 export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQueue }: MoviePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0); // Start with 0, will be set from video metadata
+  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const playerRef = useRef<any>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Initialize video.js player
+  // Setup video element event listeners
   useEffect(() => {
-    if (!videoRef.current || !movie.videoUrl) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    // Ensure the element is in the DOM before initializing
-    if (!document.body.contains(videoRef.current)) {
-      return;
-    }
-
-    // Clean up any existing player instance first
-    if (playerRef.current) {
-      playerRef.current.dispose();
-      playerRef.current = null;
-    }
-
-    // Initialize video.js player with source configuration
-    const player = videojs(videoRef.current, {
-      controls: false, // We're using custom controls
-      fluid: true,
-      preload: 'auto',
-      autoplay: false, // Explicitly disable autoplay to prevent browser policy violations
-      sources: [{
-        src: movie.videoUrl,
-        type: 'video/mp4'
-      }]
-    });
-
-    playerRef.current = player;
-
-    // Setup event listeners
-    player.on('play', () => setIsPlaying(true));
-    player.on('pause', () => setIsPlaying(false));
-    player.on('timeupdate', () => {
-      setCurrentTime(player.currentTime() || 0);
-    });
-    
-    // Multiple events to catch duration
-    const updateDuration = () => {
-      const videoDuration = player.duration();
-      if (videoDuration && !isNaN(videoDuration) && isFinite(videoDuration)) {
-        setDuration(videoDuration);
-      }
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
+    const handleLoadedMetadata = () => setDuration(video.duration);
+    const handleVolumeChange = () => {
+      setVolume(video.volume);
+      setIsMuted(video.muted);
     };
-    
-    player.on('loadedmetadata', updateDuration);
-    player.on('loadeddata', updateDuration);
-    player.on('canplay', updateDuration);
-    player.on('durationchange', updateDuration);
-    
-    player.on('volumechange', () => {
-      setVolume(player.volume() || 0);
-      setIsMuted(player.muted() || false);
-    });
 
-    // Cleanup
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('volumechange', handleVolumeChange);
+
     return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
-      }
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('volumechange', handleVolumeChange);
     };
-  }, [movie.id, movie.videoUrl]);
+  }, []);
 
   // Load user's reaction for this movie
   useEffect(() => {
@@ -110,20 +73,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       setShowTriviaNotification(true);
     }
   }, [progress, showTriviaNotification]);
-
-  // Simulated playback timer when no actual video exists
-  useEffect(() => {
-    if (!movie.videoUrl && isPlaying && currentTime < duration) {
-      const interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          const newTime = prev + 1;
-          return newTime >= duration ? duration : newTime;
-        });
-      }, 1000); // Increment every second
-
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying, movie.videoUrl, currentTime, duration]);
 
   // Handler for bookmark button
   const handleBookmark = () => {
@@ -221,94 +170,34 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const togglePlay = () => {
-    if (playerRef.current) {
-      if (isPlaying) {
-        playerRef.current.pause();
-      } else {
-        // Handle play() promise to catch interruption errors
-        const playPromise = playerRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error: Error) => {
-            // Ignore interruption errors - they're expected behavior
-            if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
-              console.error('Playback error:', error);
-            }
-          });
-        }
-      }
-    } else if (videoRef.current) {
-      // Fallback for when video.js isn't initialized (no videoUrl)
+    if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        // Handle play() promise for native video element
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error: Error) => {
-            // Ignore interruption errors
-            if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
-              console.error('Playback error:', error);
-            }
-          });
-        }
+        videoRef.current.play().catch((error) => {
+          console.error('Playback error:', error);
+        });
       }
-      setIsPlaying(!isPlaying);
-    } else {
-      // Simulated playback when no video element exists (for MVP/testing)
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (!playerRef.current && videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (!playerRef.current && videoRef.current) {
-      setDuration(videoRef.current.duration);
     }
   };
 
   const handleSeek = (value: number[]) => {
     const newTime = (value[0] / 100) * duration;
-    if (playerRef.current) {
-      playerRef.current.currentTime(newTime);
-    } else if (videoRef.current) {
+    if (videoRef.current) {
       videoRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    } else {
-      // Simulated seeking when no video element exists
-      setCurrentTime(newTime);
     }
   };
 
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0] / 100;
-    if (playerRef.current) {
-      playerRef.current.volume(newVolume);
-      playerRef.current.muted(newVolume === 0);
-    } else if (videoRef.current) {
+    if (videoRef.current) {
       videoRef.current.volume = newVolume;
-      setVolume(newVolume);
-      setIsMuted(newVolume === 0);
-    } else {
-      // Simulated volume control when no video element exists
-      setVolume(newVolume);
-      setIsMuted(newVolume === 0);
     }
   };
 
   const toggleMute = () => {
-    if (playerRef.current) {
-      playerRef.current.muted(!playerRef.current.muted());
-    } else if (videoRef.current) {
+    if (videoRef.current) {
       videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    } else {
-      // Simulated mute toggle when no video element exists
-      setIsMuted(!isMuted);
     }
   };
 
@@ -347,7 +236,8 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
           {movie.videoUrl ? (
             <video
               ref={videoRef}
-              className="video-js vjs-default-skin h-full w-full"
+              src={movie.videoUrl}
+              className="h-full w-full"
               data-testid="video-player"
             />
           ) : (
