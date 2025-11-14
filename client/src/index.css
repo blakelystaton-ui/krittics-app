@@ -407,19 +407,26 @@
       0 0 10px rgba(var(--teal-rgb), 0.2);
   }
 
-  .gradient-border-button:hover {
-    padding: 3px;
-    box-shadow: 
-      0 0 4px rgba(var(--teal-rgb), 0.9),
-      0 0 8px rgba(var(--teal-rgb), 0.6),
-      0 0 15px rgba(var(--teal-rgb), 0.3);
-    background: linear-gradient(135deg, 
-      var(--teal-light) 0%, 
-      var(--teal) 25%, 
-      var(--teal-light) 50%, 
-      var(--teal) 75%, 
-      var(--teal-light) 100%
-    );
+  /* Only apply hover effects on devices with true hover support (not touch) */
+  @media (hover: hover) and (pointer: fine) {
+    .gradient-border-button:hover {
+      padding: 3px;
+      box-shadow: 
+        0 0 4px rgba(var(--teal-rgb), 0.9),
+        0 0 8px rgba(var(--teal-rgb), 0.6),
+        0 0 15px rgba(var(--teal-rgb), 0.3);
+      background: linear-gradient(135deg, 
+        var(--teal-light) 0%, 
+        var(--teal) 25%, 
+        var(--teal-light) 50%, 
+        var(--teal) 75%, 
+        var(--teal-light) 100%
+      );
+    }
+
+    .gradient-border-button:hover .gradient-border-content {
+      background-color: hsl(var(--accent));
+    }
   }
 
   .gradient-border-content {
@@ -435,10 +442,6 @@
     padding: 4px 12px;
     font-size: 0.8125rem;
     transition: all 0.3s ease;
-  }
-
-  .gradient-border-button:hover .gradient-border-content {
-    background-color: hsl(var(--accent));
   }
 
   /* Teal gradient background for Deep Dive trivia screens - saturated Krossfire ribbon */
