@@ -424,6 +424,15 @@ export default function BrowsePage() {
         )}
       </div>
 
+      {/* Text background shading - behind text but in front of poster */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          zIndex: 3,
+          background: `linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.5) 30%, transparent 60%)`
+        }}
+      />
+
       {/* Hero Content */}
       <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
         <div className="container mx-auto px-4 md:px-12">
