@@ -200,7 +200,7 @@ export function DeepDiveTrivia({
               className="gradient-border-button"
               data-testid="button-play-again"
             >
-              <span className="gradient-border-content px-6 py-2.5 text-base font-medium">
+              <span className="gradient-border-content px-5 py-2 text-sm font-medium">
                 <RotateCcw className="mr-2 h-4 w-4 inline-block" />
                 Play Again
               </span>
@@ -210,9 +210,9 @@ export function DeepDiveTrivia({
               className="gradient-border-button"
               data-testid="button-back-to-browse"
             >
-              <span className="gradient-border-content px-6 py-2.5 text-base font-medium">
+              <span className="gradient-border-content px-5 py-2 text-sm font-medium">
                 <Film className="mr-2 h-4 w-4 inline-block" />
-                Back to Browse
+                Browse
               </span>
             </button>
           </div>
@@ -262,56 +262,43 @@ export function DeepDiveTrivia({
           const isCorrectOption = option === currentQuestion.correctAnswer;
           const showFeedback = selectedAnswer !== null;
 
-          let buttonClasses = "h-auto min-h-[4rem] justify-start text-left p-4 font-medium text-base transition-all";
-          let buttonStyle = {};
-
-          if (showFeedback) {
-            if (isSelected && isCorrect) {
-              buttonClasses += " text-white";
-              buttonStyle = {
-                backgroundColor: '#1ba9af',
-                borderColor: '#1ba9af'
-              };
-            } else if (isSelected && !isCorrect) {
-              buttonClasses += " bg-destructive text-destructive-foreground border-destructive";
-            } else if (isCorrectOption) {
-              buttonClasses += " text-foreground";
-              buttonStyle = {
-                backgroundColor: 'rgba(27, 169, 175, 0.2)',
-                borderColor: '#1ba9af',
-                color: '#1ba9af'
-              };
-            }
-          } else {
-            buttonClasses += " hover-elevate";
-          }
-
           return (
-            <Button
+            <button
               key={index}
-              variant={showFeedback ? "default" : "outline"}
-              className={buttonClasses}
-              style={showFeedback ? buttonStyle : undefined}
+              className="gradient-border-button min-h-[4rem] text-left"
               onClick={() => handleAnswer(option)}
               disabled={selectedAnswer !== null}
               data-testid={`button-option-${index}`}
             >
-              <div className="flex w-full items-center justify-between gap-4">
-                <span className="flex-1">{option}</span>
-                {showFeedback && isSelected && (
-                  <div className="flex-shrink-0">
-                    {isCorrect ? (
-                      <Check className="h-5 w-5" />
-                    ) : (
-                      <X className="h-5 w-5" />
-                    )}
-                  </div>
-                )}
-                {showFeedback && !isSelected && isCorrectOption && (
-                  <Check className="h-5 w-5 flex-shrink-0" />
-                )}
-              </div>
-            </Button>
+              <span 
+                className="gradient-border-content px-4 py-3 justify-start w-full"
+                style={
+                  showFeedback && isSelected && isCorrect
+                    ? { backgroundColor: '#1ba9af', color: 'white' }
+                    : showFeedback && isSelected && !isCorrect
+                    ? { backgroundColor: 'hsl(var(--destructive))', color: 'white' }
+                    : showFeedback && isCorrectOption
+                    ? { backgroundColor: 'rgba(27, 169, 175, 0.2)', color: '#1ba9af' }
+                    : undefined
+                }
+              >
+                <div className="flex w-full items-center justify-between gap-4">
+                  <span className="flex-1 font-medium text-base">{option}</span>
+                  {showFeedback && isSelected && (
+                    <div className="flex-shrink-0">
+                      {isCorrect ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <X className="h-5 w-5" />
+                      )}
+                    </div>
+                  )}
+                  {showFeedback && !isSelected && isCorrectOption && (
+                    <Check className="h-5 w-5 flex-shrink-0" />
+                  )}
+                </div>
+              </span>
+            </button>
           );
         })}
       </div>
