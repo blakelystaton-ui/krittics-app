@@ -385,10 +385,13 @@ export default function BrowsePage() {
       className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${!isVisible ? 'pointer-events-none' : ''}`}
       style={{ opacity: isVisible ? 1 : 0 }}
     >
-      {/* Background Image with Dynamic Color Gradient Overlay */}
-      <div className="absolute inset-0">
+      {/* Background Layer - z-0 */}
+      <div className="absolute inset-0 z-0 bg-black" />
+      
+      {/* Poster Image Layer - z-[1] */}
+      <div className="absolute inset-0 z-[1]">
         {hero.posterUrl ? (
-          <div className="h-full w-full bg-black flex items-center justify-center">
+          <div className="h-full w-full flex items-center justify-center">
             <img 
               src={hero.posterUrl} 
               alt={hero.title}
@@ -403,20 +406,21 @@ export default function BrowsePage() {
             }}
           />
         )}
-        {/* Dynamic themed gradient overlays for readability */}
-        <div 
-          className="absolute inset-0 hero-gradient-overlay"
-          style={{
-            background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.4) 50%, transparent 100%)`
-          }}
-        />
-        <div 
-          className="absolute inset-0 hero-gradient-overlay"
-          style={{
-            background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.3) 40%, transparent 100%)`
-          }}
-        />
       </div>
+      
+      {/* Dynamic themed gradient overlays for readability - z-[2] */}
+      <div 
+        className="absolute inset-0 z-[2] hero-gradient-overlay"
+        style={{
+          background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.4) 50%, transparent 100%)`
+        }}
+      />
+      <div 
+        className="absolute inset-0 z-[2] hero-gradient-overlay"
+        style={{
+          background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.3) 40%, transparent 100%)`
+        }}
+      />
 
       {/* Hero Content */}
       <div className="relative z-10 flex h-full items-end pb-20 md:pb-32">
