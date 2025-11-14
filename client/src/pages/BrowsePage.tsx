@@ -413,14 +413,14 @@ export default function BrowsePage() {
         className="absolute inset-0 hero-gradient-overlay"
         style={{
           zIndex: 2,
-          background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.4) 50%, transparent 100%)`
+          background: `linear-gradient(to top, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.2) 50%, transparent 100%)`
         }}
       />
       <div 
         className="absolute inset-0 hero-gradient-overlay"
         style={{
           zIndex: 2,
-          background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.3) 40%, transparent 100%)`
+          background: `linear-gradient(to right, hsl(var(--background)) 0%, rgba(${dominantColor.rgb}, 0.15) 40%, transparent 100%)`
         }}
       />
 
