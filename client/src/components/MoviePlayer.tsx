@@ -202,25 +202,13 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   };
 
   const toggleFullscreen = () => {
-    // Temporarily commented out to prevent browser security error
-    // Fullscreen requires direct user interaction context
-    // TODO: Re-implement with proper user interaction handling
-    
-    /* 
-    if (playerRef.current) {
-      if (playerRef.current.isFullscreen()) {
-        playerRef.current.exitFullscreen();
-      } else {
-        playerRef.current.requestFullscreen();
-      }
-    } else if (videoRef.current) {
+    if (videoRef.current) {
       if (document.fullscreenElement) {
         document.exitFullscreen();
       } else {
         videoRef.current.requestFullscreen();
       }
     }
-    */
   };
 
   const formatTime = (seconds: number) => {
