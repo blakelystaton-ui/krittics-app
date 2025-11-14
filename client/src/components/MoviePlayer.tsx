@@ -267,7 +267,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
                 src={movie.videoUrl}
                 className="h-full w-full"
                 preload="metadata"
-                crossOrigin="anonymous"
                 data-testid="video-player"
               />
               
