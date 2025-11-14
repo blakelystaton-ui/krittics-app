@@ -1,7 +1,7 @@
 # Krittics - AI-Powered Movie Trivia Platform
 
 ## Overview
-Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. It features a single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards. The platform showcases 4 open-source Blender Foundation movies (Big Buck Bunny, Sintel, Tears of Steel, Elephants Dream) with mobile-compatible video hosting from Google Cloud Storage, providing a Netflix-style browsing experience for movie discovery alongside engaging trivia.
+Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. It features a single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards. The platform showcases 6 movies with mobile-compatible video hosting from Google Cloud Storage, providing a Netflix-style browsing experience for movie discovery alongside engaging trivia.
 
 ## User Preferences
 - Primary theme: Dark mode only (locked, no theme toggle)
@@ -22,7 +22,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 ### Technical Implementations
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback and score tracking. Features teal gradient aesthetics with centralized CSS utilities (.teal-gradient-bg, .teal-icon-glow, .teal-icon-subtle) for consistent visual branding across loading, initial, and final score screens. Deep Dive button intelligently hides when the trivia notification appears at 95%+ video progress to avoid duplicate controls.
-- **Movie Catalog**: 4 open-source Blender Foundation movies with mobile-compatible hosting from Google Cloud Storage. Movies include Big Buck Bunny (2008, Comedy), Sintel (2010, Fantasy), Tears of Steel (2012, Science Fiction), and Elephants Dream (2006, Surreal). All videos work reliably across desktop and mobile devices including iOS Safari.
+- **Movie Catalog**: 6 movies with mobile-compatible video hosting from Google Cloud Storage, including 4 open-source Blender Foundation films (Big Buck Bunny, Sintel, Tears of Steel, Elephants Dream) and 2 additional short films. All videos work reliably across desktop and mobile devices including iOS Safari.
 - **Crew Command Center (Private Rooms)**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Requires Firebase Anonymous Authentication to be enabled in the Firebase Console. Features unified teal gradient aesthetics with gradient-bordered CTAs, teal-icon-glow host badges, and teal-accented chat messages for visual consistency with Deep Dive trivia. Hero section uses darkened teal gradient for optimal text visibility.
   - **Friends System**: Integrated friend search and management within Private Rooms. When creating a crew call, users can search for friends by name/email and view their top 10 most frequent collaborators, sorted by interaction count. Friend interactions are automatically tracked across room joins, messages, and games. PostgreSQL stores friendships and interaction metrics for persistent friend rankings.
 - **Firebase Error States**: Tracks three distinct error types via `authError` state:
