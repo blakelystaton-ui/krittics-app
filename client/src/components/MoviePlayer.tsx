@@ -214,14 +214,32 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       if (isPlaying) {
         playerRef.current.pause();
       } else {
-        playerRef.current.play();
+        // Handle play() promise to catch interruption errors
+        const playPromise = playerRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error: Error) => {
+            // Ignore interruption errors - they're expected behavior
+            if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
+              console.error('Playback error:', error);
+            }
+          });
+        }
       }
     } else if (videoRef.current) {
       // Fallback for when video.js isn't initialized (no videoUrl)
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        // Handle play() promise for native video element
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error: Error) => {
+            // Ignore interruption errors
+            if (error.name !== 'AbortError' && error.name !== 'NotAllowedError') {
+              console.error('Playback error:', error);
+            }
+          });
+        }
       }
       setIsPlaying(!isPlaying);
     } else {
