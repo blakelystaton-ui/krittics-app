@@ -47,11 +47,15 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       playerRef.current = null;
     }
 
-    // Initialize video.js player
+    // Initialize video.js player with source configuration
     const player = videojs(videoRef.current, {
       controls: false, // We're using custom controls
       fluid: true,
       preload: 'auto',
+      sources: [{
+        src: movie.videoUrl,
+        type: 'video/mp4'
+      }]
     });
 
     playerRef.current = player;
@@ -315,9 +319,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               ref={videoRef}
               className="video-js vjs-default-skin h-full w-full"
               data-testid="video-player"
-            >
-              <source src={movie.videoUrl} type="video/mp4" />
-            </video>
+            />
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
               <div className="text-center">
