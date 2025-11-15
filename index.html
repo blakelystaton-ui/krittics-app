@@ -1,82 +1,214 @@
 <!doctype html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Krittics AVOD Player</title>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Krittics - The Future of AVOD</title>
+
+        <!-- CRITICAL: AD SENSE VERIFICATION CODE IS NOW CORRECTLY PLACED AND CONFIGURED -->
+        <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2630873967811499"
+            crossorigin="anonymous"
+        ></script>
 
         <link
-            href="https://vjs.zencdn.net/8.10.0/video-js.css"
+            href="https://vjs.zencdn.net/8.6.1/video-js.css"
             rel="stylesheet"
         />
-
         <style>
             body {
-                background-color: #121212;
-                color: white;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+                color: #333;
             }
-            .video-container {
-                max-width: 960px;
-                margin: 50px auto;
+            header {
+                background-color: #007bff;
+                color: white;
+                padding: 20px 0;
+                text-align: center;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 20px auto;
+                padding: 0 20px;
+            }
+            .video-player-section {
+                margin-bottom: 40px;
+                text-align: center;
+            }
+            .faq-section {
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .faq-section h2 {
+                border-bottom: 2px solid #eee;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+                color: #007bff;
+            }
+            .faq-item {
+                margin-bottom: 25px;
+            }
+            .faq-item h3 {
+                color: #555;
+                margin-top: 0;
+            }
+            .faq-item p {
+                line-height: 1.6;
             }
         </style>
     </head>
     <body>
-        <div class="video-container">
-            <video
-                id="my-video"
-                class="video-js vjs-default-skin"
-                controls
-                preload="auto"
-                width="640"
-                height="268"
-                data-setup="{}"
-            >
-                <source
-                    src="https://vjs.zencdn.net/v/oceans.mp4"
-                    type="video/mp4"
-                />
-                <p class="vjs-no-js">
-                    To view this video, please enable JavaScript.
+        <header>
+            <h1>Welcome to Krittics - Watch. Engage. Earn.</h1>
+        </header>
+
+        <div class="container">
+            <!-- Video Player Placeholder -->
+            <section class="video-player-section">
+                <h2>Featured Content</h2>
+                <video
+                    id="krittics-player"
+                    class="video-js vjs-default-skin"
+                    controls
+                    preload="auto"
+                    width="640"
+                    height="360"
+                    data-setup="{}"
+                >
+                    <!-- FIX: Replaced inaccessible placeholder with a publicly hosted demo video source -->
+                    <source
+                        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                        type="video/mp4"
+                    />
+                    <p class="vjs-no-js">
+                        To view this video please enable JavaScript, and
+                        consider upgrading to a web browser that
+                        <a
+                            href="https://videojs.com/html5-video-support/"
+                            target="_blank"
+                            >supports HTML5 video</a
+                        >
+                    </p>
+                </video>
+                <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+            </section>
+
+            <!-- New and Extensive FAQ Section for Content Volume -->
+            <section class="faq-section">
+                <h2>Frequently Asked Questions (FAQ) about Krittics</h2>
+
+                <div class="faq-item">
+                    <h3>Q: What is the Krittics AVOD Model?</h3>
+                    <p>
+                        A: Krittics operates as an Advertising-Video-On-Demand
+                        (AVOD) platform. Our primary focus is on delivering a
+                        wide range of film and television content supported
+                        entirely by advertisements. This model allows us to
+                        offer all content to our users for free, while
+                        generating the revenue needed to sustain the platform
+                        and, critically, share profit with our community.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>
+                        Q: How do users benefit from watching ads on Krittics?
+                    </h3>
+                    <p>
+                        A: Our unique value proposition is directly related to
+                        user engagement. As you watch advertisements on
+                        Krittics, you earn a fractional percentage of the
+                        resulting ad revenue. This creates a direct incentive
+                        for users to return and engage with our content,
+                        benefiting both the user and the Krittics ecosystem.
+                        This mechanism is designed to maximize **ARPU (Average
+                        Revenue Per User)**, which is projected to be around
+                        **$1.05** based on our 200,000 MAU model.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>
+                        Q: What is the target for monthly active users (MAUs)
+                        for Krittics?
+                    </h3>
+                    <p>
+                        A: Our primary operational target is **20,000 Monthly
+                        Active Users (MAUs)**. This target is set to comfortably
+                        exceed the break-even point and achieve a personal
+                        profit goal, which requires a minimum of 19,408 MAUs.
+                        Hitting 200,000 MAUs is our larger growth goal, which is
+                        projected to yield a substantial monthly net profit of
+                        **$166,600** and a healthy **79.3% profit margin**.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Q: What is Krittics' technology stack?</h3>
+                    <p>
+                        A: Krittics is built on a scalable and cost-effective
+                        technology stack. The frontend uses **Video.js** with a
+                        **Custom Video.js Plugin** for our video player
+                        interface. The backend is built using **Firebase
+                        Firestore/Realtime DB** for data, **Firebase
+                        Authentication**, and **Firebase Cloud Functions
+                        (Node.js)** for server-side logic and API calls,
+                        including the **Gemini API** for AI functionality. We
+                        use **Cloudflare Stream/R2** or **YouTube** for video
+                        delivery to keep egress costs low, aligning with our
+                        free/low-cost service strategy.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Q: How is Krittics monetized?</h3>
+                    <p>
+                        A: We rely on **Google Ad Manager / AdMob** for
+                        monetization. Our revenue stream is purely ad-supported
+                        (AVOD). Our 200,000 MAU model shows a total monthly ad
+                        revenue of **$210,000**, which covers fixed costs (like
+                        content costs) and variable expenses (like
+                        infrastructure costs of **$21,500**) and allows for the
+                        user payout of **$12,600**.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>
+                        Q: Do you plan to add in-app purchases or subscriptions?
+                    </h3>
+                    <p>
+                        A: Currently, Krittics is focused on the free AVOD model
+                        with ad-revenue sharing. We have plans to potentially
+                        explore **in-app purchases** at a later date, but this
+                        is a future development priority.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Footer for essential legal links -->
+            <footer>
+                <p
+                    style="
+                        text-align: center;
+                        padding: 20px 0;
+                        border-top: 1px solid #ddd;
+                        margin-top: 40px;
+                    "
+                >
+                    <a href="#">Terms of Service</a> |
+                    <a href="#">Privacy Policy</a> | &copy; 2025 Krittics
                 </p>
-            </video>
+            </footer>
         </div>
-
-        <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-
-        <script src="krittics-plugin.js"></script>
-
-        <script>
-            var videoElementId = "my-video";
-
-            var playerOptions = {
-                autoplay: false,
-                controls: true,
-                responsive: true,
-                fluid: true,
-
-                // *** INTEGRATE THE PLUGIN HERE ***
-                plugins: {
-                    // This name 'kritticsPlugin' must match the registration name in your JS file
-                    kritticsPlugin: {
-                        debug: true,
-                        contentId: "AVOD-12345",
-                    },
-                },
-            };
-
-            // Initialize the player
-            var player = videojs(videoElementId, playerOptions, function () {
-                console.log("Video.js player successfully initialized.");
-            });
-
-            // Verify plugin function access
-            if (player.krittics) {
-                console.log(
-                    "Plugin Content ID verified:",
-                    player.krittics.getContentId(),
-                );
-            }
-        </script>
     </body>
 </html>
