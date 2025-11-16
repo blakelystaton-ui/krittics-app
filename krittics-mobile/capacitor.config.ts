@@ -1,9 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'krittics-mobile',
-  webDir: 'www'
+  appId: 'com.krittics.app',
+  appName: 'Krittics',
+  webDir: 'www',
+  server: {
+    androidScheme: 'https'
+  }
 };
 
 export default config;
