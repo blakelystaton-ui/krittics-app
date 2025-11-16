@@ -3,6 +3,7 @@ import { Check, X, Trophy, RotateCcw, Sparkles, Film } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { AdSense } from "@/components/AdSense";
 import type { GeneratedTriviaQuestion } from "@shared/schema";
 
 interface DeepDiveTriviaProps {
@@ -28,6 +29,7 @@ export function DeepDiveTrivia({
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished">("initial");
+  const [showAd, setShowAd] = useState(false);
 
   const currentQuestion = questions?.[currentQuestionIndex];
 
@@ -47,9 +49,21 @@ export function DeepDiveTrivia({
 
     setTimeout(() => {
       if (questions && currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex((i) => i + 1);
-        setSelectedAnswer(null);
-        setIsCorrect(null);
+        // Show ad after 3rd question (index 2)
+        if (currentQuestionIndex === 2) {
+          setShowAd(true);
+          // Wait 3 seconds for ad, then continue
+          setTimeout(() => {
+            setShowAd(false);
+            setCurrentQuestionIndex((i) => i + 1);
+            setSelectedAnswer(null);
+            setIsCorrect(null);
+          }, 3000);
+        } else {
+          setCurrentQuestionIndex((i) => i + 1);
+          setSelectedAnswer(null);
+          setIsCorrect(null);
+        }
       } else {
         setGameStatus("finished");
       }
@@ -230,6 +244,7 @@ export function DeepDiveTrivia({
   }
 
   return (
+    <>
     <Card className="mx-auto max-w-4xl p-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-2">
@@ -312,5 +327,15 @@ export function DeepDiveTrivia({
         </div>
       </div>
     </Card>
+
+    {showAd && (
+      <div className="mx-auto max-w-4xl mt-6">
+        <AdSense 
+          adSlot="5966285343"
+          className="my-4 flex items-center justify-center min-h-[200px] bg-card/50 rounded-lg p-4"
+        />
+      </div>
+    )}
+  </>
   );
 }

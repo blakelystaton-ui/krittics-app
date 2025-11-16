@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AdSenseInterstitial } from "@/components/AdSense";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ export default function KrossfirePage() {
   const [, setLocation] = useLocation();
   const [gameMode, setGameMode] = useState<"lobby" | "waiting" | "playing">("lobby");
   const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'all-time'>('all-time');
+  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
 
   // Scroll to top when page opens
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function KrossfirePage() {
                   </p>
                   <button
                     className="gradient-border-button mt-6 w-full"
-                    onClick={() => setGameMode("waiting")}
+                    onClick={() => setShowInterstitialAd(true)}
                     data-testid="button-quick-match"
                   >
                     <span className="gradient-border-content px-6 py-3 text-base font-medium">
@@ -313,6 +315,16 @@ export default function KrossfirePage() {
               </div>
             </Card>
           </div>
+        )}
+
+        {showInterstitialAd && (
+          <AdSenseInterstitial
+            adSlot="5966285343"
+            onClose={() => {
+              setShowInterstitialAd(false);
+              setGameMode("waiting");
+            }}
+          />
         )}
       </div>
     </div>
