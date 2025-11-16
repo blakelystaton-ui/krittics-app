@@ -361,8 +361,13 @@ export default function BrowsePage() {
   const heroDominantColor = currentHero ? getMovieDominantColor(currentHero.id) : null;
   const previousHeroDominantColor = previousHero ? getMovieDominantColor(previousHero.id) : null;
 
+  // Direct navigation for card clicks (no ad)
   const handleMovieClick = (movie: Movie) => {
-    // Show interstitial ad before navigating to player
+    setLocation(`/player?movieId=${movie.id}`);
+  };
+
+  // Show interstitial ad for main "Play Now" buttons only
+  const handlePlayWithAd = (movie: Movie) => {
     setPendingMovieId(movie.id);
     setShowInterstitialAd(true);
   };
@@ -525,7 +530,7 @@ export default function BrowsePage() {
                   borderColor: dominantColor.hex,
                   color: 'white'
                 }}
-                onClick={() => handleMovieClick(hero)}
+                onClick={() => handlePlayWithAd(hero)}
                 data-testid="button-hero-play"
               >
                 <Play className="h-5 w-5" />

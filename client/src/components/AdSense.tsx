@@ -48,7 +48,7 @@ export function AdSenseInterstitial({
   onClose 
 }: { 
   adSlot: string;
-  onClose: () => void;
+  onClose: () => void | Promise<void>;
 }) {
   const adRef = useRef<HTMLModElement>(null);
 
@@ -61,9 +61,36 @@ export function AdSenseInterstitial({
       console.error('AdSense error:', error);
     }
 
-    // Auto-close after 5 seconds
-    const timer = setTimeout(onClose, 5000);
-    return () => clearTimeout(timer);
+    // Listen for AdSense lifecycle events from Google's iframe
+    const handleAdLifecycle = (event: MessageEvent) => {
+      // Filter by Google origins for security
+      const origin = event.origin;
+      if (!origin.endsWith('google.com') && !origin.endsWith('doubleclick.net')) {
+        return;
+      }
+
+      // Check for AdSense interstitial dismissal events
+      const messageType = event.data?.messageType;
+      if (
+        messageType === 'adsbygoogle-interstitial-dismissed' ||
+        messageType === 'adsbygoogle-rewarded-dismissed' ||
+        messageType === 'adsbygoogle-interstitial-closed'
+      ) {
+        console.log('AdSense lifecycle event:', messageType);
+        onClose();
+      }
+    };
+
+    // Register message listener for AdSense lifecycle events
+    window.addEventListener('message', handleAdLifecycle);
+
+    // Fail-safe: Auto-close after 6 seconds if no lifecycle event fires
+    const timer = setTimeout(onClose, 6000);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('message', handleAdLifecycle);
+    };
   }, [onClose]);
 
   return (

@@ -103,6 +103,31 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   }, [progress, has50PercentAdShown, isPlaying]);
 
+  // Fail-safe: Always dismiss 50% ad after 6 seconds, even if onClose doesn't fire
+  useEffect(() => {
+    if (!show50PercentAd) return;
+    
+    const failsafeTimer = setTimeout(async () => {
+      setShow50PercentAd(false);
+      // Try to resume playback as a fallback
+      if (videoRef.current && !isPlaying) {
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          console.error('Failsafe: Failed to resume playback:', error);
+          // Show toast so user knows to manually resume
+          toast({
+            title: "Ready to continue",
+            description: "Click play to resume watching",
+            duration: 3000,
+          });
+        }
+      }
+    }, 6000); // 6 seconds fail-safe (1s after normal auto-close)
+    
+    return () => clearTimeout(failsafeTimer);
+  }, [show50PercentAd, isPlaying, toast]);
+
   // Handler for bookmark button
   const handleBookmark = () => {
     if (onToggleQueue) {
@@ -560,13 +585,23 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       {show50PercentAd && (
         <AdSenseInterstitial
           adSlot="5966285343"
-          onClose={() => {
+          onClose={async () => {
+            // Always dismiss overlay first to prevent being stuck
             setShow50PercentAd(false);
-            // Resume video playback after ad closes
+            
+            // Try to resume video playback
             if (videoRef.current) {
-              videoRef.current.play().catch((error) => {
+              try {
+                await videoRef.current.play();
+              } catch (error) {
                 console.error('Failed to resume playback:', error);
-              });
+                // Show toast so user knows they need to manually resume
+                toast({
+                  title: "Ready to continue",
+                  description: "Click play to resume watching",
+                  duration: 3000,
+                });
+              }
             }
           }}
         />
