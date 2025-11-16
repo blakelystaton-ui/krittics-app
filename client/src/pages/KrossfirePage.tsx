@@ -66,7 +66,7 @@ export default function KrossfirePage() {
                 Krittics Krossfire
               </h1>
               <p className="mt-4 text-xl text-muted-foreground">
-                Compete in real-time movie trivia battles
+                Compete in diverse trivia and climb the ranks
               </p>
             </div>
 
