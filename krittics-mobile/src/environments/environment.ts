@@ -5,7 +5,21 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000/api',
-  adsensePublisherId: 'ca-pub-2630873967811499'
+  adsensePublisherId: 'ca-pub-2630873967811499',
+  
+  // Movie genres - matches web app for unified experience
+  movieGenres: [
+    'Action',
+    'Comedy',
+    'Drama',
+    'Horror',
+    'Sci-Fi',
+    'Romance',
+    'Documentary',
+    'Animation',
+    'Thriller',
+    'Family'
+  ] as const
 };
 
 /*
