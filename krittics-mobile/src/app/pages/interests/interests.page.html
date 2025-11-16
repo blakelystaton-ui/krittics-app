@@ -1,0 +1,46 @@
+<ion-content class="interests-page">
+  <div class="content-wrapper">
+    <div class="header-section">
+      <h1 class="title">What are you interested in?</h1>
+      <p class="subtitle">
+        Select at least one genre to help us match you with your crew and show relevant content
+      </p>
+    </div>
+
+    <ion-grid class="genres-grid">
+      <ion-row>
+        <ion-col size="6" size-md="4" *ngFor="let genre of movieGenres">
+          <ion-chip
+            [class.selected]="isSelected(genre)"
+            (click)="toggleGenre(genre)"
+            class="genre-chip"
+            data-testid="chip-genre-{{genre.toLowerCase()}}">
+            <ion-label>{{ genre }}</ion-label>
+          </ion-chip>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <div class="footer-section">
+      <p class="selection-count" data-testid="text-selection-count">
+        Selected: {{ selectedGenres.size }} {{ selectedGenres.size === 1 ? 'genre' : 'genres' }}
+      </p>
+      <ion-button
+        expand="block"
+        [disabled]="!hasSelection || isLoading"
+        (click)="saveInterests()"
+        class="continue-button"
+        data-testid="button-save-interests">
+        {{ isLoading ? 'Saving...' : 'Continue to Krittics' }}
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    (didDismiss)="showToast = false"
+    data-testid="toast-message">
+  </ion-toast>
+</ion-content>

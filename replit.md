@@ -3,6 +3,10 @@
 ## Overview
 Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. It features a single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards. The platform showcases 4 open-source Blender Foundation movies with mobile-compatible video hosting from Google Cloud Storage, providing a Netflix-style browsing experience for movie discovery alongside engaging trivia.
 
+### Platform Structure
+- **Web Application** (client/, server/, shared/): Production-ready React/TypeScript app with Express backend
+- **Mobile Application** (krittics-mobile/): Ionic/Angular companion app (in development) that connects to the same Express API
+
 ## User Preferences
 - Primary theme: Dark mode only (locked, no theme toggle)
 - Color scheme: Unified teal accent (#1ba9af) with gradient border aesthetic throughout
