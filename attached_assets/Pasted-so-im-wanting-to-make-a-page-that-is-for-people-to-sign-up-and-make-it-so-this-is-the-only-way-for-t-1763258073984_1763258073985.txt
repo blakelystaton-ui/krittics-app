@@ -1,0 +1,263 @@
+so im wanting to make a page that is for people to sign up and make it so this is the only way for them to interact with the site i built in replit. once they put their information in, i want them to be asked what their interests are and the reason for this is to match them with the people with similar interests and so the relevant ads will be directed towards them.Below is a complete, copy‑paste‑ready plan you can drop into your Replit project today and have a sign‑up → interest‑selection → matching + ad‑targeting flow working without any external services (except Firebase Auth + Firestore, which you already use).
+
+1. High‑Level Flow
+text1. Visitor lands on /signup
+2. Fill email + password → Firebase Auth (email/password)
+3. After successful sign‑up → redirect to /interests
+4. Pick 3‑5 interests (multi‑select)
+5. Save interests to Firestore (user doc)
+6. On every page load → read user interests → 
+      • Show “Crew” matches (same interests)
+      • Load AdSense slot with category keywords
+
+2. File Structure (add to krittics-web/ or krittics-mobile/)
+textsrc/
+ ├─ app/
+ │   ├─ auth/
+ │   │   ├─ signup.component.ts
+ │   │   ├─ signup.component.html
+ │   │   └─ signup.component.scss
+ │   ├─ interests/
+ │   │   ├─ interests.component.ts
+ │   │   ├─ interests.component.html
+ │   │   └─ interests.component.scss
+ │   └─ shared/
+ │       └─ services/
+ │            ├─ auth.service.ts
+ │            ├─ user.service.ts
+ │            └─ ads.service.ts
+ └─ environments/
+      ├─ environment.ts
+      └─ environment.prod.ts
+
+3. Firebase Setup (you already have this – just add rules)
+ts// environment.ts  (and .prod.ts)
+export const environment = {
+  production: false,
+  firebase: { /* your config */ },
+  interests: [
+    'Action', 'Comedy', 'Drama', 'Horror', 'Sci‑Fi',
+    'Romance', 'Documentary', 'Animation', 'Thriller', 'Family'
+  ] as const
+};
+Firestore Rules (add to Firebase console)
+jsrules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write only their own doc
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+
+4. Auth Service (email/password)
+ts// src/app/shared/services/auth.service.ts
+import { Injectable } from '@angular/core';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Router } from '@angular/router';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  constructor(private afAuth: AngularFireAuth, private router: Router) {}
+
+  signUp(email: string, password: string) {
+    return this.afAuth.createUserWithEmailAndPassword(email, password)
+      .then(() => this.router.navigate(['/interests']))
+      .catch(err => alert(err.message));
+  }
+
+  logout() {
+    return this.afAuth.signOut();
+  }
+
+  get user$() { return this.afAuth.authState; }
+}
+
+5. Sign‑Up Page
+html<!-- signup.component.html -->
+<form (ngSubmit)="signUp()" #f="ngForm">
+  <h2>Create Your Krittics Account</h2>
+  <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
+  <input type="password" [(ngModel)]="pass" name="pass" placeholder="Password" required>
+  <button type="submit" [disabled]="!f.valid">Sign Up</button>
+</form>
+ts// signup.component.ts
+export class SignupComponent {
+  email = ''; pass = '';
+  constructor(private auth: AuthService) {}
+  signUp() { this.auth.signUp(this.email, this.pass); }
+}
+
+6. Interests Page (multi‑select)
+html<!-- interests.component.html -->
+<h2>What do you love?</h2>
+<div class="grid">
+  <label *ngFor="let i of interests" class="chip">
+    <input type="checkbox" [(ngModel)]="selected[i]" (change)="save()">
+    {{i}}
+  </label>
+</div>
+ts// interests.component.ts
+import { environment } from '../../environments/environment';
+import { UserService } from '../shared/services/user.service';
+
+@Component({ /* ... */ })
+export class InterestsComponent implements OnInit {
+  interests = environment.interests;
+  selected: Record<string, boolean> = {};
+
+  constructor(private user: UserService) {}
+
+  ngOnInit() {
+    this.user.getInterests().subscribe(data => this.selected = data || {});
+  }
+
+  save() { this.user.saveInterests(this.selected); }
+}
+
+7. User Service (Firestore)
+ts// user.service.ts
+import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { AuthService } from './auth.service';
+import { map } from 'rxjs/operators';
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private uid$ = this.auth.user$.pipe(map(u => u?.uid));
+
+  constructor(private afs: AngularFirestore, private auth: AuthService) {}
+
+  getInterests() {
+    return this.uid$.pipe(
+      switchMap(uid => uid ? this.afs.doc<Record<string, boolean>>(`users/${uid}`).valueChanges() : of(null))
+    );
+  }
+
+  saveInterests(selected: Record<string, boolean>) {
+    this.uid$.subscribe(uid => {
+      if (uid) this.afs.doc(`users/${uid}`).set({ interests: selected }, { merge: true });
+    });
+  }
+
+  // Find matching crew
+  findCrew() {
+    return this.uid$.pipe(
+      switchMap(uid => uid ? this.afs.collection('users', ref =>
+        ref.where('interests', 'array-contains-any', Object.keys(this.currentInterests()))
+      ).valueChanges({ idField: 'uid' }) : of([]))
+    );
+  }
+
+  private currentInterests() {
+    // return array of selected keys
+  }
+}
+
+8. Show Matched Crew (any page)
+html<!-- crew.component.html -->
+<h3>Your Crew</h3>
+<ul>
+  <li *ngFor="let member of crew$ | async">
+    {{ member.displayName || member.email }}
+  </li>
+</ul>
+
+9. AdSense Targeting (dynamic keywords)
+ts// ads.service.ts
+import { Injectable } from '@angular/core';
+import { UserService } from './user.service';
+
+@Injectable({ providedIn: 'root' })
+export class AdsService {
+  constructor(private user: UserService) {}
+
+  getKeywords(): string[] {
+    const sel = this.user.currentSelection(); // e.g. ['Action','Sci-Fi']
+    return sel.length ? sel : ['movies','entertainment'];
+  }
+
+  injectAdSlot(slotId: string) {
+    const keywords = this.getKeywords().join(',');
+    (window.adsbygoogle = window.adsbygoogle || []).push({
+      google_ad_client: 'ca-pub-XXXX', // YOUR ID
+      page_url: location.href,
+      enable_page_level_ads: true,
+      overrides: { keywords }
+    });
+  }
+}
+html<!-- any page -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXX"
+     data-ad-slot="1234567890"
+     data-ad-format="auto">
+</ins>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+10. Routing (protect everything)
+ts// app.routes.ts
+const routes: Routes = [
+  { path: 'signup', component: SignupComponent },
+  { path: 'interests', component: InterestsComponent, canActivate: [AuthGuard] },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  // all other pages → AuthGuard
+];
+ts// auth.guard.ts
+@Injectable({ providedIn: 'root' })
+export class AuthGuard implements CanActivate {
+  constructor(private auth: AuthService, private router: Router) {}
+  canActivate(): Observable<boolean> {
+    return this.auth.user$.pipe(
+      take(1),
+      map(user => {
+        if (user) return true;
+        this.router.navigate(['/signup']);
+        return false;
+      })
+    );
+  }
+}
+
+11. One‑Click Deploy to Replit
+
+Add the files above (copy‑paste into Replit).
+Run once:
+
+bashnpm install @angular/fire firebase
+
+Update angular.json to include AdSense script (or load dynamically).
+Commit → Replit auto‑deploys.
+
+
+Result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FeatureHow It WorksOnly signed‑up usersAuthGuard on every routeInterest selectionMulti‑select → FirestoreCrew matchingFirestore query on shared interestsRelevant adsDynamic keywords sent to AdSense
