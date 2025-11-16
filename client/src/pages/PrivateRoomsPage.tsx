@@ -23,6 +23,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { ArrowLeft, Crown, Send, Users, UserPlus, Search } from 'lucide-react';
+import { CrewMatches } from '@/components/CrewMatches';
 import type { User } from '@shared/schema';
 
 interface RoomData {

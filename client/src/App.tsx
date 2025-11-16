@@ -1,5 +1,6 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,7 +12,9 @@ import BrowsePage from "@/pages/BrowsePage";
 import KrossfirePage from "@/pages/KrossfirePage";
 import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
 import QueuePage from "@/pages/QueuePage";
+import InterestsSelection from "@/pages/interests-selection";
 import NotFound from "@/pages/not-found";
+import type { User } from "@shared/schema";
 
 function Router() {
   return (
@@ -21,9 +24,29 @@ function Router() {
       <Route path="/krossfire" component={KrossfirePage} />
       <Route path="/private-rooms" component={PrivateRoomsPage} />
       <Route path="/watchlist" component={QueuePage} />
+      <Route path="/interests" component={InterestsSelection} />
       <Route component={NotFound} />
     </Switch>
   );
+}
+
+function OnboardingGuard({ children }: { children: React.ReactNode }) {
+  const [location, navigate] = useLocation();
+  const { data: user, isLoading } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
+
+  useEffect(() => {
+    // Skip onboarding check for interests page itself and when loading
+    if (isLoading || location === "/interests") return;
+
+    // If user is logged in but hasn't completed onboarding, redirect to interests
+    if (user && !user.hasCompletedOnboarding) {
+      navigate("/interests");
+    }
+  }, [user, isLoading, location, navigate]);
+
+  return <>{children}</>;
 }
 
 function AppContent() {
@@ -32,12 +55,14 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">
-        <Router />
-      </main>
-    </div>
+    <OnboardingGuard>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">
+          <Router />
+        </main>
+      </div>
+    </OnboardingGuard>
   );
 }
 

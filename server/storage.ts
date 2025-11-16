@@ -259,6 +259,19 @@ export class MemStorage implements IStorage {
     throw new Error("MemStorage does not support watchlist operations");
   }
 
+  // User Interests operations (stub - not implemented for in-memory)
+  async updateUserInterests(userId: string, interests: string[]): Promise<User> {
+    throw new Error("MemStorage does not support user interests operations");
+  }
+
+  async getUserInterests(userId: string): Promise<string[]> {
+    throw new Error("MemStorage does not support user interests operations");
+  }
+
+  async findCrewByInterests(userId: string): Promise<(User & { sharedInterests: string[] })[]> {
+    throw new Error("MemStorage does not support crew matching operations");
+  }
+
   // Leaderboard
   async getTopPlayersByMode(
     gameMode: string,
@@ -525,6 +538,8 @@ export class DatabaseStorage implements IStorage {
         firstName: users.firstName,
         lastName: users.lastName,
         profileImageUrl: users.profileImageUrl,
+        interests: users.interests,
+        hasCompletedOnboarding: users.hasCompletedOnboarding,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
         interactionCount: sql<number>`COALESCE(${friendInteractions.interactionCount}, 0)`,
