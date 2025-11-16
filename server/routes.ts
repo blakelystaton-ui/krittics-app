@@ -383,6 +383,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PUT /api/user/interests - Update user interests
+  app.put("/api/user/interests", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const interestsSchema = z.object({
+        interests: z.array(z.string()).min(1).max(10),
+      });
+
+      const validated = interestsSchema.parse(req.body);
+      const user = await storage.updateUserInterests(userId, validated.interests);
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating interests:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid request", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update interests" });
+    }
+  });
+
+  // GET /api/user/interests - Get user interests
+  app.get("/api/user/interests", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const interests = await storage.getUserInterests(userId);
+      res.json({ interests });
+    } catch (error) {
+      console.error("Error fetching interests:", error);
+      res.status(500).json({ error: "Failed to fetch interests" });
+    }
+  });
+
+  // GET /api/crew/matches - Find crew members with similar interests
+  app.get("/api/crew/matches", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const crew = await storage.findCrewByInterests(userId);
+      res.json(crew);
+    } catch (error) {
+      console.error("Error finding crew matches:", error);
+      res.status(500).json({ error: "Failed to find crew matches" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

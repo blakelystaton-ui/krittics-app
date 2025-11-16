@@ -68,6 +68,11 @@ export interface IStorage {
   removeFromWatchlist(userId: string, movieId: string): Promise<void>;
   getWatchlistByUser(userId: string): Promise<Movie[]>;
   isInWatchlist(userId: string, movieId: string): Promise<boolean>;
+
+  // User Interests
+  updateUserInterests(userId: string, interests: string[]): Promise<User>;
+  getUserInterests(userId: string): Promise<string[]>;
+  findCrewByInterests(userId: string): Promise<(User & { sharedInterests: string[] })[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -678,6 +683,77 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
 
     return result.length > 0;
+  }
+
+  // User Interests operations
+  async updateUserInterests(userId: string, interests: string[]): Promise<User> {
+    const result = await db
+      .update(users)
+      .set({
+        interests,
+        hasCompletedOnboarding: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId))
+      .returning();
+
+    if (result.length === 0) {
+      throw new Error("User not found");
+    }
+
+    return result[0];
+  }
+
+  async getUserInterests(userId: string): Promise<string[]> {
+    const result = await db
+      .select({ interests: users.interests })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    return result[0]?.interests || [];
+  }
+
+  async findCrewByInterests(userId: string): Promise<(User & { sharedInterests: string[] })[]> {
+    // Get current user's interests
+    const currentUserInterests = await this.getUserInterests(userId);
+    
+    if (currentUserInterests.length === 0) {
+      return [];
+    }
+
+    // Find users with matching interests using raw SQL for array overlap
+    const result = await db.execute<User & { sharedInterests: string[] }>(sql`
+      SELECT 
+        u.id,
+        u.email,
+        u.first_name as "firstName",
+        u.last_name as "lastName",
+        u.profile_image_url as "profileImageUrl",
+        u.interests,
+        u.has_completed_onboarding as "hasCompletedOnboarding",
+        u.created_at as "createdAt",
+        u.updated_at as "updatedAt",
+        ARRAY(
+          SELECT unnest(u.interests)
+          INTERSECT
+          SELECT unnest(${currentUserInterests}::text[])
+        ) as "sharedInterests"
+      FROM users u
+      WHERE u.id != ${userId}
+        AND u.interests && ${currentUserInterests}::text[]
+        AND u.has_completed_onboarding = true
+      ORDER BY array_length(
+        ARRAY(
+          SELECT unnest(u.interests)
+          INTERSECT
+          SELECT unnest(${currentUserInterests}::text[])
+        ), 1
+      ) DESC
+      LIMIT 20
+    `);
+
+    return result.rows as (User & { sharedInterests: string[] })[];
   }
 }
 
