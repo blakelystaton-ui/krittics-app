@@ -737,38 +737,45 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
 
-    // Find users with matching interests using raw SQL for array overlap
-    const result = await db.execute<User & { sharedInterests: string[] }>(sql`
-      SELECT 
-        u.id,
-        u.email,
-        u.first_name as "firstName",
-        u.last_name as "lastName",
-        u.profile_image_url as "profileImageUrl",
-        u.interests,
-        u.has_completed_onboarding as "hasCompletedOnboarding",
-        u.created_at as "createdAt",
-        u.updated_at as "updatedAt",
-        ARRAY(
-          SELECT unnest(u.interests)
-          INTERSECT
-          SELECT unnest(${currentUserInterests}::text[])
-        ) as "sharedInterests"
-      FROM users u
-      WHERE u.id != ${userId}
-        AND u.interests && ${currentUserInterests}::text[]
-        AND u.has_completed_onboarding = true
-      ORDER BY array_length(
-        ARRAY(
-          SELECT unnest(u.interests)
-          INTERSECT
-          SELECT unnest(${currentUserInterests}::text[])
-        ), 1
-      ) DESC
-      LIMIT 20
-    `);
+    // Fetch all users who completed onboarding (excluding current user)
+    // Filter and sort in JavaScript for security and simplicity
+    const allUsers = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl,
+        interests: users.interests,
+        hasCompletedOnboarding: users.hasCompletedOnboarding,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      })
+      .from(users)
+      .where(
+        and(
+          sql`${users.id} != ${userId}`,
+          eq(users.hasCompletedOnboarding, true),
+          sql`${users.interests} IS NOT NULL`
+        )
+      );
 
-    return result.rows as (User & { sharedInterests: string[] })[];
+    // Compute shared interests, filter, and sort in JavaScript
+    const matchesWithShared = allUsers
+      .map((user) => {
+        const sharedInterests = (user.interests || []).filter(interest =>
+          currentUserInterests.includes(interest)
+        );
+        return {
+          ...user,
+          sharedInterests,
+        };
+      })
+      .filter(match => match.sharedInterests.length > 0)
+      .sort((a, b) => b.sharedInterests.length - a.sharedInterests.length)
+      .slice(0, 20);
+
+    return matchesWithShared;
   }
 }
 
