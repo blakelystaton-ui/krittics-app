@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Info, ChevronLeft, ChevronRight, Plus, Bookmark, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
+import { AdSenseInterstitial } from '@/components/AdSense';
 import type { Movie } from '@shared/schema';
 
 // Generate vibrant dominant color for each movie based on ID
@@ -242,6 +243,8 @@ export default function BrowsePage() {
   const [, setLocation] = useLocation();
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
   const [previousHeroIndex, setPreviousHeroIndex] = useState(0);
+  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
+  const [pendingMovieId, setPendingMovieId] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Fetch movies from API
@@ -359,7 +362,9 @@ export default function BrowsePage() {
   const previousHeroDominantColor = previousHero ? getMovieDominantColor(previousHero.id) : null;
 
   const handleMovieClick = (movie: Movie) => {
-    setLocation(`/player?movieId=${movie.id}`);
+    // Show interstitial ad before navigating to player
+    setPendingMovieId(movie.id);
+    setShowInterstitialAd(true);
   };
 
   const handleAddToQueue = (movieId: string, movie?: Movie) => (e: React.MouseEvent) => {
@@ -672,6 +677,18 @@ export default function BrowsePage() {
 
       {/* Bottom padding */}
       <div className="h-20" />
+
+      {/* Interstitial Ad before watching movie */}
+      {showInterstitialAd && pendingMovieId && (
+        <AdSenseInterstitial
+          adSlot="5966285343"
+          onClose={() => {
+            setShowInterstitialAd(false);
+            setLocation(`/player?movieId=${pendingMovieId}`);
+            setPendingMovieId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

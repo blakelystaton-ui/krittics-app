@@ -3,6 +3,7 @@ import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, Thumbs
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { AdSense, AdSenseInterstitial } from "@/components/AdSense";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
@@ -24,6 +25,8 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [show50PercentAd, setShow50PercentAd] = useState(false);
+  const [has50PercentAdShown, setHas50PercentAdShown] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
@@ -90,6 +93,15 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       setShowTriviaNotification(true);
     }
   }, [progress, showTriviaNotification]);
+
+  // Show interstitial ad at 50% progress and pause video
+  useEffect(() => {
+    if (progress >= 50 && !has50PercentAdShown && videoRef.current && isPlaying) {
+      videoRef.current.pause();
+      setShow50PercentAd(true);
+      setHas50PercentAdShown(true);
+    }
+  }, [progress, has50PercentAdShown, isPlaying]);
 
   // Handler for bookmark button
   const handleBookmark = () => {
@@ -365,7 +377,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
 
         {/* Movie Title & Progress */}
         <div 
-          className="p-6 pb-8"
+          className="p-6 pb-6"
           style={{
             background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.2), rgba(27, 169, 175, 0.05))'
           }}
@@ -384,6 +396,11 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             <span className="text-sm font-medium text-muted-foreground" data-testid="text-progress">
               {Math.round(progress)}%
             </span>
+          </div>
+          
+          {/* Banner Ad below title */}
+          <div className="mt-6">
+            <AdSense adSlot="5966285343" adFormat="auto" />
           </div>
         </div>
 
@@ -474,6 +491,33 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             )}
           </div>
         )}
+
+        {/* Cast & Crew Section */}
+        <div 
+          className="px-6 pb-6 pt-4"
+          style={{
+            background: 'rgb(0, 0, 0)'
+          }}
+        >
+          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Cast & Crew</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div className="text-sm">
+              <p className="font-medium text-foreground">Director</p>
+              <p className="text-muted-foreground">Ton Roosendaal</p>
+            </div>
+            <div className="text-sm">
+              <p className="font-medium text-foreground">Producer</p>
+              <p className="text-muted-foreground">Blender Foundation</p>
+            </div>
+            <div className="text-sm">
+              <p className="font-medium text-foreground">Animation</p>
+              <p className="text-muted-foreground">Blender Institute</p>
+            </div>
+          </div>
+          
+          {/* Banner Ad in cast/crew section */}
+          <AdSense adSlot="5966285343" adFormat="auto" />
+        </div>
       </Card>
 
       {/* Trivia Ready Notification - Bottom Right when in fullscreen */}
@@ -510,6 +554,22 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             </div>
           </div>
         </Card>
+      )}
+
+      {/* 50% Progress Interstitial Ad */}
+      {show50PercentAd && (
+        <AdSenseInterstitial
+          adSlot="5966285343"
+          onClose={() => {
+            setShow50PercentAd(false);
+            // Resume video playback after ad closes
+            if (videoRef.current) {
+              videoRef.current.play().catch((error) => {
+                console.error('Failed to resume playback:', error);
+              });
+            }
+          }}
+        />
       )}
     </div>
   );
