@@ -50,9 +50,25 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent() {
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
+
   useEffect(() => {
     document.documentElement.classList.add('dark');
   }, []);
+
+  // Inject dynamic AdSense keywords based on user interests
+  useEffect(() => {
+    const loadAdKeywords = async () => {
+      if (user?.interests && user.interests.length > 0) {
+        const { generateAdKeywords, injectAdKeywordsMeta } = await import('@/lib/adsenseKeywords');
+        const keywords = generateAdKeywords(user.interests);
+        injectAdKeywordsMeta(keywords);
+      }
+    };
+    loadAdKeywords();
+  }, [user?.interests]);
 
   return (
     <OnboardingGuard>
