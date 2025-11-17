@@ -122,7 +122,9 @@ export function AdSenseInterstitial({
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 99999
+          zIndex: 99999,
+          width: '100%',
+          height: '100%'
         }}
       >
         <div className="relative w-full max-w-2xl p-4">
@@ -138,7 +140,7 @@ export function AdSenseInterstitial({
             <ins
               ref={adRef}
               className="adsbygoogle"
-              style={{ display: 'block', minHeight: '250px' }}
+              style={{ display: 'block', minHeight: '250px', width: '100%' }}
               data-ad-client="ca-pub-2630873967811499"
               data-ad-slot={adSlot}
               data-ad-format="auto"
