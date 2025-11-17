@@ -477,7 +477,7 @@ export function EnhancedVideoPlayer({
         </button>
       )}
 
-      {/* Pre-roll ad - shows immediately when player loads */}
+      {/* Pre-roll ad - rendered to document.body for fullscreen compatibility */}
       {showPreRollAd && playerElement && createPortal(
         <AdSenseInterstitial
           adSlot="5966285343"
@@ -490,17 +490,17 @@ export function EnhancedVideoPlayer({
           }}
           inline={true}
         />,
-        playerElement
+        document.body
       )}
 
-      {/* 50% interstitial ad - rendered inside player using portal for fullscreen compatibility */}
+      {/* 50% interstitial ad - rendered to document.body for fullscreen compatibility */}
       {show50PercentAd && playerElement && createPortal(
         <AdSenseInterstitial
           adSlot="5966285343"
           onClose={() => setShow50PercentAd(false)}
           inline={true}
         />,
-        playerElement
+        document.body
       )}
 
       <style>{`
