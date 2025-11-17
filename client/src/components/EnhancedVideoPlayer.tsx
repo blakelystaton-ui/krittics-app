@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import 'videojs-contrib-ads';
 import 'videojs-ima';
-import { AdSense } from './AdSense';
+import { AdSense, AdSenseInterstitial } from './AdSense';
 import Player from 'video.js/dist/types/player';
 
 // Type assertion helper for plugin methods
@@ -241,6 +242,7 @@ interface EnhancedVideoPlayerProps {
   onEnded?: () => void;
   className?: string;
   adTagUrl?: string; // VAST ad tag URL
+  on50PercentAdShown?: () => void; // Callback when 50% ad is shown
 }
 
 export function EnhancedVideoPlayer({
@@ -249,19 +251,24 @@ export function EnhancedVideoPlayer({
   onTimeUpdate,
   onEnded,
   className = '',
-  adTagUrl
+  adTagUrl,
+  on50PercentAdShown
 }: EnhancedVideoPlayerProps) {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const [showEndCreditBanner, setShowEndCreditBanner] = useState(false);
   const [fullScreenActivated, setFullScreenActivated] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
+  const [show50PercentAd, setShow50PercentAd] = useState(false);
+  const [playerElement, setPlayerElement] = useState<HTMLElement | null>(null);
+  const has50PercentAdShownRef = useRef(false); // Use ref instead of state to prevent closure issues
   
   // Use refs to store callbacks and state that plugins need to access
   // This prevents player reinitialization when props change
   const onTimeUpdateRef = useRef(onTimeUpdate);
   const onEndedRef = useRef(onEnded);
   const fullScreenActivatedRef = useRef(fullScreenActivated);
+  const on50PercentAdShownRef = useRef(on50PercentAdShown);
 
   // Update refs when props change (without triggering reinitialization)
   useEffect(() => {
@@ -275,6 +282,10 @@ export function EnhancedVideoPlayer({
   useEffect(() => {
     fullScreenActivatedRef.current = fullScreenActivated;
   }, [fullScreenActivated]);
+
+  useEffect(() => {
+    on50PercentAdShownRef.current = on50PercentAdShown;
+  }, [on50PercentAdShown]);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -301,6 +312,9 @@ export function EnhancedVideoPlayer({
 
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
+    
+    // Store player element for portal rendering
+    setPlayerElement(player.el() as HTMLElement);
 
     // Initialize ad plugin if adTagUrl provided
     if (adTagUrl) {
@@ -341,14 +355,25 @@ export function EnhancedVideoPlayer({
       }
     });
 
-    // Time update for end-credit banner (last 2 minutes)
+    // Time update for end-credit banner (last 2 minutes) and 50% ad
     player.on('timeupdate', () => {
       const currentTime = player.currentTime() || 0;
       const duration = player.duration() || 0;
       const remainingTime = duration - currentTime;
+      const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
       // Show banner in last 2 minutes (120 seconds)
       setShowEndCreditBanner(remainingTime <= 120 && remainingTime > 0);
+
+      // Trigger 50% interstitial ad (use ref to avoid stale closure)
+      if (progress >= 50 && !has50PercentAdShownRef.current) {
+        console.log('50% progress reached - showing interstitial ad inside player');
+        setShow50PercentAd(true);
+        has50PercentAdShownRef.current = true; // Set ref immediately
+        if (on50PercentAdShownRef.current) {
+          on50PercentAdShownRef.current();
+        }
+      }
 
       // Use ref to access current callback
       if (onTimeUpdateRef.current) {
@@ -367,8 +392,23 @@ export function EnhancedVideoPlayer({
       if (player && !player.isDisposed()) {
         player.dispose();
       }
+      // Reset ad state on cleanup
+      setShow50PercentAd(false);
+      has50PercentAdShownRef.current = false;
+      setPlayerElement(null);
     };
   }, [src, poster, adTagUrl]); // Only reinitialize when video source or ad tag changes
+
+  // Fail-safe: Auto-dismiss 50% ad after 6 seconds
+  useEffect(() => {
+    if (!show50PercentAd) return;
+    
+    const failsafeTimer = setTimeout(() => {
+      setShow50PercentAd(false);
+    }, 6000);
+    
+    return () => clearTimeout(failsafeTimer);
+  }, [show50PercentAd]);
 
   // Handle floating mode toggle
   const toggleFloatingMode = () => {
@@ -431,6 +471,16 @@ export function EnhancedVideoPlayer({
         >
           Float Player
         </button>
+      )}
+
+      {/* 50% interstitial ad - rendered inside player using portal for fullscreen compatibility */}
+      {show50PercentAd && playerElement && createPortal(
+        <AdSenseInterstitial
+          adSlot="5966285343"
+          onClose={() => setShow50PercentAd(false)}
+          inline={true}
+        />,
+        playerElement
       )}
 
       <style>{`

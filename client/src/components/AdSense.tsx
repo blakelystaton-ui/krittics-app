@@ -52,10 +52,12 @@ export function AdSense({
 // Full-screen interstitial ad (shows before Krossfire)
 export function AdSenseInterstitial({ 
   adSlot,
-  onClose 
+  onClose,
+  inline = false // When true, renders inline within container (for video player portal)
 }: { 
   adSlot: string;
   onClose: () => void | Promise<void>;
+  inline?: boolean;
 }) {
   const adRef = useRef<HTMLModElement>(null);
   const isAdPushed = useRef(false);
@@ -104,9 +106,51 @@ export function AdSenseInterstitial({
     return () => {
       clearTimeout(timer);
       window.removeEventListener('message', handleAdLifecycle);
+      // Clear ad state on cleanup
+      isAdPushed.current = false;
     };
   }, [onClose]);
 
+  // Inline rendering for video player portal (absolute positioning, no global fixed)
+  if (inline) {
+    return (
+      <div 
+        className="flex items-center justify-center bg-black/95 backdrop-blur-sm"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 99999
+        }}
+      >
+        <div className="relative w-full max-w-2xl p-4">
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 z-10 rounded-full bg-background/80 px-3 py-1 text-sm text-muted-foreground hover-elevate"
+            data-testid="button-close-ad"
+          >
+            Skip Ad
+          </button>
+          
+          <div className="flex min-h-[400px] items-center justify-center rounded-lg bg-card p-8">
+            <ins
+              ref={adRef}
+              className="adsbygoogle"
+              style={{ display: 'block', minHeight: '250px' }}
+              data-ad-client="ca-pub-2630873967811499"
+              data-ad-slot={adSlot}
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Global rendering for non-player uses (Krossfire pregame, etc.)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl p-4">

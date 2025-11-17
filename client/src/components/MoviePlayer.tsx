@@ -3,7 +3,7 @@ import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, Thumbs
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { AdSense, AdSenseInterstitial } from "@/components/AdSense";
+import { AdSense } from "@/components/AdSense";
 import { EnhancedVideoPlayer } from "@/components/EnhancedVideoPlayer";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
@@ -22,8 +22,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
-  const [show50PercentAd, setShow50PercentAd] = useState(false);
-  const [has50PercentAdShown, setHas50PercentAdShown] = useState(false);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
 
@@ -45,26 +43,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       setShowTriviaNotification(true);
     }
   }, [progress, showTriviaNotification]);
-
-  // Show interstitial ad at 50% progress (note: video continues playing with Video.js)
-  useEffect(() => {
-    if (progress >= 50 && !has50PercentAdShown) {
-      console.log('50% progress reached - showing interstitial ad');
-      setShow50PercentAd(true);
-      setHas50PercentAdShown(true);
-    }
-  }, [progress, has50PercentAdShown]);
-
-  // Fail-safe: Always dismiss 50% ad after 6 seconds, even if onClose doesn't fire
-  useEffect(() => {
-    if (!show50PercentAd) return;
-    
-    const failsafeTimer = setTimeout(() => {
-      setShow50PercentAd(false);
-    }, 6000); // 6 seconds fail-safe (1s after normal auto-close)
-    
-    return () => clearTimeout(failsafeTimer);
-  }, [show50PercentAd]);
 
   // Handler for bookmark button
   const handleBookmark = () => {
@@ -175,18 +153,12 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
                 setDuration(duration);
                 setHasStartedPlaying(true);
                 
-                // Calculate progress for existing features
+                // Calculate progress for trivia notification
                 const calculatedProgress = (currentTime / duration) * 100;
                 
                 // Trigger trivia notification at 95%
                 if (calculatedProgress >= 95 && !showTriviaNotification) {
                   setShowTriviaNotification(true);
-                }
-                
-                // Trigger 50% interstitial ad
-                if (calculatedProgress >= 50 && !has50PercentAdShown) {
-                  setShow50PercentAd(true);
-                  setHas50PercentAdShown(true);
                 }
               }}
               onEnded={() => {
@@ -351,16 +323,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       </Card>
 
 
-      {/* 50% Progress Interstitial Ad */}
-      {show50PercentAd && (
-        <AdSenseInterstitial
-          adSlot="5966285343"
-          onClose={() => {
-            // Dismiss overlay (video continues playing with Video.js)
-            setShow50PercentAd(false);
-          }}
-        />
-      )}
     </div>
   );
 }
