@@ -16,11 +16,18 @@ export function AdSense({
   fullWidth = true 
 }: AdSenseProps) {
   const adRef = useRef<HTMLModElement>(null);
+  const isAdPushed = useRef(false);
 
   useEffect(() => {
     try {
-      if (adRef.current && window.adsbygoogle) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      // Only push ad once
+      if (adRef.current && window.adsbygoogle && !isAdPushed.current) {
+        // Check if ins element doesn't already have data-adsbygoogle-status
+        const insElement = adRef.current;
+        if (!insElement.getAttribute('data-adsbygoogle-status')) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          isAdPushed.current = true;
+        }
       }
     } catch (error) {
       console.error('AdSense error:', error);
@@ -51,11 +58,18 @@ export function AdSenseInterstitial({
   onClose: () => void | Promise<void>;
 }) {
   const adRef = useRef<HTMLModElement>(null);
+  const isAdPushed = useRef(false);
 
   useEffect(() => {
     try {
-      if (adRef.current && window.adsbygoogle) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      // Only push ad once
+      if (adRef.current && window.adsbygoogle && !isAdPushed.current) {
+        // Check if ins element doesn't already have data-adsbygoogle-status
+        const insElement = adRef.current;
+        if (!insElement.getAttribute('data-adsbygoogle-status')) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          isAdPushed.current = true;
+        }
       }
     } catch (error) {
       console.error('AdSense error:', error);

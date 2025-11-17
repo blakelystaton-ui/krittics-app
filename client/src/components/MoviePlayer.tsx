@@ -49,6 +49,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   // Show interstitial ad at 50% progress (note: video continues playing with Video.js)
   useEffect(() => {
     if (progress >= 50 && !has50PercentAdShown) {
+      console.log('50% progress reached - showing interstitial ad');
       setShow50PercentAd(true);
       setHas50PercentAdShown(true);
     }
