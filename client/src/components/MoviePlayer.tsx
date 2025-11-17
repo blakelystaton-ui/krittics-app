@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { AdSense, AdSenseInterstitial } from "@/components/AdSense";
+import { EnhancedVideoPlayer } from "@/components/EnhancedVideoPlayer";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
@@ -16,67 +17,18 @@ interface MoviePlayerProps {
 }
 
 export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQueue }: MoviePlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [show50PercentAd, setShow50PercentAd] = useState(false);
   const [has50PercentAdShown, setHas50PercentAdShown] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-  // Setup video element event listeners
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handlePlay = () => {
-      setIsPlaying(true);
-      setHasStartedPlaying(true);
-    };
-    const handlePause = () => setIsPlaying(false);
-    const handleTimeUpdate = () => setCurrentTime(video.currentTime);
-    const handleLoadedMetadata = () => setDuration(video.duration);
-    const handleVolumeChange = () => {
-      setVolume(video.volume);
-      setIsMuted(video.muted);
-    };
-
-    video.addEventListener('play', handlePlay);
-    video.addEventListener('pause', handlePause);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('volumechange', handleVolumeChange);
-
-    return () => {
-      video.removeEventListener('play', handlePlay);
-      video.removeEventListener('pause', handlePause);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('volumechange', handleVolumeChange);
-    };
-  }, []);
-
-  // Track fullscreen state changes
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
-  }, []);
 
   // Load user's reaction for this movie
   useEffect(() => {
@@ -94,39 +46,24 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   }, [progress, showTriviaNotification]);
 
-  // Show interstitial ad at 50% progress and pause video
+  // Show interstitial ad at 50% progress (note: video continues playing with Video.js)
   useEffect(() => {
-    if (progress >= 50 && !has50PercentAdShown && videoRef.current && isPlaying) {
-      videoRef.current.pause();
+    if (progress >= 50 && !has50PercentAdShown) {
       setShow50PercentAd(true);
       setHas50PercentAdShown(true);
     }
-  }, [progress, has50PercentAdShown, isPlaying]);
+  }, [progress, has50PercentAdShown]);
 
   // Fail-safe: Always dismiss 50% ad after 6 seconds, even if onClose doesn't fire
   useEffect(() => {
     if (!show50PercentAd) return;
     
-    const failsafeTimer = setTimeout(async () => {
+    const failsafeTimer = setTimeout(() => {
       setShow50PercentAd(false);
-      // Try to resume playback as a fallback
-      if (videoRef.current && !isPlaying) {
-        try {
-          await videoRef.current.play();
-        } catch (error) {
-          console.error('Failsafe: Failed to resume playback:', error);
-          // Show toast so user knows to manually resume
-          toast({
-            title: "Ready to continue",
-            description: "Click play to resume watching",
-            duration: 3000,
-          });
-        }
-      }
     }, 6000); // 6 seconds fail-safe (1s after normal auto-close)
     
     return () => clearTimeout(failsafeTimer);
-  }, [show50PercentAd, isPlaying, toast]);
+  }, [show50PercentAd]);
 
   // Handler for bookmark button
   const handleBookmark = () => {
@@ -223,106 +160,39 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   };
 
-  const togglePlay = async () => {
-    if (!videoRef.current) return;
-
-    try {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        // Ensure the video is ready before playing
-        await videoRef.current.play();
-      }
-    } catch (error) {
-      // Log the error but don't show toast - some videos may not be compatible with all browsers
-      console.error('Playback error:', error);
-    }
-  };
-
-  const handleSeek = (value: number[]) => {
-    const newTime = (value[0] / 100) * duration;
-    if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0] / 100;
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-    }
-  };
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-    }
-  };
-
-  const toggleFullscreen = () => {
-    if (!videoRef.current) return;
-
-    const video = videoRef.current as any; // Type assertion for vendor-prefixed methods
-
-    // Check if already in fullscreen
-    if (document.fullscreenElement || (document as any).webkitFullscreenElement) {
-      // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
-      }
-    } else {
-      // Enter fullscreen - try different methods for cross-browser compatibility
-      if (video.requestFullscreen) {
-        video.requestFullscreen();
-      } else if (video.webkitRequestFullscreen) {
-        video.webkitRequestFullscreen();
-      } else if (video.webkitEnterFullscreen) {
-        // iOS Safari uses this method
-        video.webkitEnterFullscreen();
-      } else if (video.mozRequestFullScreen) {
-        video.mozRequestFullScreen();
-      } else if (video.msRequestFullscreen) {
-        video.msRequestFullscreen();
-      }
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
 
   return (
     <div className="relative">
       <Card className="overflow-hidden bg-card">
         <div className="relative aspect-video bg-black">
           {movie.videoUrl ? (
-            <>
-              <video
-                ref={videoRef}
-                src={movie.videoUrl}
-                className="h-full w-full"
-                preload="metadata"
-                data-testid="video-player"
-              />
-              
-              {/* Poster Overlay - Shows until video starts playing */}
-              {!hasStartedPlaying && movie.posterUrl && (
-                <div className="absolute inset-0 bg-black">
-                  <img
-                    src={movie.posterUrl}
-                    alt={movie.title}
-                    className="h-full w-full object-cover"
-                    data-testid="img-video-poster"
-                  />
-                  {/* Dark overlay for better control visibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
-                </div>
-              )}
-            </>
+            <EnhancedVideoPlayer
+              src={movie.videoUrl}
+              poster={movie.posterUrl || undefined}
+              onTimeUpdate={(currentTime, duration) => {
+                setCurrentTime(currentTime);
+                setDuration(duration);
+                setHasStartedPlaying(true);
+                
+                // Calculate progress for existing features
+                const calculatedProgress = (currentTime / duration) * 100;
+                
+                // Trigger trivia notification at 95%
+                if (calculatedProgress >= 95 && !showTriviaNotification) {
+                  setShowTriviaNotification(true);
+                }
+                
+                // Trigger 50% interstitial ad
+                if (calculatedProgress >= 50 && !has50PercentAdShown) {
+                  setShow50PercentAd(true);
+                  setHas50PercentAdShown(true);
+                }
+              }}
+              onEnded={() => {
+                // Video ended - handled by Video.js
+              }}
+              className="w-full h-full"
+            />
           ) : (
             <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
               <div className="text-center">
@@ -332,72 +202,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               </div>
             </div>
           )}
-
-          {/* Controls Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
-            <div className="mb-2">
-              <Slider
-                value={[progress]}
-                max={100}
-                step={0.1}
-                onValueChange={handleSeek}
-                className="cursor-pointer"
-                data-testid="slider-timeline"
-              />
-              <div className="mt-1 flex justify-between text-xs text-white/80">
-                <span data-testid="text-current-time">{formatTime(currentTime)}</span>
-                <span data-testid="text-duration">{formatTime(duration)}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={togglePlay}
-                  className="text-white hover:bg-white/20"
-                  data-testid="button-play-pause"
-                >
-                  {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={toggleMute}
-                    className="text-white hover:bg-white/20"
-                    data-testid="button-mute"
-                  >
-                    {isMuted || volume === 0 ? (
-                      <VolumeX className="h-5 w-5" />
-                    ) : (
-                      <Volume2 className="h-5 w-5" />
-                    )}
-                  </Button>
-                  <Slider
-                    value={[isMuted ? 0 : volume * 100]}
-                    max={100}
-                    step={1}
-                    onValueChange={handleVolumeChange}
-                    className="w-24 cursor-pointer"
-                    data-testid="slider-volume"
-                  />
-                </div>
-              </div>
-
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={toggleFullscreen}
-                className="text-white hover:bg-white/20"
-                data-testid="button-fullscreen"
-              >
-                <Maximize className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
         </div>
 
         {/* Movie Title & Progress */}
@@ -479,8 +283,8 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
             <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
 
-            {/* Trivia notification when NOT in fullscreen - positioned absolutely */}
-            {showTriviaNotification && !isFullscreen && (
+            {/* Trivia notification - positioned absolutely */}
+            {showTriviaNotification && (
               <Card 
                 className="absolute top-0 right-3 p-2.5 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 w-52"
                 style={{
@@ -545,64 +349,14 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         </div>
       </Card>
 
-      {/* Trivia Ready Notification - Bottom Right when in fullscreen */}
-      {showTriviaNotification && isFullscreen && (
-        <Card 
-          className="fixed bottom-4 right-4 p-4 shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 z-50"
-          style={{
-            background: 'linear-gradient(to bottom right, rgba(27, 169, 175, 0.3), rgba(27, 169, 175, 0.1))',
-            borderColor: '#1ba9af'
-          }}
-        >
-          <div className="flex items-start gap-3">
-            <div 
-              className="rounded-full p-2" 
-              style={{ 
-                backgroundColor: '#1ba9af',
-                boxShadow: '0 0 15px rgba(27, 169, 175, 0.4)'
-              }}
-            >
-              <Trophy className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-foreground">Deep Dive Ready!</h3>
-              <p className="text-sm text-muted-foreground">Start your trivia challenge</p>
-              <button
-                onClick={onTriviaReady}
-                className="gradient-border-button mt-2"
-                data-testid="button-start-trivia"
-              >
-                <span className="gradient-border-content px-4 py-1.5 text-sm font-medium">
-                  Start Now
-                </span>
-              </button>
-            </div>
-          </div>
-        </Card>
-      )}
 
       {/* 50% Progress Interstitial Ad */}
       {show50PercentAd && (
         <AdSenseInterstitial
           adSlot="5966285343"
-          onClose={async () => {
-            // Always dismiss overlay first to prevent being stuck
+          onClose={() => {
+            // Dismiss overlay (video continues playing with Video.js)
             setShow50PercentAd(false);
-            
-            // Try to resume video playback
-            if (videoRef.current) {
-              try {
-                await videoRef.current.play();
-              } catch (error) {
-                console.error('Failed to resume playback:', error);
-                // Show toast so user knows they need to manually resume
-                toast({
-                  title: "Ready to continue",
-                  description: "Click play to resume watching",
-                  duration: 3000,
-                });
-              }
-            }
           }}
         />
       )}
