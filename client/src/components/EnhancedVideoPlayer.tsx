@@ -174,7 +174,7 @@ videojs.registerPlugin('floatingPlayer', floatingPlayerPlugin);
 const adManagementPlugin = function(this: Player, options: {
   onAdStart?: () => void;
   onAdEnd?: () => void;
-  fullScreenActivated: boolean;
+  getFullScreenActivated: () => boolean; // Changed to function that reads current state
 }) {
   const player = this;
   let isAdPlaying = false;
@@ -192,7 +192,8 @@ const adManagementPlugin = function(this: Player, options: {
     isAdPlaying = true;
     
     // Only play ad if fullscreen has been activated at least once
-    if (!options.fullScreenActivated) {
+    // NOW reads current state instead of initialization value
+    if (!options.getFullScreenActivated()) {
       const playerWithAds = player as any;
       if (playerWithAds.ads && playerWithAds.ads.skipLinearAdMode) {
         playerWithAds.ads.skipLinearAdMode();
@@ -255,6 +256,25 @@ export function EnhancedVideoPlayer({
   const [showEndCreditBanner, setShowEndCreditBanner] = useState(false);
   const [fullScreenActivated, setFullScreenActivated] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
+  
+  // Use refs to store callbacks and state that plugins need to access
+  // This prevents player reinitialization when props change
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  const onEndedRef = useRef(onEnded);
+  const fullScreenActivatedRef = useRef(fullScreenActivated);
+
+  // Update refs when props change (without triggering reinitialization)
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+  }, [onTimeUpdate]);
+
+  useEffect(() => {
+    onEndedRef.current = onEnded;
+  }, [onEnded]);
+
+  useEffect(() => {
+    fullScreenActivatedRef.current = fullScreenActivated;
+  }, [fullScreenActivated]);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -299,7 +319,7 @@ export function EnhancedVideoPlayer({
       // Initialize custom ad management
       if (playerWithPlugins.adManagement) {
         playerWithPlugins.adManagement({
-          fullScreenActivated: fullScreenActivated,
+          getFullScreenActivated: () => fullScreenActivatedRef.current, // Use ref getter
           onAdStart: () => console.log('Ad started'),
           onAdEnd: () => console.log('Ad ended')
         });
@@ -315,8 +335,8 @@ export function EnhancedVideoPlayer({
 
     // Track fullscreen activation
     player.on('fullscreenchange', () => {
-      if (player.isFullscreen() && !fullScreenActivated) {
-        setFullScreenActivated(true);
+      if (player.isFullscreen() && !fullScreenActivatedRef.current) {
+        setFullScreenActivated(true); // This updates state AND ref
         console.log('Full-screen activated for the first time - ads now enabled');
       }
     });
@@ -330,14 +350,16 @@ export function EnhancedVideoPlayer({
       // Show banner in last 2 minutes (120 seconds)
       setShowEndCreditBanner(remainingTime <= 120 && remainingTime > 0);
 
-      if (onTimeUpdate) {
-        onTimeUpdate(currentTime, duration);
+      // Use ref to access current callback
+      if (onTimeUpdateRef.current) {
+        onTimeUpdateRef.current(currentTime, duration);
       }
     });
 
     // Handle video end
     player.on('ended', () => {
-      if (onEnded) onEnded();
+      // Use ref to access current callback
+      if (onEndedRef.current) onEndedRef.current();
     });
 
     // Cleanup
@@ -346,7 +368,7 @@ export function EnhancedVideoPlayer({
         player.dispose();
       }
     };
-  }, [src, poster, adTagUrl, fullScreenActivated, onTimeUpdate, onEnded]);
+  }, [src, poster, adTagUrl]); // Only reinitialize when video source or ad tag changes
 
   // Handle floating mode toggle
   const toggleFloatingMode = () => {
