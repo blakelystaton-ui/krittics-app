@@ -259,6 +259,7 @@ export function EnhancedVideoPlayer({
   const [showEndCreditBanner, setShowEndCreditBanner] = useState(false);
   const [fullScreenActivated, setFullScreenActivated] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
+  const [showPreRollAd, setShowPreRollAd] = useState(true); // Show ad immediately on load
   const [show50PercentAd, setShow50PercentAd] = useState(false);
   const [playerElement, setPlayerElement] = useState<HTMLElement | null>(null);
   const has50PercentAdShownRef = useRef(false); // Use ref instead of state to prevent closure issues
@@ -313,8 +314,10 @@ export function EnhancedVideoPlayer({
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
     
-    // Store player element for portal rendering
-    setPlayerElement(player.el() as HTMLElement);
+    // Wait for player to be ready before storing element for portal rendering
+    player.ready(() => {
+      setPlayerElement(player.el() as HTMLElement);
+    });
 
     // Initialize ad plugin if adTagUrl provided
     if (adTagUrl) {
@@ -393,6 +396,7 @@ export function EnhancedVideoPlayer({
         player.dispose();
       }
       // Reset ad state on cleanup
+      setShowPreRollAd(true); // Reset to show pre-roll on next load
       setShow50PercentAd(false);
       has50PercentAdShownRef.current = false;
       setPlayerElement(null);
@@ -471,6 +475,22 @@ export function EnhancedVideoPlayer({
         >
           Float Player
         </button>
+      )}
+
+      {/* Pre-roll ad - shows immediately when player loads */}
+      {showPreRollAd && playerElement && createPortal(
+        <AdSenseInterstitial
+          adSlot="5966285343"
+          onClose={() => {
+            setShowPreRollAd(false);
+            // Auto-play video after ad is dismissed
+            if (playerRef.current && !playerRef.current.isDisposed()) {
+              playerRef.current.play();
+            }
+          }}
+          inline={true}
+        />,
+        playerElement
       )}
 
       {/* 50% interstitial ad - rendered inside player using portal for fullscreen compatibility */}

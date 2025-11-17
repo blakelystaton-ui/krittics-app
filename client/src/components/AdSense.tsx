@@ -113,18 +113,22 @@ export function AdSenseInterstitial({
 
   // Inline rendering for video player portal (absolute positioning, no global fixed)
   if (inline) {
+    // Log when inline ad renders
+    console.log('Inline AdSense ad rendering in video player');
+    
     return (
       <div 
         className="flex items-center justify-center bg-black/95 backdrop-blur-sm"
         style={{
-          position: 'absolute',
+          position: 'fixed', // Use fixed instead of absolute for better fullscreen support
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 99999,
-          width: '100%',
-          height: '100%'
+          zIndex: 2147483647, // Maximum z-index value
+          width: '100vw',
+          height: '100vh',
+          pointerEvents: 'auto'
         }}
       >
         <div className="relative w-full max-w-2xl p-4">
