@@ -1,0 +1,155 @@
+# === UPGRADED ONE-COMMAND FIX FOR REPLIT AGENT ===
+# Paste this entire block. It auto-detects React/Vue and backs up files.
+
+# Backup any main file first
+MAIN_FILE=$(find src -name "App.*" -o -name "main.*" -o -name "index.js*" | head -1)
+if [ -n "$MAIN_FILE" ]; then cp "$MAIN_FILE" "$MAIN_FILE.bak"; echo "Backed up $MAIN_FILE"; fi
+
+# Create shared LegalPage component (React version)
+mkdir -p src/pages
+cat > src/pages/LegalPage.jsx << 'EOF'
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+const legalContent = {
+  "privacy-policy": { title: "Privacy Policy", content: "<p>We respect your privacy. This is a placeholder privacy policy that will be replaced with the real one before launch.</p><p>Last updated: November 17, 2025</p>" },
+  "cookies": { title: "Cookies Policy", content: "<p>We use cookies to improve your experience. By using Krittics you agree to our use of cookies.</p>" },
+  "terms-of-use": { title: "Terms of Use", content: "<p>By using Krittics you agree to these terms. Be nice, don't spam, have fun.</p>" },
+  "your-privacy-choices": { title: "Your Privacy Choices", content: "<p>You can manage your privacy settings at any time.</p>" },
+  "do-not-sell-or-share-my-personal-information": { 
+    title: "Do Not Sell or Share My Personal Information", 
+    content: `<p>California residents: We do <strong>not sell</strong> or <strong>share</strong> your personal information with third parties for advertising purposes.</p>
+               <p id="california-do-not-sell"><strong>Your CCPA Rights</strong><br/>
+               You have the right to opt out of sale/sharing (we honor Global Privacy Control). No action needed — we don't sell your data.</p>` 
+  }
+};
+
+export default function LegalPage() {
+  const location = useLocation();
+  const path = location.pathname.split('/').pop().replace(/\.html$/, '').replace(/-/g, ' ');
+  const pageKey = Object.keys(legalContent).find(key => path.includes(key.replace(/-/g, ' '))) || "privacy-policy";
+  const data = legalContent[pageKey];
+
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location]);
+
+  return (
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', color: '#fff', background: '#000' }}>
+      <h1>{data.title}</h1>
+      <div dangerouslySetInnerHTML={{ __html: data.content }} />
+      <br /><br />
+      <a href="/" style={{ color: '#00ffcc' }}>← Back to Home</a>
+    </div>
+  );
+}
+EOF
+
+# Detect if React Router is present
+if grep -q "react-router-dom" package.json 2>/dev/null; then
+  echo "Detected React + React Router. Patching..."
+  
+  # Add import if missing
+  if ! grep -q "LegalPage" "$MAIN_FILE" 2>/dev/null; then
+    sed -i '' -e '/import .* from "react-router-dom";/a\
+import LegalPage from "./pages/LegalPage";' "$MAIN_FILE"
+  fi
+  
+  # Inject Routes block (overwrite existing, preserve comments)
+  sed -i '' -e '/<Routes>/,/<\/Routes>/c\
+<Routes>\
+  {/* Existing routes preserved - add new ones below */}\
+  <Route path="/pages/privacy-policy" element={<LegalPage />} />\
+  <Route path="/pages/privacy-policy.html" element={<LegalPage />} />\
+  <Route path="/pages/cookies" element={<LegalPage />} />\
+  <Route path="/pages/cookies.html" element={<LegalPage />} />\
+  <Route path="/pages/terms-of-use" element={<LegalPage />} />\
+  <Route path="/pages/terms-of-use.html" element={<LegalPage />} />\
+  <Route path="/pages/your-privacy-choices" element={<LegalPage />} />\
+  <Route path="/pages/do-not-sell-or-share-my-personal-information" element={<LegalPage />} />\
+  <Route path="/pages/do-not-sell-or-share-my-personal-information.html" element={<LegalPage />} />\
+  {/* Catch-all for 404s */}\
+  <Route path="*" element={<LegalPage />} />\
+</Routes>' "$MAIN_FILE"
+  
+  echo "React fix applied! Restart with 'npm start' or refresh."
+else
+  echo "No React Router detected. Checking for Vue..."
+  if grep -q "vue-router" package.json 2>/dev/null; then
+    echo "Detected Vue + Vue Router. Creating Vue version..."
+    
+    # Vue LegalPage (simple .vue file)
+    cat > src/pages/LegalPage.vue << 'EOF'
+<template>
+  <div style="padding: 2rem; max-width: 800px; margin: 0 auto; color: #fff; background: #000;">
+    <h1>{{ title }}</h1>
+    <div v-html="content"></div>
+    <br /><br />
+    <router-link to="/" style="color: #00ffcc;">← Back to Home</router-link>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'LegalPage',
+  computed: {
+    pageKey() {
+      const path = this.$route.path.split('/').pop().replace(/\.html$/, '').replace(/-/g, ' ');
+      const keys = ['privacy-policy', 'cookies', 'terms-of-use', 'your-privacy-choices', 'do-not-sell-or-share-my-personal-information'];
+      return keys.find(key => path.includes(key.replace(/-/g, ' '))) || 'privacy-policy';
+    },
+    data() {
+      const legalContent = {
+        'privacy-policy': { title: 'Privacy Policy', content: '<p>We respect your privacy. Last updated: November 17, 2025</p>' },
+        'cookies': { title: 'Cookies Policy', content: '<p>We use cookies to improve your experience.</p>' },
+        'terms-of-use': { title: 'Terms of Use', content: '<p>By using Krittics you agree to these terms.</p>' },
+        'your-privacy-choices': { title: 'Your Privacy Choices', content: '<p>You can manage your privacy settings at any time.</p>' },
+        'do-not-sell-or-share-my-personal-information': { 
+          title: 'Do Not Sell or Share My Personal Information', 
+          content: '<p id="california-do-not-sell">California residents: We do not sell or share your data.</p>' 
+        }
+      };
+      return legalContent[this.pageKey];
+    },
+    title() { return this.data.title; },
+    content() { return this.data.content; }
+  },
+  mounted() {
+    if (this.$route.hash) {
+      const el = document.querySelector(this.$route.hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+};
+</script>
+EOF
+    
+    # Patch Vue router (assumes router/index.js)
+    ROUTER_FILE="src/router/index.js"
+    if [ ! -f "$ROUTER_FILE" ]; then ROUTER_FILE="src/router.js"; fi
+    if [ -f "$ROUTER_FILE" ]; then
+      sed -i '' -e '/import { createRouter/ a\
+import LegalPage from "../pages/LegalPage.vue";' "$ROUTER_FILE"
+      sed -i '' -e '/const routes =/ { n; s/\];$/\
+    { path: "/pages/privacy-policy", name: "Privacy", component: LegalPage },\
+    { path: "/pages/privacy-policy.html", redirect: "/pages/privacy-policy" },\
+    { path: "/pages/cookies", name: "Cookies", component: LegalPage },\
+    { path: "/pages/terms-of-use", name: "Terms", component: LegalPage },\
+    { path: "/pages/your-privacy-choices", name: "PrivacyChoices", component: LegalPage },\
+    { path: "/pages/do-not-sell-or-share-my-personal-information", name: "DoNotSell", component: LegalPage },\
+    { path: "/pages/do-not-sell-or-share-my-personal-information.html", redirect: "/pages/do-not-sell-or-share-my-personal-information" },\
+    { path: "/:pathMatch(.*)*", name: "NotFound", component: LegalPage }\
+  ];/' "$ROUTER_FILE"
+      echo "Vue fix applied! Restart with 'npm run serve' or refresh."
+    else
+      echo "No router file found. Manual Vue setup needed."
+    fi
+  else
+    echo "No React or Vue detected. This might be vanilla JS or another framework. Share your package.json for a custom fix."
+  fi
+fi
+
+echo "Upgrade complete! Check console for errors, then refresh your Replit preview. If still broken, share your main file snippet."
