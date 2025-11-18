@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .krittics-footer {
+            background-color: #0a0a0a;
+            color: #888;
+            padding: 20px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            border-top: 1px solid #222;
+        }
+        
+        .krittics-footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .krittics-footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .krittics-footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .krittics-footer-link {
+            color: #888;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .krittics-footer-link:hover {
+            color: #1ba9af;
+            text-decoration: underline;
+        }
+        
+        .krittics-footer-link.privacy-choices {
+            color: #1ba9af;
+            font-weight: 600;
+        }
+        
+        .krittics-footer-divider {
+            color: #444;
+            margin: 0 5px;
+        }
+        
+        .krittics-footer-copyright {
+            text-align: center;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .krittics-footer-links {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .krittics-footer-divider {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <footer class="krittics-footer">
+        <div class="krittics-footer-container">
+            <div class="krittics-footer-content">
+                <!-- Links Row -->
+                <div class="krittics-footer-links">
+                    <a href="/pages/privacy-policy.html" class="krittics-footer-link">Privacy Policy</a>
+                    <span class="krittics-footer-divider">|</span>
+                    
+                    <a href="/pages/cookie-policy.html" class="krittics-footer-link">Cookie Policy</a>
+                    <span class="krittics-footer-divider">|</span>
+                    
+                    <a href="/pages/terms-of-service.html" class="krittics-footer-link">Terms of Service</a>
+                    <span class="krittics-footer-divider">|</span>
+                    
+                    <a href="/pages/privacy-policy.html#california-privacy-rights" class="krittics-footer-link privacy-choices">Your Privacy Choices</a>
+                    <span class="krittics-footer-divider">|</span>
+                    
+                    <a href="/pages/privacy-policy.html#california-do-not-sell" class="krittics-footer-link privacy-choices">Do Not Sell or Share My Personal Information</a>
+                </div>
+                
+                <!-- Copyright Row -->
+                <div class="krittics-footer-copyright">
+                    &copy; 2025 Krittics. All rights reserved. Based in Iowa, USA.
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
