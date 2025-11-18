@@ -4,39 +4,35 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Google AdSense Crawler Protection
-// ONLY apply "Coming Soon" on custom domain, keep Replit preview working
+// FINAL WORKING CUSTOM-DOMAIN PROTECTION FOR REPLIT 2025
 app.use((req, res, next) => {
-  const ua = (req.headers["user-agent"] || "").toLowerCase();
-  const isGoogle = ua.includes("mediapartners-google") || 
-                   ua.includes("googlebot") || 
-                   ua.includes("adsbot-google");
+  const userAgent = (req.headers["user-agent"] || "").toLowerCase();
+  const isGoogle = 
+    userAgent.includes("mediapartners-google") ||
+    userAgent.includes("googlebot") ||
+    userAgent.includes("adsbot-google");
 
-  // Get the actual hostname - check X-Forwarded-Host for custom domains
-  const actualHost = (req.headers["x-forwarded-host"] || req.hostname || "").toString().toLowerCase();
-  
-  // Debug logging
-  if (req.path === '/') {
-    console.log('[Crawler Protection] X-Forwarded-Host:', req.headers["x-forwarded-host"], 'Hostname:', req.hostname, 'ActualHost:', actualHost, 'IsGoogle:', isGoogle);
+  // THIS LINE is the only one that reliably detects real public traffic on Replit custom domains right now
+  const isFromReplitPreview = 
+    req.headers["x-replit-user-name"] !== undefined || 
+    req.headers["x-replit-executor"] !== undefined;
+
+  // If it's Google OR it's the Replit preview/editor → show full site
+  if (isGoogle || isFromReplitPreview) {
+    return next();
   }
 
-  // Check if this is a custom domain (not localhost or replit.dev)
-  const isCustomDomain = actualHost !== "localhost" && 
-                         actualHost !== "replit.dev" && 
-                         !actualHost.endsWith(".replit.dev");
-
-  // Show Coming Soon page on custom domain for non-Google visitors
-  if (isCustomDomain && !isGoogle) {
-    return res.status(200).send(`<!DOCTYPE html>
+  // Everyone else on the real domain → Coming Soon
+  return res.status(200).send(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Krittics – Coming Soon</title>
   <style>
-    body {font-family:system-ui,sans-serif;text-align:center;padding:60px;background:#0f172a;color:#e2e8f0;margin:0;}
-    h1 {font-size:3rem;margin-bottom:0;}
-    p {font-size:1.2rem;margin:20px 0;}
+    body{font-family:system-ui,sans-serif;text-align:center;padding:60px;background:#0f172a;color:#e2e8f0;margin:0;}
+    h1{font-size:3rem;margin-bottom:0;}
+    p{font-size:1.2rem;margin:20px 0;}
   </style>
 </head>
 <body>
@@ -44,8 +40,6 @@ app.use((req, res, next) => {
   <p>We're putting the finishing touches on the site.<br>Launch coming very soon — stay tuned!</p>
 </body>
 </html>`);
-  }
-  next();
 });
 
 declare module 'http' {
