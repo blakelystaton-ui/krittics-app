@@ -14,6 +14,15 @@ import KrossfirePage from "@/pages/KrossfirePage";
 import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
 import QueuePage from "@/pages/QueuePage";
 import MissionPage from "@/pages/MissionPage";
+import InsightsPage from "@/pages/InsightsPage";
+import Article1 from "@/pages/insights/Article1";
+import Article2 from "@/pages/insights/Article2";
+import Article3 from "@/pages/insights/Article3";
+import Article4 from "@/pages/insights/Article4";
+import Article5 from "@/pages/insights/Article5";
+import Article6 from "@/pages/insights/Article6";
+import Article7 from "@/pages/insights/Article7";
+import Article8 from "@/pages/insights/Article8";
 import InterestsSelection from "@/pages/interests-selection";
 import NotFound from "@/pages/not-found";
 import type { User } from "@shared/schema";
@@ -27,6 +36,15 @@ function Router() {
       <Route path="/private-rooms" component={PrivateRoomsPage} />
       <Route path="/watchlist" component={QueuePage} />
       <Route path="/mission" component={MissionPage} />
+      <Route path="/insights" component={InsightsPage} />
+      <Route path="/insights/article-1" component={Article1} />
+      <Route path="/insights/article-2" component={Article2} />
+      <Route path="/insights/article-3" component={Article3} />
+      <Route path="/insights/article-4" component={Article4} />
+      <Route path="/insights/article-5" component={Article5} />
+      <Route path="/insights/article-6" component={Article6} />
+      <Route path="/insights/article-7" component={Article7} />
+      <Route path="/insights/article-8" component={Article8} />
       <Route path="/interests" component={InterestsSelection} />
       <Route component={NotFound} />
     </Switch>
