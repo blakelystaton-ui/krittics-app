@@ -16,6 +16,9 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// Serve static legal pages from /pages directory
+app.use('/pages', express.static('pages'));
+
 // Prevent aggressive caching in development (especially Safari iOS)
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
