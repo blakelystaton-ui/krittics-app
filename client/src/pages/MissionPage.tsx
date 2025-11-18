@@ -11,7 +11,7 @@ export default function MissionPage() {
           background: 'linear-gradient(135deg, rgba(27, 169, 175, 0.3) 0%, rgba(27, 169, 175, 0.1) 50%, rgba(0, 0, 0, 0.8) 100%)'
         }}
       >
-        <Target className="h-16 w-16 mx-auto mb-4 text-primary" />
+        <Target className="h-16 w-16 mx-auto mb-4" style={{ color: '#1ba9af' }} />
         <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
           Our Mission and Vision
         </h1>
@@ -44,7 +44,7 @@ export default function MissionPage() {
             Our unique system is designed to reward you directly for your time:
           </p>
           
-          <div className="space-y-4 pl-4 border-l-4 border-primary">
+          <div className="space-y-4 pl-4 border-l-4" style={{ borderColor: '#1ba9af' }}>
             <div>
               <h3 className="font-semibold text-foreground mb-2">Watch and Engage</h3>
               <p className="text-muted-foreground">
