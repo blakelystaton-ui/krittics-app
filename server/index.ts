@@ -4,6 +4,40 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
+// Google AdSense Crawler Protection
+// ONLY apply "Coming Soon" on custom domain, keep Replit preview working
+app.use((req, res, next) => {
+  const ua = (req.headers["user-agent"] || "").toLowerCase();
+  const isGoogle = ua.includes("mediapartners-google") || 
+                   ua.includes("googlebot") || 
+                   ua.includes("adsbot-google");
+
+  // ONLY apply the Coming Soon page on the real custom domain
+  if (req.hostname !== "localhost" && 
+      req.hostname !== "replit.dev" && 
+      !req.hostname.endsWith(".replit.dev") && 
+      !isGoogle) {
+    return res.status(200).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krittics – Coming Soon</title>
+  <style>
+    body {font-family:system-ui,sans-serif;text-align:center;padding:60px;background:#0f172a;color:#e2e8f0;margin:0;}
+    h1 {font-size:3rem;margin-bottom:0;}
+    p {font-size:1.2rem;margin:20px 0;}
+  </style>
+</head>
+<body>
+  <h1>Krittics</h1>
+  <p>We're putting the finishing touches on the site.<br>Launch coming very soon — stay tuned!</p>
+</body>
+</html>`);
+  }
+  next();
+});
+
 declare module 'http' {
   interface IncomingMessage {
     rawBody: unknown
@@ -18,89 +52,6 @@ app.use(express.urlencoded({ extended: false }));
 
 // Serve static legal pages from /pages directory
 app.use('/pages', express.static('pages'));
-
-// Google AdSense Crawler Protection
-// Only allow Google crawlers to see the full site during approval process
-app.use((req, res, next) => {
-  const userAgent = req.get('user-agent') || '';
-  
-  // Check if it's a Google crawler (Mediapartners-Google or Googlebot)
-  const isGoogleCrawler = 
-    userAgent.includes('Mediapartners-Google') || 
-    userAgent.includes('Googlebot');
-  
-  // Allow crawlers to see the full site
-  if (isGoogleCrawler) {
-    return next();
-  }
-  
-  // Show "Coming Soon" page to all other visitors
-  res.status(200).send(`
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Krittics – Coming Soon</title>
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-          }
-          
-          .container {
-            text-align: center;
-            max-width: 600px;
-          }
-          
-          h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #1ba9af 0%, #14b8a6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-          }
-          
-          p {
-            font-size: 1.25rem;
-            line-height: 1.8;
-            color: #a0a0a0;
-          }
-          
-          @media (max-width: 640px) {
-            h1 {
-              font-size: 2rem;
-            }
-            
-            p {
-              font-size: 1rem;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>Krittics – Coming Soon</h1>
-          <p>We're putting the finishing touches on the site. Launch coming very soon — stay tuned!</p>
-        </div>
-      </body>
-    </html>
-  `);
-});
 
 // Prevent aggressive caching in development (especially Safari iOS)
 if (process.env.NODE_ENV === 'development') {
