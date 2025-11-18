@@ -101,7 +101,7 @@ export function Header() {
             </button>
           </Link>
           <Link href="/mission" data-testid="link-mission">
-            <button className="gradient-border-button">
+            <button className="gradient-border-button mission-button-attention">
               <span className="gradient-border-content">
                 <Target className="h-3.5 w-3.5 mr-1.5" />
                 <span>Mission</span>
