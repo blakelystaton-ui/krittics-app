@@ -101,12 +101,19 @@ export default function HomePage() {
       id: "1",
       title: "The Grand Adventure of Elias",
       description: "An epic journey through magical lands filled with wonder, danger, and self-discovery.",
+      tagline: null,
+      director: null,
+      cast: null,
       duration: 7200,
       genre: null,
       year: null,
       rating: null,
       posterUrl: null,
       videoUrl: null,
+      studio: null,
+      country: null,
+      language: null,
+      awards: null,
     };
   }
 

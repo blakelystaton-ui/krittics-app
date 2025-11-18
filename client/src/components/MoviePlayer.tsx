@@ -253,8 +253,67 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               </Button>
             </div>
             
+            {movie.tagline && (
+              <div className="mb-6">
+                <p className="text-lg italic text-primary font-medium">"{movie.tagline}"</p>
+              </div>
+            )}
+            
             <h3 className="font-display text-lg font-semibold text-foreground mb-3">Synopsis</h3>
-            <p className="text-base leading-relaxed text-muted-foreground">{movie.description}</p>
+            <p className="text-base leading-relaxed text-muted-foreground mb-6">{movie.description}</p>
+            
+            {/* Movie Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-sm">
+              {movie.director && (
+                <div>
+                  <span className="font-semibold text-foreground">Director:</span>{" "}
+                  <span className="text-muted-foreground">{movie.director}</span>
+                </div>
+              )}
+              {movie.cast && movie.cast.length > 0 && (
+                <div>
+                  <span className="font-semibold text-foreground">Cast:</span>{" "}
+                  <span className="text-muted-foreground">{movie.cast.join(", ")}</span>
+                </div>
+              )}
+              {movie.studio && (
+                <div>
+                  <span className="font-semibold text-foreground">Studio:</span>{" "}
+                  <span className="text-muted-foreground">{movie.studio}</span>
+                </div>
+              )}
+              {movie.year && (
+                <div>
+                  <span className="font-semibold text-foreground">Release Year:</span>{" "}
+                  <span className="text-muted-foreground">{movie.year}</span>
+                </div>
+              )}
+              {movie.country && (
+                <div>
+                  <span className="font-semibold text-foreground">Country:</span>{" "}
+                  <span className="text-muted-foreground">{movie.country}</span>
+                </div>
+              )}
+              {movie.language && (
+                <div>
+                  <span className="font-semibold text-foreground">Language:</span>{" "}
+                  <span className="text-muted-foreground">{movie.language}</span>
+                </div>
+              )}
+            </div>
+            
+            {movie.awards && movie.awards.length > 0 && (
+              <div className="mb-6">
+                <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <span className="text-primary">🏆</span> Awards & Recognition
+                </h4>
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  {movie.awards.map((award, index) => (
+                    <li key={index}>{award}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Trivia notification - positioned absolutely */}
             {showTriviaNotification && (
@@ -293,33 +352,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             )}
           </div>
         )}
-
-        {/* Cast & Crew Section */}
-        <div 
-          className="px-6 pb-6 pt-4"
-          style={{
-            background: 'rgb(0, 0, 0)'
-          }}
-        >
-          <h3 className="font-display text-lg font-semibold text-foreground mb-4">Cast & Crew</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-sm">
-              <p className="font-medium text-foreground">Director</p>
-              <p className="text-muted-foreground">Ton Roosendaal</p>
-            </div>
-            <div className="text-sm">
-              <p className="font-medium text-foreground">Producer</p>
-              <p className="text-muted-foreground">Blender Foundation</p>
-            </div>
-            <div className="text-sm">
-              <p className="font-medium text-foreground">Animation</p>
-              <p className="text-muted-foreground">Blender Institute</p>
-            </div>
-          </div>
-          
-          {/* Banner Ad in cast/crew section */}
-          <AdSense adSlot="5966285343" adFormat="auto" />
-        </div>
       </Card>
 
 

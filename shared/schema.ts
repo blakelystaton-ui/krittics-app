@@ -34,12 +34,19 @@ export const movies = pgTable("movies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description"),
+  tagline: text("tagline"),
+  director: text("director"),
+  cast: text("cast").array(),
   duration: integer("duration").notNull(), // in seconds
   genre: text("genre"),
   year: integer("year"),
   rating: text("rating"), // PG, PG-13, R, etc.
   posterUrl: text("poster_url"),
   videoUrl: text("video_url"),
+  studio: text("studio"),
+  country: text("country"),
+  language: text("language"),
+  awards: text("awards").array(),
 });
 
 // Trivia questions table
