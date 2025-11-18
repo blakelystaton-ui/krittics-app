@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,14 @@ export function Header() {
               <span className="gradient-border-content">
                 <Bookmark className="h-3.5 w-3.5 mr-1.5" />
                 <span>Queue</span>
+              </span>
+            </button>
+          </Link>
+          <Link href="/insights" data-testid="link-insights">
+            <button className="gradient-border-button">
+              <span className="gradient-border-content">
+                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+                <span>Insights</span>
               </span>
             </button>
           </Link>
