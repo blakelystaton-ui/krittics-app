@@ -12,6 +12,11 @@ app.use((req, res, next) => {
                    ua.includes("googlebot") || 
                    ua.includes("adsbot-google");
 
+  // Debug logging to diagnose hostname issue
+  if (req.path === '/') {
+    console.log('[Crawler Protection] Hostname:', req.hostname, 'Headers.host:', req.headers.host, 'IsGoogle:', isGoogle);
+  }
+
   // ONLY apply the Coming Soon page on the real custom domain
   if (req.hostname !== "localhost" && 
       req.hostname !== "replit.dev" && 
