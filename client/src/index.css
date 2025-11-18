@@ -598,6 +598,6 @@
   }
 
   .mission-button-attention {
-    animation: mission-shake-and-grow 3s ease-in-out infinite;
+    animation: mission-shake-and-grow 5s ease-in-out infinite;
   }
 }
