@@ -12,16 +12,21 @@ app.use((req, res, next) => {
                    ua.includes("googlebot") || 
                    ua.includes("adsbot-google");
 
-  // Debug logging to diagnose hostname issue
+  // Get the actual hostname - check X-Forwarded-Host for custom domains
+  const actualHost = (req.headers["x-forwarded-host"] || req.hostname || "").toString().toLowerCase();
+  
+  // Debug logging
   if (req.path === '/') {
-    console.log('[Crawler Protection] Hostname:', req.hostname, 'Headers.host:', req.headers.host, 'IsGoogle:', isGoogle);
+    console.log('[Crawler Protection] X-Forwarded-Host:', req.headers["x-forwarded-host"], 'Hostname:', req.hostname, 'ActualHost:', actualHost, 'IsGoogle:', isGoogle);
   }
 
-  // ONLY apply the Coming Soon page on the real custom domain
-  if (req.hostname !== "localhost" && 
-      req.hostname !== "replit.dev" && 
-      !req.hostname.endsWith(".replit.dev") && 
-      !isGoogle) {
+  // Check if this is a custom domain (not localhost or replit.dev)
+  const isCustomDomain = actualHost !== "localhost" && 
+                         actualHost !== "replit.dev" && 
+                         !actualHost.endsWith(".replit.dev");
+
+  // Show Coming Soon page on custom domain for non-Google visitors
+  if (isCustomDomain && !isGoogle) {
     return res.status(200).send(`<!DOCTYPE html>
 <html lang="en">
 <head>
