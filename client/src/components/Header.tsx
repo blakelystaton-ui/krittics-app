@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,14 @@ export function Header() {
               <span className="gradient-border-content">
                 <Bookmark className="h-3.5 w-3.5 mr-1.5" />
                 <span>Queue</span>
+              </span>
+            </button>
+          </Link>
+          <Link href="/mission" data-testid="link-mission">
+            <button className="gradient-border-button">
+              <span className="gradient-border-content">
+                <Target className="h-3.5 w-3.5 mr-1.5" />
+                <span>Mission</span>
               </span>
             </button>
           </Link>

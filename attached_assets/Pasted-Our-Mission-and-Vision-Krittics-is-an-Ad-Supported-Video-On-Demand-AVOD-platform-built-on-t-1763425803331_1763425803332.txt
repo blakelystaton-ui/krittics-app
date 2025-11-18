@@ -1,0 +1,50 @@
+Our Mission and Vision
+
+
+
+Krittics is an Ad-Supported Video On Demand (AVOD) platform built on the belief that viewers deserve a share in the success they help create. We are pioneering a new model where user engagement directly fuels both the content ecosystem and your rewards.
+
+
+
+Our mission is simple: To provide high-quality movie and video content while creating a mutually beneficial environment where viewers are rewarded for their time and attention. We aim to grow our dedicated community, targeting 20,000 Monthly Active Users (MAUs) in our first phase to achieve operational stability. The ultimate goal is 200,000 MAUs, which triggers the launch of our unique rewards distribution program for our dedicated users.
+
+
+
+The Krittics Difference: How it Works
+
+
+
+Krittics is pioneering the future of AVOD. We believe the value created by your attention and engagement should be shared with you.
+
+
+
+Our unique system is designed to reward you directly for your time:
+
+
+
+Watch and Engage: By watching our growing library of content and participating in unique interactive features like End-of-Movie Trivia and Krossfire, you are constantly generating and accumulating a share of our ad revenue.
+
+
+The 200K MAU Distribution Trigger: As our platform achieves the milestone of 200,000 Monthly Active Users (MAUs), we will initiate the process of securing a trusted financial distribution partner to formally facilitate the regulated payout of a percentage of ad revenue back to our users.
+
+
+A Shared Future: Reward accumulation begins now through engagement, but distribution is contingent upon reaching the 200,000 MAU threshold and establishing this formal, regulated partnership.
+
+
+You watch. You engage. You build the incentive.
+
+
+
+Powered by Technology & Our Commitment to Trust
+
+
+
+Powered by Technology: Krittics is built on modern, secure technology, utilizing Firebase for reliable authentication and backend operations, and the Gemini API to enhance the user experience.
+
+
+
+Our Commitment to Trust
+
+
+
+As a platform funded by advertising, we are committed to transparency and compliance. We work with trusted partners like Google Ad Manager and AdMob to ensure a high standard of ad quality. We value your privacy and encourage you to review our Privacy Policy and Terms of Service to understand how we operate and how your data is handled.

@@ -12,6 +12,7 @@ import BrowsePage from "@/pages/BrowsePage";
 import KrossfirePage from "@/pages/KrossfirePage";
 import PrivateRoomsPage from "@/pages/PrivateRoomsPage";
 import QueuePage from "@/pages/QueuePage";
+import MissionPage from "@/pages/MissionPage";
 import InterestsSelection from "@/pages/interests-selection";
 import NotFound from "@/pages/not-found";
 import type { User } from "@shared/schema";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/krossfire" component={KrossfirePage} />
       <Route path="/private-rooms" component={PrivateRoomsPage} />
       <Route path="/watchlist" component={QueuePage} />
+      <Route path="/mission" component={MissionPage} />
       <Route path="/interests" component={InterestsSelection} />
       <Route component={NotFound} />
     </Switch>
