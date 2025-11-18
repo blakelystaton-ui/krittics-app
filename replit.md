@@ -21,7 +21,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Queue Page**: Personal watchlist where users can manage movies they want to watch, featuring a teal gradient hero section and grid layout for saved movies.
 - **Dynamic Color Theming**: Movies influence the UI's accent colors for buttons, badges, and text, with smooth transitions.
 - **Responsive Design**: Mobile-first approach with smooth momentum scrolling on touch devices.
-- **Header Navigation**: Browse, Krossfire, and Queue buttons with teal gradient aesthetic. Avatar with dropdown (Help, Sign Out) for logged-in users, sign-in button otherwise, integrated with Replit Auth.
+- **Header Navigation**: Browse, Krossfire, Queue, Insights, and Mission buttons with teal gradient aesthetic. Avatar with dropdown (Help, Sign Out) for logged-in users, sign-in button otherwise, integrated with Replit Auth.
 
 ### Technical Implementations
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
@@ -37,6 +37,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
   - Other error codes: Network, initialization, or other Firebase failures
   Each error type displays tailored guidance with actionable steps.
 - **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting, persisted in PostgreSQL.
+- **Krittics Insights**: Comprehensive blog section with 8 in-depth articles exploring AVOD business strategy, interactive content economics, technology choices, and platform development. Articles cover: Interactive AVOD market dominance, Krossfire engagement economics, Firebase/Gemini/Node.js tech stack rationale, content licensing for startups, monetization metrics (ARPU, eCPM, LTV, Fill Rate), Firebase backend scaling best practices, beta testing methodologies, and mobile-first optimization strategies. Accessible via header navigation with teal gradient styling matching overall platform aesthetic.
 - **API Endpoints**: Comprehensive set of RESTful APIs for movies, trivia generation, game sessions, leaderboards, and friend management (search, add, top friends).
 - **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties (--teal, --teal-light, --teal-dark with RGB variants) for maintainable, reusable gradient effects. Includes 135° multi-stop gradient backgrounds and triple-layer glow effects for icons.
 
