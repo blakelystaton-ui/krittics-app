@@ -1,0 +1,46 @@
+EMERGENCY FIX: The crawler protection is only applying to Replit preview, not the custom domain deployment. This happens because Agent edits don't always rebuild the deployed instance. Wipe everything old and implement a universal version that works on BOTH preview and domain, but allows Google bots through everywhere.
+
+Exact steps—no skips:
+
+1. Open server/index.ts. DELETE any existing crawler/middleware code blocks completely (search for 'user-agent', 'mediapartners-google', or 'coming soon' and remove those app.use() blocks).
+
+2. Insert this EXACT middleware as the VERY FIRST app.use() right after 'const app = express();' (this applies globally but skips for bots):
+
+```ts
+// UNIVERSAL REPLIT PROTECTION 2025 - Works on Preview + Domain, Skips Google Bots
+app.use((req, res, next) => {
+  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const isGoogleBot = 
+    userAgent.includes('mediapartners-google') || 
+    userAgent.includes('googlebot') || 
+    userAgent.includes('adsbot-google');
+  
+  const isDevOverride = req.query.dev === 'true';  // Add ?dev=true to any URL to see full site during testing
+
+  // Log for debugging (check Console after)
+  console.log(`[PROTECT] Path: ${req.path} | UA snippet: ${userAgent.substring(0, 30)} | IsBot: ${isGoogleBot} | IsDev: ${isDevOverride}`);
+
+  if (!isGoogleBot && !isDevOverride) {
+    // Show Coming Soon to non-bots (applies to preview + domain for regular visits)
+    return res.status(200).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Krittics – Coming Soon</title>
+  <style>
+    body { font-family: system-ui, sans-serif; text-align: center; padding: 60px; background: #0f172a; color: #e2e8f0; margin: 0; }
+    h1 { font-size: 3rem; margin-bottom: 0; }
+    p { font-size: 1.2rem; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <h1>Krittics</h1>
+  <p>We're putting the finishing touches on the site.<br>Launch coming very soon — stay tuned!</p>
+</body>
+</html>`);
+  }
+  
+  // Bots or ?dev=true see full site
+  next();
+});

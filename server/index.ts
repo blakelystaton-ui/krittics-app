@@ -4,7 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// BULLETPROOF REPLIT CRAWLER PROTECTION 2025 - User-Agent + ?dev=true override
+// UNIVERSAL REPLIT PROTECTION 2025 - Works on Preview + Domain, Skips Google Bots
 app.use((req, res, next) => {
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
   const isGoogleBot = 
@@ -12,10 +12,13 @@ app.use((req, res, next) => {
     userAgent.includes('googlebot') || 
     userAgent.includes('adsbot-google');
   
-  const isDevOverride = req.query.dev === 'true';  // For manual testing: yourdomain.com?dev=true
+  const isDevOverride = req.query.dev === 'true';  // Add ?dev=true to any URL to see full site during testing
+
+  // Log for debugging (check Console after)
+  console.log(`[PROTECT] Path: ${req.path} | UA snippet: ${userAgent.substring(0, 30)} | IsBot: ${isGoogleBot} | IsDev: ${isDevOverride}`);
 
   if (!isGoogleBot && !isDevOverride) {
-    // Public gets Coming Soon
+    // Show Coming Soon to non-bots (applies to preview + domain for regular visits)
     return res.status(200).send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +38,7 @@ app.use((req, res, next) => {
 </html>`);
   }
   
-  // Google bots or ?dev=true see full site
+  // Bots or ?dev=true see full site
   next();
 });
 
