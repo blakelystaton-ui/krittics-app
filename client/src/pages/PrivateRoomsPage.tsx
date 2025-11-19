@@ -24,6 +24,7 @@ import {
 } from 'firebase/firestore';
 import { ArrowLeft, Crown, Send, Users, UserPlus, Search, Play, Pause, Film } from 'lucide-react';
 import { CrewMatches } from '@/components/CrewMatches';
+import { FriendSearchDropdown } from '@/components/FriendSearchDropdown';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { User, Movie } from '@shared/schema';
 import { EnhancedVideoPlayer } from '@/components/EnhancedVideoPlayer';
@@ -238,9 +239,18 @@ export default function PrivateRoomsPage() {
     enabled: isAuthReady && showFriendsSection,
   });
 
-  // Search users
+  // Search users (manual search)
   const { data: searchResults = [] } = useQuery<User[]>({
     queryKey: ['/api/friends/search', friendSearchQuery],
+    queryFn: async () => {
+      const res = await fetch(`/api/friends/search?q=${encodeURIComponent(friendSearchQuery)}`, {
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        throw new Error('Failed to search users');
+      }
+      return res.json();
+    },
     enabled: isAuthReady && showFriendsSection && friendSearchQuery.trim().length >= 2,
   });
 
@@ -255,6 +265,57 @@ export default function PrivateRoomsPage() {
       setStatusMessage('Friend added successfully!');
     },
   });
+
+  // Auto-invite friend (creates room + invites friend)
+  const handleQuickInviteFriend = async (friend: User) => {
+    if (!db || !userId || !isFirebaseConfigured) {
+      setStatusMessage('Firebase is not configured. Please configure Firebase secrets to enable multiplayer features.');
+      return;
+    }
+
+    // Create room
+    const newCode = generateRoomCode();
+    const friendName = friend.firstName && friend.lastName 
+      ? `${friend.firstName} ${friend.lastName}` 
+      : friend.email || 'Friend';
+    const roomName = `Crew with ${friendName}`;
+    const roomRef = doc(db, roomsCollectionPath, newCode);
+
+    try {
+      // Create room with both users
+      await setDoc(roomRef, {
+        roomCode: newCode,
+        roomName,
+        hostId: userId,
+        movieTitle: 'Movie Selection Pending...',
+        members: [userId, friend.id],
+        status: 'lobby',
+        createdAt: serverTimestamp(),
+      });
+
+      // Send welcome message to the room
+      const messagesCollectionPath = `${roomsCollectionPath}/${newCode}/messages`;
+      await addDoc(collection(db, messagesCollectionPath), {
+        userId: 'system',
+        userName: 'Krittics',
+        text: `${friendName} has been invited to the crew!`,
+        timestamp: serverTimestamp(),
+      });
+
+      // Track friend interaction
+      await apiRequest('POST', `/api/friends/${friend.id}/track`, {
+        interactionType: 'room_invite',
+      });
+
+      setRoomCode(newCode);
+      setStatusMessage(`Room created and ${friendName} invited! Code: ${newCode}`);
+      setShowFriendsSection(false);
+
+    } catch (error) {
+      console.error("Error creating room and inviting friend:", error);
+      setStatusMessage(`Failed to invite ${friendName}. Please try again.`);
+    }
+  };
 
   // Real-time listener for the current room
   useEffect(() => {
@@ -844,35 +905,44 @@ export default function PrivateRoomsPage() {
                   <CardDescription>Search for friends or select from your most frequent collaborators</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
-                  {/* Search Bar */}
+                  {/* Quick Invite - Search & Invite Friends */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium">Quick Invite (Auto-create crew)</label>
+                    <FriendSearchDropdown 
+                      onSelectFriend={handleQuickInviteFriend}
+                      placeholder="Search & invite friends instantly..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Click a friend to instantly create a crew room and invite them
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or manually search
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Manual Search Bar (Original) */}
                   <div className="space-y-3">
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           type="text"
-                          placeholder="Search for friends by name or email..."
+                          placeholder="Search to add as friend..."
                           value={friendSearchQuery}
                           onChange={(e) => setFriendSearchQuery(e.target.value)}
                           className="pl-10"
-                          data-testid="input-friend-search"
+                          data-testid="input-friend-search-manual"
                         />
                       </div>
-                      <button
-                        onClick={() => {
-                          if (friendSearchQuery.trim().length < 2) {
-                            setStatusMessage('Please enter at least 2 characters to search');
-                          }
-                        }}
-                        disabled={friendSearchQuery.trim().length < 2}
-                        className="gradient-border-button min-h-9 px-4"
-                        data-testid="button-search-friends"
-                      >
-                        <span className="gradient-border-content flex items-center gap-2">
-                          <Search className="h-4 w-4" />
-                          Search
-                        </span>
-                      </button>
                     </div>
                   </div>
 

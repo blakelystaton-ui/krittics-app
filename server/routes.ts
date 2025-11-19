@@ -329,6 +329,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/friends/:friendId/track - Track friend interaction
+  app.post("/api/friends/:friendId/track", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { friendId } = req.params;
+      const { interactionType } = req.body;
+
+      await storage.trackInteraction(userId, friendId, interactionType || 'general');
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error tracking interaction:", error);
+      res.status(500).json({ error: "Failed to track interaction" });
+    }
+  });
+
   // GET /api/watchlist - Get user's watchlist
   app.get("/api/watchlist", isAuthenticated, async (req: any, res) => {
     try {
