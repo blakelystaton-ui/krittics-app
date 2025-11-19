@@ -56,6 +56,127 @@ const generateRoomCode = () => {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 };
 
+interface SyncedVideoPlayerProps {
+  movie: Movie;
+  roomVideoState: {
+    movieId: string | null;
+    isPlaying: boolean;
+    currentTime: number;
+    lastUpdated: any;
+  };
+  isHost: boolean;
+  onPlayPause: (isPlaying: boolean, currentTime: number) => void;
+  onSeek: (currentTime: number) => void;
+}
+
+function SyncedVideoPlayer({ movie, roomVideoState, isHost, onPlayPause, onSeek }: SyncedVideoPlayerProps) {
+  const [localTime, setLocalTime] = useState(roomVideoState.currentTime);
+  const [isPlaying, setIsPlaying] = useState(roomVideoState.isPlaying);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const isSyncingRef = useRef(false);
+  const lastSyncTimeRef = useRef(Date.now());
+
+  // Sync video state from Firebase (for both host and non-host)
+  useEffect(() => {
+    if (isSyncingRef.current) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Sync play/pause state
+    if (roomVideoState.isPlaying && video.paused) {
+      video.play().catch(console.error);
+      setIsPlaying(true);
+    } else if (!roomVideoState.isPlaying && !video.paused) {
+      video.pause();
+      setIsPlaying(false);
+    }
+
+    // Sync time if difference is significant (> 2 seconds)
+    const timeDiff = Math.abs(video.currentTime - roomVideoState.currentTime);
+    if (timeDiff > 2) {
+      isSyncingRef.current = true;
+      video.currentTime = roomVideoState.currentTime;
+      setLocalTime(roomVideoState.currentTime);
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 500);
+    }
+  }, [roomVideoState.isPlaying, roomVideoState.currentTime, roomVideoState.lastUpdated]);
+
+  // Handle video time updates (host only)
+  const handleTimeUpdate = () => {
+    if (!isHost) return;
+    
+    const video = videoRef.current;
+    if (!video || isSyncingRef.current) return;
+
+    setLocalTime(video.currentTime);
+
+    // Throttle sync updates to every 5 seconds during playback
+    const now = Date.now();
+    if (now - lastSyncTimeRef.current > 5000 && !video.paused) {
+      onSeek(video.currentTime);
+      lastSyncTimeRef.current = now;
+    }
+  };
+
+  // Handle play event (host only)
+  const handlePlay = () => {
+    if (!isHost) return;
+    
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsPlaying(true);
+    onPlayPause(true, video.currentTime);
+  };
+
+  // Handle pause event (host only)
+  const handlePause = () => {
+    if (!isHost) return;
+    
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsPlaying(false);
+    onPlayPause(false, video.currentTime);
+  };
+
+  // Handle seek event (host only)
+  const handleSeeked = () => {
+    if (!isHost) return;
+    
+    const video = videoRef.current;
+    if (!video || isSyncingRef.current) return;
+
+    onSeek(video.currentTime);
+  };
+
+  return (
+    <div className="relative aspect-video bg-black">
+      <video
+        ref={videoRef}
+        src={movie.videoUrl || undefined}
+        poster={movie.posterUrl || undefined}
+        controls
+        className="w-full h-full"
+        onTimeUpdate={handleTimeUpdate}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onSeeked={handleSeeked}
+        data-testid="video-player-synced"
+      />
+      {!isHost && (
+        <div className="absolute top-2 right-2 px-3 py-1.5 bg-black/80 rounded-md text-xs text-white flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-[var(--teal)] animate-pulse" />
+          Synced to host
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PrivateRoomsPage() {
   const [, setLocation] = useLocation();
   const { db, userId, isAuthReady, isFirebaseConfigured, authError } = useFirebase();
@@ -462,7 +583,7 @@ export default function PrivateRoomsPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <Button
                     onClick={handleLeaveRoom}
                     variant={isHost ? "destructive" : "secondary"}
@@ -470,17 +591,24 @@ export default function PrivateRoomsPage() {
                   >
                     {isHost ? 'End Session (Delete Room)' : 'Leave Room'}
                   </Button>
-                  {isHost && (
-                    <button
-                      onClick={() => setStatusMessage('Feature coming soon! This button will sync everyone to a selected movie.')}
-                      disabled
-                      className="gradient-border-button min-h-9 px-4 opacity-50 cursor-not-allowed"
-                      data-testid="button-start-movie"
-                    >
-                      <span className="gradient-border-content">
-                        Start Movie Sync
-                      </span>
-                    </button>
+                  {isHost && !currentRoom.videoState?.movieId && (
+                    <div className="flex gap-2 items-center flex-1">
+                      <Select onValueChange={handleMovieSelect} data-testid="select-movie">
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select a movie to watch together..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {movies.map((movie) => (
+                            <SelectItem key={movie.id} value={movie.id}>
+                              <div className="flex items-center gap-2">
+                                <Film className="h-4 w-4" />
+                                {movie.title} ({movie.year})
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
                 </div>
 
@@ -491,6 +619,42 @@ export default function PrivateRoomsPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Synchronized Video Player */}
+            {currentRoom.videoState?.movieId && (() => {
+              const selectedMovie = movies.find(m => m.id === currentRoom.videoState?.movieId);
+              if (!selectedMovie) return null;
+
+              return (
+                <Card data-testid="card-video-player">
+                  <CardHeader className="teal-gradient-bg">
+                    <CardTitle className="text-foreground flex items-center gap-2">
+                      <Film className="h-5 w-5" />
+                      Now Watching: {selectedMovie.title}
+                    </CardTitle>
+                    {isHost && (
+                      <CardDescription className="text-foreground/80 mt-2">
+                        You're the host - your playback controls sync to all members
+                      </CardDescription>
+                    )}
+                    {!isHost && (
+                      <CardDescription className="text-foreground/80 mt-2">
+                        Synced to host's playback
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <SyncedVideoPlayer
+                      movie={selectedMovie}
+                      roomVideoState={currentRoom.videoState}
+                      isHost={isHost}
+                      onPlayPause={handleVideoPlayPause}
+                      onSeek={handleVideoSeek}
+                    />
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {/* Live Chat */}
             <Card>
