@@ -22,9 +22,11 @@ import {
   orderBy,
   serverTimestamp 
 } from 'firebase/firestore';
-import { ArrowLeft, Crown, Send, Users, UserPlus, Search } from 'lucide-react';
+import { ArrowLeft, Crown, Send, Users, UserPlus, Search, Play, Pause, Film } from 'lucide-react';
 import { CrewMatches } from '@/components/CrewMatches';
-import type { User } from '@shared/schema';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { User, Movie } from '@shared/schema';
+import { EnhancedVideoPlayer } from '@/components/EnhancedVideoPlayer';
 
 interface RoomData {
   roomCode: string;
@@ -34,6 +36,12 @@ interface RoomData {
   members: string[];
   status: 'lobby' | 'playing' | 'finished';
   createdAt: any;
+  videoState?: {
+    movieId: string | null;
+    isPlaying: boolean;
+    currentTime: number;
+    lastUpdated: any;
+  };
 }
 
 interface Message {
@@ -59,10 +67,18 @@ export default function PrivateRoomsPage() {
   const [newMessage, setNewMessage] = useState('');
   const [showFriendsSection, setShowFriendsSection] = useState(false);
   const [friendSearchQuery, setFriendSearchQuery] = useState('');
+  const [selectedMovieId, setSelectedMovieId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const videoPlayerRef = useRef<any>(null);
   const queryClient = useQueryClient();
   
   const roomsCollectionPath = useMemo(() => 'krittics/multiplayer/rooms', []);
+
+  // Fetch movies for selection
+  const { data: movies = [] } = useQuery<Movie[]>({
+    queryKey: ['/api/movies'],
+    enabled: isAuthReady,
+  });
 
   // Fetch friends
   const { data: friends = [] } = useQuery<(User & { interactionCount: number })[]>({
@@ -251,6 +267,66 @@ export default function PrivateRoomsPage() {
     setRoomCode('');
     setMessages([]);
     setLocation('/krossfire');
+  };
+
+  // Handle movie selection (host only)
+  const handleMovieSelect = async (movieId: string) => {
+    if (!db || !currentRoom || !isFirebaseConfigured || currentRoom.hostId !== userId) return;
+
+    const movie = movies.find(m => m.id === movieId);
+    if (!movie) return;
+
+    const roomRef = doc(db, roomsCollectionPath, currentRoom.roomCode);
+    
+    try {
+      await updateDoc(roomRef, {
+        movieTitle: movie.title,
+        videoState: {
+          movieId: movie.id,
+          isPlaying: false,
+          currentTime: 0,
+          lastUpdated: serverTimestamp(),
+        }
+      });
+      setSelectedMovieId(movieId);
+      setStatusMessage(`Now watching: ${movie.title}`);
+    } catch (error) {
+      console.error("Error selecting movie:", error);
+      setStatusMessage('Failed to select movie.');
+    }
+  };
+
+  // Handle video play/pause (host only)
+  const handleVideoPlayPause = async (isPlaying: boolean, currentTime: number) => {
+    if (!db || !currentRoom || !isFirebaseConfigured || currentRoom.hostId !== userId) return;
+
+    const roomRef = doc(db, roomsCollectionPath, currentRoom.roomCode);
+    
+    try {
+      await updateDoc(roomRef, {
+        'videoState.isPlaying': isPlaying,
+        'videoState.currentTime': currentTime,
+        'videoState.lastUpdated': serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error updating video state:", error);
+    }
+  };
+
+  // Handle video seek (host only)
+  const handleVideoSeek = async (currentTime: number) => {
+    if (!db || !currentRoom || !isFirebaseConfigured || currentRoom.hostId !== userId) return;
+
+    const roomRef = doc(db, roomsCollectionPath, currentRoom.roomCode);
+    
+    try {
+      await updateDoc(roomRef, {
+        'videoState.currentTime': currentTime,
+        'videoState.lastUpdated': serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error seeking video:", error);
+    }
   };
 
   if (!isAuthReady) {
