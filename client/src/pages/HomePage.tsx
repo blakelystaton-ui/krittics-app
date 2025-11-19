@@ -31,7 +31,7 @@ export default function HomePage() {
 
   // Create a Set of movie IDs in the watchlist for quick lookup
   const queueMovieIds = useMemo(() => {
-    return new Set(watchlistMovies.map(m => m.id));
+    return new Set((watchlistMovies || []).map(m => m.id));
   }, [watchlistMovies]);
 
   // Add/Remove from watchlist mutation with optimistic updates

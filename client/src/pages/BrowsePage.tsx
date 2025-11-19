@@ -599,7 +599,7 @@ export default function BrowsePage() {
         )}
 
         {/* First row - Continue Watching */}
-        {continueWatchingMovies.length > 0 && (
+        {continueWatchingMovies && continueWatchingMovies.length > 0 && (
           <div 
             className="relative group/row mb-12 py-6 rounded-lg" 
             data-testid="content-row-continue-watching"
