@@ -408,10 +408,19 @@ export function EnhancedVideoPlayer({
         
         // Only save if progress changed by 5+ seconds
         if (Math.abs(progressSeconds - lastSavedProgressRef.current) >= 5) {
+          console.log('Saving progress:', { movieId, progressSeconds, lastSaved: lastSavedProgressRef.current });
           lastSavedProgressRef.current = progressSeconds;
           const completed = progress >= 95;
           saveProgressMutation.mutate({ progressSeconds, completed });
         }
+      } else if (currentTime > 0) {
+        // Debug why we're not saving
+        console.log('Progress NOT saving:', { 
+          movieId: movieId || 'missing', 
+          user: user ? 'authenticated' : 'not authenticated', 
+          currentTime, 
+          duration 
+        });
       }
 
       // Use ref to access current callback
