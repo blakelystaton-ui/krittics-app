@@ -918,9 +918,9 @@ export default function PrivateRoomsPage() {
                   {friendSearchQuery.trim().length < 2 && (
                     <div className="space-y-2">
                       <h4 className="text-sm font-semibold text-muted-foreground">
-                        Your Top Friends {friends.length > 0 && `(${friends.length})`}
+                        Your Top Friends {friends && friends.length > 0 && `(${friends.length})`}
                       </h4>
-                      {friends.length === 0 ? (
+                      {!friends || friends.length === 0 ? (
                         <div className="text-center py-8">
                           <Users className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
                           <p className="text-sm text-muted-foreground">No friends yet</p>
