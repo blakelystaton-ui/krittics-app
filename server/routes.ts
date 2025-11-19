@@ -427,6 +427,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // POST /api/progress/:movieId - Update viewing progress
+  app.post("/api/progress/:movieId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { movieId } = req.params;
+      const progressSchema = z.object({
+        progressSeconds: z.number().int().min(0),
+        completed: z.boolean().optional(),
+      });
+
+      const validated = progressSchema.parse(req.body);
+      const progress = await storage.updateVideoProgress(
+        userId,
+        movieId,
+        validated.progressSeconds,
+        validated.completed ?? false
+      );
+      res.json(progress);
+    } catch (error) {
+      console.error("Error updating progress:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid request", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update progress" });
+    }
+  });
+
+  // GET /api/progress/:movieId - Get specific movie progress
+  app.get("/api/progress/:movieId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { movieId } = req.params;
+      const progress = await storage.getVideoProgress(userId, movieId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Error fetching progress:", error);
+      res.status(500).json({ error: "Failed to fetch progress" });
+    }
+  });
+
+  // GET /api/continue-watching - Get movies in progress (limited to 8, sorted by most recent)
+  app.get("/api/continue-watching", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const continueWatching = await storage.getContinueWatching(userId);
+      res.json(continueWatching);
+    } catch (error) {
+      console.error("Error fetching continue watching:", error);
+      res.status(500).json({ error: "Failed to fetch continue watching" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

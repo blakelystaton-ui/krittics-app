@@ -23,6 +23,7 @@ import {
   friendships,
   friendInteractions,
   watchlist,
+  videoProgress,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -73,6 +74,11 @@ export interface IStorage {
   updateUserInterests(userId: string, interests: string[]): Promise<User>;
   getUserInterests(userId: string): Promise<string[]>;
   findCrewByInterests(userId: string): Promise<(User & { sharedInterests: string[] })[]>;
+
+  // Video Progress
+  updateVideoProgress(userId: string, movieId: string, progressSeconds: number, completed: boolean): Promise<any>;
+  getVideoProgress(userId: string, movieId: string): Promise<any>;
+  getContinueWatching(userId: string): Promise<(Movie & { progressSeconds: number; progressPercentage: number })[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -776,6 +782,116 @@ export class DatabaseStorage implements IStorage {
       .slice(0, 20);
 
     return matchesWithShared;
+  }
+
+  // Video Progress operations
+  async updateVideoProgress(
+    userId: string,
+    movieId: string,
+    progressSeconds: number,
+    completed: boolean
+  ): Promise<any> {
+    // Check if progress entry exists
+    const existing = await db
+      .select()
+      .from(videoProgress)
+      .where(
+        and(
+          eq(videoProgress.userId, userId),
+          eq(videoProgress.movieId, movieId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Update existing
+      const result = await db
+        .update(videoProgress)
+        .set({
+          progressSeconds,
+          completed,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(videoProgress.userId, userId),
+            eq(videoProgress.movieId, movieId)
+          )
+        )
+        .returning();
+      return result[0];
+    } else {
+      // Insert new
+      const result = await db
+        .insert(videoProgress)
+        .values({
+          userId,
+          movieId,
+          progressSeconds,
+          completed,
+        })
+        .returning();
+      return result[0];
+    }
+  }
+
+  async getVideoProgress(userId: string, movieId: string): Promise<any> {
+    const result = await db
+      .select()
+      .from(videoProgress)
+      .where(
+        and(
+          eq(videoProgress.userId, userId),
+          eq(videoProgress.movieId, movieId)
+        )
+      )
+      .limit(1);
+
+    return result[0] || null;
+  }
+
+  async getContinueWatching(userId: string): Promise<(Movie & { progressSeconds: number; progressPercentage: number })[]> {
+    // Get in-progress movies (not completed, with progress > 0)
+    // Limited to 8, sorted by most recently updated
+    const result = await db
+      .select({
+        id: movies.id,
+        title: movies.title,
+        description: movies.description,
+        tagline: movies.tagline,
+        director: movies.director,
+        cast: movies.cast,
+        duration: movies.duration,
+        genre: movies.genre,
+        year: movies.year,
+        rating: movies.rating,
+        posterUrl: movies.posterUrl,
+        videoUrl: movies.videoUrl,
+        studio: movies.studio,
+        country: movies.country,
+        language: movies.language,
+        awards: movies.awards,
+        progressSeconds: videoProgress.progressSeconds,
+      })
+      .from(videoProgress)
+      .innerJoin(movies, eq(videoProgress.movieId, movies.id))
+      .where(
+        and(
+          eq(videoProgress.userId, userId),
+          eq(videoProgress.completed, false),
+          sql`${videoProgress.progressSeconds} > 0`
+        )
+      )
+      .orderBy(desc(videoProgress.updatedAt))
+      .limit(8);
+
+    // Calculate progress percentage
+    return result.map((item) => ({
+      ...item,
+      progressPercentage: item.duration > 0 
+        ? Math.round((item.progressSeconds / item.duration) * 100)
+        : 0,
+    }));
   }
 }
 
