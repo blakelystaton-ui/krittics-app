@@ -7,7 +7,7 @@ import 'videojs-ima';
 import { AdSense, AdSenseInterstitial } from './AdSense';
 import Player from 'video.js/dist/types/player';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 // Type assertion helper for plugin methods
 type PlayerWithPlugins = Player & {
@@ -292,6 +292,10 @@ export function EnhancedVideoPlayer({
     mutationFn: async ({ progressSeconds, completed }: { progressSeconds: number; completed: boolean }) => {
       if (!movieId) return;
       await apiRequest('POST', `/api/progress/${movieId}`, { progressSeconds, completed });
+    },
+    onSuccess: () => {
+      // Invalidate Continue Watching cache so it refreshes with updated order
+      queryClient.invalidateQueries({ queryKey: ['/api/continue-watching'] });
     },
   });
 
