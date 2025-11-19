@@ -4,45 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// PRODUCTION-ONLY CRAWLER PROTECTION - Only applies to www.krittics.com, not Replit preview
-app.use((req, res, next) => {
-  // Only apply protection in production environment (www.krittics.com)
-  if (process.env.NODE_ENV !== 'production') {
-    return next(); // Skip protection in development (Replit preview works normally)
-  }
-
-  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
-  const isGoogleBot = 
-    userAgent.includes('mediapartners-google') || 
-    userAgent.includes('googlebot') || 
-    userAgent.includes('adsbot-google');
-  
-  const isDevOverride = req.query.dev === 'true';  // Add ?dev=true to bypass on www.krittics.com
-
-  if (!isGoogleBot && !isDevOverride) {
-    // Show Coming Soon to public visitors on www.krittics.com
-    return res.status(200).send(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Krittics – Coming Soon</title>
-  <style>
-    body { font-family: system-ui, sans-serif; text-align: center; padding: 60px; background: #0f172a; color: #e2e8f0; margin: 0; }
-    h1 { font-size: 3rem; margin-bottom: 0; }
-    p { font-size: 1.2rem; margin: 20px 0; }
-  </style>
-</head>
-<body>
-  <h1>Krittics</h1>
-  <p>We're putting the finishing touches on the site.<br>Launch coming very soon — stay tuned!</p>
-</body>
-</html>`);
-  }
-  
-  // Google bots or ?dev=true see full site on www.krittics.com
-  next();
-});
+// No server-side blocker - teaser overlay is now handled client-side in App.tsx
+// This allows Google and all bots to crawl the full site content
 
 declare module 'http' {
   interface IncomingMessage {

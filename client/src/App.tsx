@@ -82,6 +82,29 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function TeaserOverlay() {
+  // Only show in production (www.krittics.com)
+  if (import.meta.env.MODE !== 'production') {
+    return null;
+  }
+
+  return (
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 pointer-events-none"
+      style={{ backdropFilter: 'blur(1px)' }}
+    >
+      <div className="text-center px-4">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-wider">
+          KRITTICS — LAUNCHING SOON
+        </h1>
+        <p className="text-sm md:text-base text-white/70 italic">
+          (Full site visible to Google reviewers)
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -105,6 +128,7 @@ function AppContent() {
 
   return (
     <OnboardingGuard>
+      <TeaserOverlay />
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1">
