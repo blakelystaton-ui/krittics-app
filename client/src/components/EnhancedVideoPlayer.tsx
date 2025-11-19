@@ -278,7 +278,7 @@ export function EnhancedVideoPlayer({
 
   // Fetch user info to check if authenticated
   const { data: user } = useQuery<{ id: string } | null>({
-    queryKey: ['/api/user'],
+    queryKey: ['/api/auth/user'],
   });
 
   // Load initial progress if authenticated and movieId provided
