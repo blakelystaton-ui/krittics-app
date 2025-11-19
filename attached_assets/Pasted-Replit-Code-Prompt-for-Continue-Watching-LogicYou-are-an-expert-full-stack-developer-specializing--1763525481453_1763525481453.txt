@@ -1,0 +1,33 @@
+Replit Code Prompt for 'Continue Watching' LogicYou are an expert full-stack developer specializing in JavaScript/Node.js, Firebase, and Video.js. The user is building a video streaming service named Krittics.
+
+**TASK:** Implement the required logic for the **"Continue Watching" row** persistence and sorting. This logic must be split into the **Frontend (Video.js event handling)** and the **Backend (Firebase Firestore update logic)**.
+
+**Technology Stack Context:**
+1.  **Frontend:** Uses **Video.js** for the player.
+2.  **Backend:** Uses **Firebase Cloud Functions (Node.js)** to handle database updates to **Firestore**.
+3.  **User Data Storage:** Each user has a document in the `users` collection. This document has a sub-field named `continueWatching` which is an **array of objects**.
+
+**Data Structure Example (Firestore):**
+```json
+// users/{userID}/
+{
+  "continueWatching": [
+    { "movieId": "movieB_id", "lastWatchedAt": 1700123400000, "watchTime": 120 },
+    { "movieId": "movieA_id", "lastWatchedAt": 1700123000000, "watchTime": 300 },
+    // ... up to 8 items, sorted by lastWatchedAt descending
+  ]
+}
+Required Logic Rules:TRIGGER: The logic must run only when a movie is played for a duration of 5 seconds or longer in a single viewing session.MAX ITEMS: The continueWatching array must never exceed 8 items.SORTING/PROMOTION ACTION:If a movie is watched for $\ge 5$ seconds, it must be promoted to the front of the continueWatching array.The primary sort order for the array must be lastWatchedAt in descending order (newest first).EVICTION ACTION: If the array already has 8 items and a new movie is promoted/added, the movie with the oldest lastWatchedAt (the 9th item) must be removed/evicted from the end of the array.Frontend Implementation Steps (Video.js Plugin/Event):Provide the necessary JavaScript code that hooks into the Video.js player.Use the timeupdate or ended event listener, but specifically track if the cumulative playtime since the video started/loaded exceeds 5 seconds.When the 5-second condition is met, trigger a Firebase Cloud Function (e.g., updateContinueWatching) via an HTTP request or an appropriate mechanism, passing the userID and the movieId.Backend Implementation Steps (Firebase Cloud Function/Firestore Update):Provide the Node.js code for the updateContinueWatching function.This function must perform a transactional update on the user's Firestore document.The transaction logic must:Fetch the existing continueWatching array.Find the entry for the new movieId.If found, update its lastWatchedAt to the current timestamp.If not found, prepend a new object to the array with the current timestamp.Sort the entire array by lastWatchedAt (newest first).Slice the array to ensure it contains a maximum of 8 elements.Write the new array back to Firestore.Expected Output:videojs-continue-watching-plugin.js: The minimal Frontend JavaScript code (showing the 5-second logic and the function call).index.js (Cloud Function): The complete Node.js code for the updateContinueWatching function, including Firestore transaction logic.
+***
+
+### Why this prompt works better:
+
+* **Defines State:** Explicitly references your technology (**Video.js, Firestore**) and the exact **data structure** (`continueWatching` array of objects).
+* **Defines Trigger and Condition:** Clearly sets the **$\ge 5$ second rule** as the sole trigger for the update.
+* **Separates Concerns:** Breaks the task into **Frontend** and **Backend** parts, forcing the Replit generator to address both sides of the application.
+* **Uses Professional Terms:** Uses terms like **"transactional update,"** **"sort,"** and **"eviction"** which are clear coding concepts, leaving less room for misinterpretation.
+* **Sets Max Limit:** Reinforces the **maximum 8 items** rule twice, ensuring the array slicing is included.
+
+This level of detail should result in the correct, production-ready code you need.
+
+Would you like me to start drafting the code for the **Frontend** or the **Backend** based on
