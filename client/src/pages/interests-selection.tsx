@@ -48,9 +48,10 @@ export default function InterestsSelection() {
       if (!response.ok) throw new Error("Failed to save interests");
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/user/interests"] });
+    onSuccess: async () => {
+      // Wait for queries to invalidate before navigating
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/user/interests"] });
       navigate("/");
     },
   });
