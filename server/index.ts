@@ -4,21 +4,23 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// UNIVERSAL REPLIT PROTECTION 2025 - Works on Preview + Domain, Skips Google Bots
+// PRODUCTION-ONLY CRAWLER PROTECTION - Only applies to www.krittics.com, not Replit preview
 app.use((req, res, next) => {
+  // Only apply protection in production environment (www.krittics.com)
+  if (process.env.NODE_ENV !== 'production') {
+    return next(); // Skip protection in development (Replit preview works normally)
+  }
+
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
   const isGoogleBot = 
     userAgent.includes('mediapartners-google') || 
     userAgent.includes('googlebot') || 
     userAgent.includes('adsbot-google');
   
-  const isDevOverride = req.query.dev === 'true';  // Add ?dev=true to any URL to see full site during testing
-
-  // Log for debugging (check Console after)
-  console.log(`[PROTECT] Path: ${req.path} | UA snippet: ${userAgent.substring(0, 30)} | IsBot: ${isGoogleBot} | IsDev: ${isDevOverride}`);
+  const isDevOverride = req.query.dev === 'true';  // Add ?dev=true to bypass on www.krittics.com
 
   if (!isGoogleBot && !isDevOverride) {
-    // Show Coming Soon to non-bots (applies to preview + domain for regular visits)
+    // Show Coming Soon to public visitors on www.krittics.com
     return res.status(200).send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +40,7 @@ app.use((req, res, next) => {
 </html>`);
   }
   
-  // Bots or ?dev=true see full site
+  // Google bots or ?dev=true see full site on www.krittics.com
   next();
 });
 
