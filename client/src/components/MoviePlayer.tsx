@@ -148,6 +148,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             <EnhancedVideoPlayer
               src={movie.videoUrl}
               poster={movie.posterUrl || undefined}
+              movieId={movie.id}
               onTimeUpdate={(currentTime, duration) => {
                 setCurrentTime(currentTime);
                 setDuration(duration);

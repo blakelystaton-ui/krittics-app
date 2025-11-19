@@ -254,6 +254,11 @@ export default function BrowsePage() {
     queryKey: ['/api/watchlist'],
   });
 
+  // Fetch Continue Watching movies with progress
+  const { data: continueWatchingMovies = [] } = useQuery<(Movie & { progressSeconds: number; progressPercentage: number })[]>({
+    queryKey: ['/api/continue-watching'],
+  });
+
   // Create a Set of movie IDs in the watchlist for quick lookup
   const queueMovieIds = useMemo(() => {
     return new Set((watchlistMovies || []).map(m => m.id));
@@ -594,30 +599,32 @@ export default function BrowsePage() {
         )}
 
         {/* First row - Continue Watching */}
-        <div 
-          className="relative group/row mb-12 py-6 rounded-lg" 
-          data-testid="content-row-continue-watching"
-          style={{
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%), linear-gradient(135deg, rgba(21, 212, 220, 0.25) 0%, rgba(27, 169, 175, 0.3) 25%, rgba(14, 138, 143, 0.2) 50%, rgba(27, 169, 175, 0.25) 75%, rgba(21, 212, 220, 0.2) 100%)'
-          }}
-        >
-          <h2 className="font-display text-2xl font-bold text-foreground mb-4 px-4 md:px-12">Continue Watching</h2>
-          
-          {/* Movie cards for Continue Watching */}
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll px-4 md:px-12 pb-4">
-            {movies.slice(0, 8).map((movie, index) => (
-              <MovieCard 
-                key={movie.id} 
-                movie={movie} 
-                onClick={() => handleMovieClick(movie)}
-                onAddToQueue={handleAddToQueue(movie.id)}
-                inQueue={queueMovieIds.has(movie.id)}
-                showProgress={true}
-                progress={(index % 4) * 25 + 15}
-              />
-            ))}
+        {continueWatchingMovies.length > 0 && (
+          <div 
+            className="relative group/row mb-12 py-6 rounded-lg" 
+            data-testid="content-row-continue-watching"
+            style={{
+              background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%), linear-gradient(135deg, rgba(21, 212, 220, 0.25) 0%, rgba(27, 169, 175, 0.3) 25%, rgba(14, 138, 143, 0.2) 50%, rgba(27, 169, 175, 0.25) 75%, rgba(21, 212, 220, 0.2) 100%)'
+            }}
+          >
+            <h2 className="font-display text-2xl font-bold text-foreground mb-4 px-4 md:px-12">Continue Watching</h2>
+            
+            {/* Movie cards for Continue Watching */}
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide touch-scroll px-4 md:px-12 pb-4">
+              {continueWatchingMovies.map((movie) => (
+                <MovieCard 
+                  key={movie.id} 
+                  movie={movie} 
+                  onClick={() => handleMovieClick(movie)}
+                  onAddToQueue={handleAddToQueue(movie.id)}
+                  inQueue={queueMovieIds.has(movie.id)}
+                  showProgress={true}
+                  progress={movie.progressPercentage}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
         
         <ContentRow 
           title="Trending Now" 

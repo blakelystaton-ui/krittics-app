@@ -6,6 +6,8 @@ import 'videojs-contrib-ads';
 import 'videojs-ima';
 import { AdSense, AdSenseInterstitial } from './AdSense';
 import Player from 'video.js/dist/types/player';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 // Type assertion helper for plugin methods
 type PlayerWithPlugins = Player & {
@@ -238,6 +240,7 @@ videojs.registerPlugin('adManagement', adManagementPlugin);
 interface EnhancedVideoPlayerProps {
   src: string;
   poster?: string;
+  movieId?: string; // For progress tracking
   onTimeUpdate?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
   className?: string;
@@ -248,6 +251,7 @@ interface EnhancedVideoPlayerProps {
 export function EnhancedVideoPlayer({
   src,
   poster,
+  movieId,
   onTimeUpdate,
   onEnded,
   className = '',
@@ -263,6 +267,7 @@ export function EnhancedVideoPlayer({
   const [show50PercentAd, setShow50PercentAd] = useState(false);
   const [playerElement, setPlayerElement] = useState<HTMLElement | null>(null);
   const has50PercentAdShownRef = useRef(false); // Use ref instead of state to prevent closure issues
+  const lastSavedProgressRef = useRef<number>(0); // Track last saved progress to avoid redundant saves
   
   // Use refs to store callbacks and state that plugins need to access
   // This prevents player reinitialization when props change
@@ -270,6 +275,25 @@ export function EnhancedVideoPlayer({
   const onEndedRef = useRef(onEnded);
   const fullScreenActivatedRef = useRef(fullScreenActivated);
   const on50PercentAdShownRef = useRef(on50PercentAdShown);
+
+  // Fetch user info to check if authenticated
+  const { data: user } = useQuery<{ id: string } | null>({
+    queryKey: ['/api/user'],
+  });
+
+  // Load initial progress if authenticated and movieId provided
+  const { data: initialProgress } = useQuery<{ progressSeconds: number; completed: boolean } | null>({
+    queryKey: ['/api/progress', movieId],
+    enabled: !!movieId && !!user,
+  });
+
+  // Mutation to save progress
+  const saveProgressMutation = useMutation({
+    mutationFn: async ({ progressSeconds, completed }: { progressSeconds: number; completed: boolean }) => {
+      if (!movieId) return;
+      await apiRequest('POST', `/api/progress/${movieId}`, { progressSeconds, completed });
+    },
+  });
 
   // Update refs when props change (without triggering reinitialization)
   useEffect(() => {
@@ -358,7 +382,7 @@ export function EnhancedVideoPlayer({
       }
     });
 
-    // Time update for end-credit banner (last 2 minutes) and 50% ad
+    // Time update for end-credit banner (last 2 minutes), 50% ad, and progress tracking
     player.on('timeupdate', () => {
       const currentTime = player.currentTime() || 0;
       const duration = player.duration() || 0;
@@ -378,6 +402,18 @@ export function EnhancedVideoPlayer({
         }
       }
 
+      // Save progress if authenticated, movieId provided, and significantly changed (5+ seconds)
+      if (movieId && user && currentTime > 0 && duration > 0) {
+        const progressSeconds = Math.floor(currentTime);
+        
+        // Only save if progress changed by 5+ seconds
+        if (Math.abs(progressSeconds - lastSavedProgressRef.current) >= 5) {
+          lastSavedProgressRef.current = progressSeconds;
+          const completed = progress >= 95;
+          saveProgressMutation.mutate({ progressSeconds, completed });
+        }
+      }
+
       // Use ref to access current callback
       if (onTimeUpdateRef.current) {
         onTimeUpdateRef.current(currentTime, duration);
@@ -386,6 +422,15 @@ export function EnhancedVideoPlayer({
 
     // Handle video end
     player.on('ended', () => {
+      // Mark as completed when video ends
+      if (movieId && user) {
+        const duration = player.duration() || 0;
+        saveProgressMutation.mutate({ 
+          progressSeconds: Math.floor(duration), 
+          completed: true 
+        });
+      }
+      
       // Use ref to access current callback
       if (onEndedRef.current) onEndedRef.current();
     });
@@ -402,6 +447,25 @@ export function EnhancedVideoPlayer({
       setPlayerElement(null);
     };
   }, [src, poster, adTagUrl]); // Only reinitialize when video source or ad tag changes
+
+  // Resume from saved progress when player is ready
+  useEffect(() => {
+    if (!playerRef.current || !initialProgress) return;
+    
+    const player = playerRef.current;
+    const handleLoadedMetadata = () => {
+      if (initialProgress.progressSeconds > 0 && !initialProgress.completed) {
+        player.currentTime(initialProgress.progressSeconds);
+        lastSavedProgressRef.current = initialProgress.progressSeconds;
+      }
+    };
+
+    player.on('loadedmetadata', handleLoadedMetadata);
+    
+    return () => {
+      player.off('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [initialProgress]);
 
   // Fail-safe: Auto-dismiss 50% ad after 6 seconds
   useEffect(() => {
