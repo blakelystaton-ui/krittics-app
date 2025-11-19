@@ -28,6 +28,7 @@ import { FriendSearchDropdown } from '@/components/FriendSearchDropdown';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { User, Movie } from '@shared/schema';
 import { EnhancedVideoPlayer } from '@/components/EnhancedVideoPlayer';
+import { useAuth } from '@/hooks/useAuth';
 
 interface RoomData {
   roomCode: string;
@@ -212,6 +213,7 @@ function SyncedVideoPlayer({ movie, roomVideoState, isHost, onPlayPause, onSeek 
 export default function PrivateRoomsPage() {
   const [, setLocation] = useLocation();
   const { db, userId, isAuthReady, isFirebaseConfigured, authError } = useFirebase();
+  const { user } = useAuth();
   const [roomCode, setRoomCode] = useState('');
   const [currentRoom, setCurrentRoom] = useState<RoomData | null>(null);
   const [joinInput, setJoinInput] = useState('');
@@ -273,12 +275,15 @@ export default function PrivateRoomsPage() {
       return;
     }
 
-    // Create room
+    // Create room with current user's name
     const newCode = generateRoomCode();
+    const currentUserName = user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user?.email?.split('@')[0] || 'User';
+    const roomName = `${currentUserName}'s Crew`;
     const friendName = friend.firstName && friend.lastName 
       ? `${friend.firstName} ${friend.lastName}` 
       : friend.email || 'Friend';
-    const roomName = `Crew with ${friendName}`;
     const roomRef = doc(db, roomsCollectionPath, newCode);
 
     try {
@@ -307,8 +312,9 @@ export default function PrivateRoomsPage() {
         interactionType: 'room_invite',
       });
 
+      // Set room code and wait for room to load
       setRoomCode(newCode);
-      setStatusMessage(`Room created and ${friendName} invited! Code: ${newCode}`);
+      setStatusMessage(`${roomName} created! ${friendName} has been invited. Code: ${newCode}`);
       setShowFriendsSection(false);
 
     } catch (error) {
@@ -404,7 +410,10 @@ export default function PrivateRoomsPage() {
     }
 
     const newCode = generateRoomCode();
-    const roomName = `Private Room by Krittic-${userId.substring(0, 4)}`;
+    const currentUserName = user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : user?.email?.split('@')[0] || 'User';
+    const roomName = `${currentUserName}'s Crew`;
     const roomRef = doc(db, roomsCollectionPath, newCode);
 
     try {
@@ -419,7 +428,7 @@ export default function PrivateRoomsPage() {
       });
 
       setRoomCode(newCode);
-      setStatusMessage(`Room created! Share code: ${newCode}`);
+      setStatusMessage(`${roomName} created! Share code: ${newCode}`);
 
     } catch (error) {
       console.error("Error creating room:", error);
