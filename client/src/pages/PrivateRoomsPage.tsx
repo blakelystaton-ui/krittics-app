@@ -153,13 +153,44 @@ function SyncedVideoPlayer({ movie, roomVideoState, isHost, onPlayPause, onSeek 
     onSeek(video.currentTime);
   };
 
+  // Defensive sync enforcement for non-hosts
+  useEffect(() => {
+    if (isHost) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    const enforceSync = () => {
+      // Force pause if host is paused
+      if (!roomVideoState.isPlaying && !video.paused) {
+        video.pause();
+      }
+
+      // Force play if host is playing
+      if (roomVideoState.isPlaying && video.paused) {
+        video.play().catch(console.error);
+      }
+
+      // Force time sync if user tries to seek
+      const timeDiff = Math.abs(video.currentTime - roomVideoState.currentTime);
+      if (timeDiff > 1) {
+        video.currentTime = roomVideoState.currentTime;
+      }
+    };
+
+    // Check sync every 100ms for non-hosts
+    const syncInterval = setInterval(enforceSync, 100);
+
+    return () => clearInterval(syncInterval);
+  }, [isHost, roomVideoState.isPlaying, roomVideoState.currentTime]);
+
   return (
     <div className="relative aspect-video bg-black">
       <video
         ref={videoRef}
         src={movie.videoUrl || undefined}
         poster={movie.posterUrl || undefined}
-        controls
+        controls={isHost}
         className="w-full h-full"
         onTimeUpdate={handleTimeUpdate}
         onPlay={handlePlay}
