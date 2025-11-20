@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target, BookOpen, Clock, X } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target, BookOpen, Clock, X, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -186,6 +186,30 @@ export function Header() {
             <svg width="0" height="0">
               <defs>
                 <linearGradient id="searchGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1ba9af" />
+                  <stop offset="50%" stopColor="#2dd4bf" />
+                  <stop offset="100%" stopColor="#1ba9af" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </button>
+
+          {/* Hamburger Menu Icon */}
+          <button 
+            data-testid="button-menu"
+            aria-label="Menu"
+            className="hover-elevate p-2 rounded-md"
+          >
+            <Menu 
+              className="h-5 w-5" 
+              style={{
+                stroke: 'url(#menuGradient)',
+                strokeWidth: 2
+              }}
+            />
+            <svg width="0" height="0">
+              <defs>
+                <linearGradient id="menuGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#1ba9af" />
                   <stop offset="50%" stopColor="#2dd4bf" />
                   <stop offset="100%" stopColor="#1ba9af" />
