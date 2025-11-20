@@ -218,8 +218,10 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
       await apiRequest('POST', `/api/progress/${movieId}`, { progressSeconds, completed });
     },
     onSuccess: () => {
-      // Invalidate Continue Watching cache so it refreshes with updated order
+      // Invalidate BOTH the continue-watching cache AND the specific progress query
+      // This ensures the "Continue Watching" buttons reappear after progress is saved
       queryClient.invalidateQueries({ queryKey: ['/api/continue-watching'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/progress', movieId] });
     },
   });
 

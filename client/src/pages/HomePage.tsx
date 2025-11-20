@@ -124,9 +124,9 @@ export default function HomePage() {
     setError(null);
   }, [movieIdParam]);
 
-  // Scroll to top when movie changes
+  // Scroll to top instantly when movie changes (no smooth animation)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [movieIdParam]);
 
   const handleTriviaReady = () => {
