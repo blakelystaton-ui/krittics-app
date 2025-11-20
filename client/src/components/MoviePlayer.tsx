@@ -9,21 +9,6 @@ import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
 
-// Ad Configuration - VMAP tag for Netflix/Hulu/Tubi-style linear video ads
-// Supports three-tier fallback for maximum flexibility:
-//   1. Per-movie ad tag (movie.adTagUrl field in database)
-//   2. Environment variable (VITE_AD_TAG_URL from .env)
-//   3. Default test VMAP tag with pre-roll, mid-roll (50%), and post-roll
-const DEFAULT_TEST_AD_TAG = () => 
-  `https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostpod&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=${Date.now()}`;
-
-const getAdTagUrl = (movie?: Movie) => {
-  // Priority: Per-movie tag > Environment variable > Default test tag
-  // Example: Add adTagUrl field to movie database schema for per-movie targeting
-  // To configure global production ads: Set VITE_AD_TAG_URL in .env file
-  // Example: VITE_AD_TAG_URL=https://your-ad-server.com/vmap/endpoint
-  return (movie as any).adTagUrl || import.meta.env.VITE_AD_TAG_URL || DEFAULT_TEST_AD_TAG();
-};
 
 interface MoviePlayerProps {
   movie: Movie;
@@ -181,7 +166,6 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               onEnded={() => {
                 // Video ended - handled by Video.js
               }}
-              adTagUrl={getAdTagUrl(movie)}
               className="w-full h-full"
             />
           ) : (
