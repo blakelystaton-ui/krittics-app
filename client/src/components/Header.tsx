@@ -204,39 +204,11 @@ export function Header() {
               <DropdownMenuLabel>Menu</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                onClick={() => setLocation("/")}
-                data-testid="menu-item-browse"
-              >
-                <Tv className="h-4 w-4 mr-2" />
-                Browse
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setLocation("/krossfire")}
-                data-testid="menu-item-krossfire"
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Krossfire
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setLocation("/watchlist")}
-                data-testid="menu-item-watchlist"
-              >
-                <Bookmark className="h-4 w-4 mr-2" />
-                Queue
-              </DropdownMenuItem>
-              <DropdownMenuItem 
                 onClick={() => setLocation("/insights")}
                 data-testid="menu-item-insights"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
                 Insights
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setLocation("/mission")}
-                data-testid="menu-item-mission"
-              >
-                <Target className="h-4 w-4 mr-2" />
-                Mission
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {!isLoading && !isAuthenticated && (
