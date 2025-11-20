@@ -249,7 +249,7 @@ export function Header() {
                 placeholder="Search by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-800/50 border-[#1ba9af]/30 focus:border-[#1ba9af] focus:ring-[#1ba9af]/20 text-white placeholder:text-zinc-400"
+                className="w-full bg-zinc-800/50 border-[#1ba9af]/30 focus:border-[#1ba9af] focus-visible:ring-[#1ba9af] focus-visible:ring-opacity-50 text-white placeholder:text-zinc-400"
                 autoFocus
                 data-testid="input-search"
               />
