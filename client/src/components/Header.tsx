@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target, BookOpen } from "lucide-react";
+import { Zap, Tv, LogIn, Info, Bookmark, HelpCircle, Search, Play, Target, BookOpen, Clock, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Movie } from "@shared/schema";
 
@@ -27,6 +27,26 @@ export function Header() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchHistory, setSearchHistory] = useState<Movie[]>([]);
+
+  // Load search history from localStorage on mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('krittics-search-history');
+    if (savedHistory) {
+      try {
+        setSearchHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error('Failed to parse search history:', e);
+      }
+    }
+  }, []);
+
+  // Save search history to localStorage whenever it changes
+  useEffect(() => {
+    if (searchHistory.length > 0) {
+      localStorage.setItem('krittics-search-history', JSON.stringify(searchHistory));
+    }
+  }, [searchHistory]);
 
   // Fetch all movies for search
   const { data: movies = [] } = useQuery<Movie[]>({
@@ -53,9 +73,25 @@ export function Header() {
     : 'U';
 
   const handleMovieClick = (movieId: string) => {
+    // Add movie to search history (max 5, newest on top)
+    const clickedMovie = movies.find(m => m.id === movieId);
+    if (clickedMovie) {
+      setSearchHistory(prev => {
+        // Remove if already in history
+        const filtered = prev.filter(m => m.id !== movieId);
+        // Add to top and limit to 5
+        return [clickedMovie, ...filtered].slice(0, 5);
+      });
+    }
+    
     setIsSearchOpen(false);
     setSearchQuery("");
     setLocation(`/player?movieId=${movieId}`);
+  };
+
+  const clearSearchHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('krittics-search-history');
   };
 
   return (
@@ -198,74 +234,165 @@ export function Header() {
 
       {/* Search Dialog */}
       <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Search Movies</DialogTitle>
+        <DialogContent className="sm:max-w-[700px] max-h-[85vh] bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 border-[#1ba9af]/20">
+          <DialogHeader className="border-b border-[#1ba9af]/10 pb-4">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-[#1ba9af] via-[#2dd4bf] to-[#1ba9af] bg-clip-text text-transparent">
+              Search Movies
+            </DialogTitle>
           </DialogHeader>
+          
           <div className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Search by title or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
-              autoFocus
-              data-testid="input-search"
-            />
-            <div className="max-h-[400px] overflow-y-auto space-y-2">
-              {searchQuery.length > 0 && filteredMovies.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  No movies found matching "{searchQuery}"
-                </p>
-              )}
-              {searchQuery.length === 0 && movies.length > 0 && (
-                <p className="text-center text-muted-foreground py-8">
-                  Start typing to search through {movies.length} movies
-                </p>
-              )}
-              {filteredMovies.map((movie) => (
-                <div
-                  key={movie.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-border hover-elevate cursor-pointer"
-                  onClick={() => handleMovieClick(movie.id)}
-                  data-testid={`search-result-${movie.id}`}
-                >
-                  {movie.posterUrl && (
-                    <img
-                      src={movie.posterUrl}
-                      alt={movie.title}
-                      className="w-16 h-24 object-cover rounded"
-                    />
-                  )}
-                  {!movie.posterUrl && (
-                    <div className="w-16 h-24 bg-muted rounded flex items-center justify-center">
-                      <Tv className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm mb-1 flex items-center gap-2">
-                      {movie.title}
-                      <span className="text-xs text-muted-foreground">
-                        ({movie.year})
-                      </span>
-                    </h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                      {movie.description}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
-                        {movie.genre}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
-                      </span>
-                    </div>
+            {/* Search Input */}
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search by title or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-zinc-800/50 border-[#1ba9af]/30 focus:border-[#1ba9af] focus:ring-[#1ba9af]/20 text-white placeholder:text-zinc-400"
+                autoFocus
+                data-testid="input-search"
+              />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#1ba9af]/50" />
+            </div>
+
+            {/* Search History */}
+            {searchHistory.length > 0 && searchQuery.length === 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#1ba9af]">
+                    <Clock className="h-4 w-4" />
+                    <span>Recent Searches</span>
                   </div>
-                  <Button size="icon" variant="ghost" className="shrink-0">
-                    <Play className="h-4 w-4" />
-                  </Button>
+                  <button
+                    onClick={clearSearchHistory}
+                    className="text-xs text-zinc-400 hover:text-[#1ba9af] transition-colors"
+                    data-testid="button-clear-history"
+                  >
+                    Clear All
+                  </button>
                 </div>
-              ))}
+                <div className="space-y-2 max-h-[350px] overflow-y-auto">
+                  {searchHistory.slice(0, 5).map((movie, index) => (
+                    <div
+                      key={`history-${movie.id}-${index}`}
+                      className="group relative flex items-start gap-3 p-3 rounded-lg bg-zinc-800/30 border border-[#1ba9af]/10 hover:border-[#1ba9af]/30 hover:bg-zinc-800/50 cursor-pointer transition-all"
+                      onClick={() => handleMovieClick(movie.id)}
+                      data-testid={`search-history-${movie.id}`}
+                    >
+                      {movie.posterUrl && (
+                        <img
+                          src={movie.posterUrl}
+                          alt={movie.title}
+                          className="w-14 h-20 object-cover rounded shadow-lg"
+                        />
+                      )}
+                      {!movie.posterUrl && (
+                        <div className="w-14 h-20 bg-zinc-700/50 rounded flex items-center justify-center">
+                          <Tv className="h-6 w-6 text-[#1ba9af]/50" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm mb-1 text-white flex items-center gap-2">
+                          {movie.title}
+                          <span className="text-xs text-zinc-400">
+                            ({movie.year})
+                          </span>
+                        </h3>
+                        <p className="text-xs text-zinc-400 line-clamp-2 mb-2">
+                          {movie.description}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-0.5 rounded bg-[#1ba9af]/10 text-[#1ba9af] border border-[#1ba9af]/20">
+                            {movie.genre}
+                          </span>
+                          <span className="text-xs text-zinc-500">
+                            {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+                          </span>
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-1">
+                        <div className="text-xs text-zinc-500 bg-zinc-700/50 px-2 py-1 rounded">
+                          #{index + 1}
+                        </div>
+                        <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity text-[#1ba9af] hover:text-[#2dd4bf]">
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search Results */}
+            <div className="space-y-2">
+              {searchQuery.length > 0 && (
+                <div className="text-sm font-medium text-[#1ba9af] mb-2">
+                  {filteredMovies.length} {filteredMovies.length === 1 ? 'result' : 'results'} found
+                </div>
+              )}
+              <div className="max-h-[350px] overflow-y-auto space-y-2">
+                {searchQuery.length > 0 && filteredMovies.length === 0 && (
+                  <div className="text-center py-12">
+                    <Search className="h-12 w-12 text-[#1ba9af]/30 mx-auto mb-3" />
+                    <p className="text-zinc-400">
+                      No movies found matching "{searchQuery}"
+                    </p>
+                  </div>
+                )}
+                {searchQuery.length === 0 && movies.length > 0 && searchHistory.length === 0 && (
+                  <div className="text-center py-12">
+                    <Search className="h-12 w-12 text-[#1ba9af]/30 mx-auto mb-3" />
+                    <p className="text-zinc-400">
+                      Start typing to search through {movies.length} movies
+                    </p>
+                  </div>
+                )}
+                {searchQuery.length > 0 && filteredMovies.map((movie) => (
+                  <div
+                    key={movie.id}
+                    className="group flex items-start gap-3 p-3 rounded-lg bg-zinc-800/30 border border-[#1ba9af]/10 hover:border-[#1ba9af]/30 hover:bg-zinc-800/50 cursor-pointer transition-all"
+                    onClick={() => handleMovieClick(movie.id)}
+                    data-testid={`search-result-${movie.id}`}
+                  >
+                    {movie.posterUrl && (
+                      <img
+                        src={movie.posterUrl}
+                        alt={movie.title}
+                        className="w-14 h-20 object-cover rounded shadow-lg"
+                      />
+                    )}
+                    {!movie.posterUrl && (
+                      <div className="w-14 h-20 bg-zinc-700/50 rounded flex items-center justify-center">
+                        <Tv className="h-6 w-6 text-[#1ba9af]/50" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm mb-1 text-white flex items-center gap-2">
+                        {movie.title}
+                        <span className="text-xs text-zinc-400">
+                          ({movie.year})
+                        </span>
+                      </h3>
+                      <p className="text-xs text-zinc-400 line-clamp-2 mb-2">
+                        {movie.description}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 rounded bg-[#1ba9af]/10 text-[#1ba9af] border border-[#1ba9af]/20">
+                          {movie.genre}
+                        </span>
+                        <span className="text-xs text-zinc-500">
+                          {Math.floor(movie.duration / 60)}h {movie.duration % 60}m
+                        </span>
+                      </div>
+                    </div>
+                    <Button size="icon" variant="ghost" className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-[#1ba9af] hover:text-[#2dd4bf]">
+                      <Play className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </DialogContent>
