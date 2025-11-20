@@ -281,8 +281,8 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
       const duration = player.duration() || 0;
       const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-      // Save progress if authenticated, movieId provided, and significantly changed (5+ seconds)
-      if (movieId && user && currentTime > 0 && duration > 0) {
+      // Save progress only if watched at least 15 seconds
+      if (movieId && user && currentTime >= 15 && duration > 0) {
         const progressSeconds = Math.floor(currentTime);
         
         // Only save if progress changed by 5+ seconds

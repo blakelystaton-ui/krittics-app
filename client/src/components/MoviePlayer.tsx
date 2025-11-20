@@ -40,13 +40,11 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     enabled: !!movie.id && !!user,
   });
 
-  // Calculate saved progress percentage
-  const savedProgress = initialProgress && duration > 0 
-    ? (initialProgress.progressSeconds / duration) * 100 
-    : 0;
+  // Calculate saved progress in seconds
+  const savedProgressSeconds = initialProgress?.progressSeconds || 0;
 
-  // Show buttons only if movie is partially watched (saved progress > 0 and < 100)
-  const showProgressButtons = savedProgress > 0 && savedProgress < 100;
+  // Show buttons only if watched at least 15 seconds and not completed
+  const showProgressButtons = savedProgressSeconds >= 15 && !initialProgress?.completed;
 
   // Load user's reaction for this movie
   useEffect(() => {
