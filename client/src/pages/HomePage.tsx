@@ -124,6 +124,11 @@ export default function HomePage() {
     setError(null);
   }, [movieIdParam]);
 
+  // Scroll to top when movie changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [movieIdParam]);
+
   const handleTriviaReady = () => {
     setShowTrivia(true);
     // Auto-generate trivia when user clicks "Start Now"
