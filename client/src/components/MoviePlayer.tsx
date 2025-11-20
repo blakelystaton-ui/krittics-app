@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -8,6 +8,9 @@ import { EnhancedVideoPlayer } from "@/components/EnhancedVideoPlayer";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 
 interface MoviePlayerProps {
@@ -25,9 +28,24 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  // Load initial progress to check if movie is partially watched
+  const { data: initialProgress } = useQuery<{ progressSeconds: number; completed: boolean } | null>({
+    queryKey: ['/api/progress', movie.id],
+    enabled: !!movie.id && !!user,
+  });
+
+  // Calculate saved progress percentage
+  const savedProgress = initialProgress && duration > 0 
+    ? (initialProgress.progressSeconds / duration) * 100 
+    : 0;
+
+  // Show buttons only if movie is partially watched (saved progress > 0 and < 100)
+  const showProgressButtons = savedProgress > 0 && savedProgress < 100;
 
   // Load user's reaction for this movie
   useEffect(() => {
@@ -140,6 +158,29 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   };
 
+  // Handler for "Start from Beginning" button
+  const startFromBeginningMutation = useMutation({
+    mutationFn: async () => {
+      // Reset progress to 0
+      await apiRequest('POST', '/api/progress', {
+        movieId: movie.id,
+        progressSeconds: 0,
+        completed: false,
+      });
+    },
+    onSuccess: () => {
+      // Invalidate progress query to trigger reload
+      queryClient.invalidateQueries({ queryKey: ['/api/progress', movie.id] });
+      
+      // Force page reload to restart video from beginning
+      window.location.reload();
+    },
+  });
+
+  const handleStartFromBeginning = () => {
+    startFromBeginningMutation.mutate();
+  };
+
 
   return (
     <div className="relative">
@@ -201,6 +242,36 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               {Math.round(progress)}%
             </span>
           </div>
+
+          {/* Continue Watching / Start from Beginning buttons */}
+          {showProgressButtons && (
+            <div className="mt-4 flex items-center gap-3">
+              <Button
+                variant="default"
+                size="sm"
+                className="flex items-center gap-2"
+                style={{
+                  background: 'linear-gradient(135deg, #1ba9af 0%, #158a8f 100%)',
+                  border: '1px solid rgba(27, 169, 175, 0.3)'
+                }}
+                data-testid="button-continue-watching"
+              >
+                <Play className="h-4 w-4" />
+                Continue Watching
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+                onClick={handleStartFromBeginning}
+                disabled={startFromBeginningMutation.isPending}
+                data-testid="button-start-from-beginning"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {startFromBeginningMutation.isPending ? "Restarting..." : "Start from Beginning"}
+              </Button>
+            </div>
+          )}
           
           {/* Banner Ad below title */}
           <div className="mt-6">
