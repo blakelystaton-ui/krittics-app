@@ -89,6 +89,20 @@ export function Header() {
     setLocation(`/player?movieId=${movieId}`);
   };
 
+  const handleHistoryClick = (movie: Movie) => {
+    // Update history - move clicked movie to top
+    setSearchHistory(prev => {
+      // Remove if already in history
+      const filtered = prev.filter(m => m.id !== movie.id);
+      // Add to top and limit to 5
+      return [movie, ...filtered].slice(0, 5);
+    });
+    
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setLocation(`/player?movieId=${movie.id}`);
+  };
+
   const clearSearchHistory = () => {
     setSearchHistory([]);
     localStorage.removeItem('krittics-search-history');
@@ -277,7 +291,7 @@ export function Header() {
                     <div
                       key={`history-${movie.id}-${index}`}
                       className="group relative flex items-start gap-3 p-3 rounded-lg bg-zinc-800/30 border border-[#1ba9af]/10 hover:border-[#1ba9af]/30 hover:bg-zinc-800/50 cursor-pointer transition-all"
-                      onClick={() => handleMovieClick(movie.id)}
+                      onClick={() => handleHistoryClick(movie)}
                       data-testid={`search-history-${movie.id}`}
                     >
                       {movie.posterUrl && (
