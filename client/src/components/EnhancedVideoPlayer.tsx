@@ -336,36 +336,39 @@ export function EnhancedVideoPlayer({
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
 
-    // Initialize ad plugin if adTagUrl provided
-    if (adTagUrl) {
-      if (playerWithPlugins.ads) playerWithPlugins.ads();
-      
-      // Initialize IMA plugin for linear video ads (Netflix/Hulu/Tubi style)
-      // This enables pre-roll, mid-roll, and post-roll ads that play INSIDE the player
-      if (playerWithPlugins.ima) {
-        playerWithPlugins.ima({
-          adTagUrl: adTagUrl,
-          adsRenderingSettings: {
-            enablePreloading: true,
-            restoreCustomPlaybackStateOnAdBreakComplete: true
-          },
-          debug: false // Set to true for development/debugging
-        });
+    // Initialize ad plugin if adTagUrl provided and Google IMA SDK is loaded
+    if (adTagUrl && playerWithPlugins.ima) {
+      try {
+        // Check if Google IMA SDK is loaded
+        if (typeof window !== 'undefined' && (window as any).google && (window as any).google.ima) {
+          // Initialize IMA plugin for linear video ads (Netflix/Hulu/Tubi style)
+          // This enables pre-roll, mid-roll, and post-roll ads that play INSIDE the player
+          playerWithPlugins.ima({
+            adTagUrl: adTagUrl,
+            adsRenderingSettings: {
+              enablePreloading: true,
+              restoreCustomPlaybackStateOnAdBreakComplete: true
+            },
+            debug: false // Set to true for development/debugging
+          });
 
-        // Toggle ad badge overlay on ad start/end
-        player.on('ads-ad-started', () => {
-          console.log('🎬 Linear video ad started playing');
-          setShowAdBadge(true);
-        });
+          // Toggle ad badge overlay on ad start/end
+          player.on('ads-ad-started', () => {
+            console.log('🎬 Linear video ad started playing');
+            setShowAdBadge(true);
+          });
 
-        player.on('ads-ad-ended', () => {
-          console.log('✅ Linear video ad ended');
-          setShowAdBadge(false);
-        });
+          player.on('ads-ad-ended', () => {
+            console.log('✅ Linear video ad ended');
+            setShowAdBadge(false);
+          });
+        } else {
+          console.warn('Google IMA SDK not loaded - ads will not play. Video will continue without ads.');
+        }
+      } catch (error) {
+        console.error('Failed to initialize IMA ads:', error);
+        // Continue without ads if IMA fails to initialize
       }
-
-      // No ad gating needed - we want ads to play automatically like Netflix/Hulu/Tubi
-      // The IMA SDK will handle all ad playback based on the VMAP schedule
     }
 
     // Initialize floating player plugin
