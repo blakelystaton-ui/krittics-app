@@ -1,0 +1,28 @@
+You are an expert full-stack developer fixing video player resume/"continue watching" logic on a Replit project (likely using Express + React or Next.js on the frontend).
+
+Current unwanted behavior:
+1. The "Continue Watching" resume button (or the 15-second popup that asks "Resume or Start from Beginning") does NOT appear when the user has watched >15 seconds of a movie.
+2. When the user explicitly clicks "Start from Beginning":
+   - If they exit the player BEFORE 15 seconds have played after restarting, the watch progress is NOT reset.
+   - When they return later, the movie resumes from the OLD progress (sometimes hours in) instead of truly starting over.
+
+Required behavior (must work 100% reliably):
+- Anytime a user has watched ≥15 seconds, show the resume / "Continue Watching" dialog or button when they reopen the movie.
+- When the user clicks "Start from Beginning":
+     • Immediately reset the saved progress to 0 for that movie/user.
+     • Even if they close the tab/player in the first 14 seconds after clicking "Start from Beginning", the progress MUST stay reset to 0.
+     • Next time they open the movie it must start from 00:00 with no resume prompt.
+
+Technical implementation (you must fix/enforce these points):
+1. On "Start from Beginning" click → instantly send a request to the backend to set saved progress to 0 (do NOT wait for the regular periodic save that happens every 15–30 seconds).
+2. Make this reset request synchronous/blocking or use a "fire-and-forget" that is sent immediately (no debouncing/delays).
+3. The 15-second resume dialog must be triggered purely based on saved progress > 15 seconds in the database, NOT based on local state or current session time.
+4. When progress is saved periodically (every 10–30 sec), only save if current time > 15 seconds AND the user did not just click "Start from Beginning".
+5. Bonus: add a flag like "forceStartFromZero: true" on the reset request so the backend knows to overwrite any pending saves.
+
+Please provide the exact code changes needed:
+- Frontend (React/Next.js): the button handler for "Start from Beginning" and the useEffect that shows the 15-second popup.
+- Backend (Node/Express): the endpoint that saves progress and the new immediate-reset behavior.
+- Any database schema tweaks if required (e.g., adding a "lastResetAt" timestamp or "forceReset" flag).
+
+Make sure the fix works even if the user closes the browser in under 5 seconds after clicking "Start from Beginning".

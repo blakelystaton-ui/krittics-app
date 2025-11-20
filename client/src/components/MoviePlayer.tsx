@@ -168,9 +168,9 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   // Handler for "Start from Beginning" button
   const startFromBeginningMutation = useMutation({
     mutationFn: async () => {
-      // Reset progress to 0
-      await apiRequest('POST', '/api/progress', {
-        movieId: movie.id,
+      // IMMEDIATELY reset progress to 0 in database using the correct endpoint
+      // This bypasses the 15-second threshold and ensures reset persists even if user closes browser immediately
+      await apiRequest('POST', `/api/progress/${movie.id}`, {
         progressSeconds: 0,
         completed: false,
       });
@@ -188,6 +188,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   });
 
   const handleStartFromBeginning = () => {
+    // Fire-and-forget: immediately send reset request before any UI updates
     startFromBeginningMutation.mutate();
   };
 
