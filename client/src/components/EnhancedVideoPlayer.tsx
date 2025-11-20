@@ -322,24 +322,9 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
     };
   }, [src, poster]); // Only reinitialize when video source changes
 
-  // Resume from saved progress when player is ready
-  useEffect(() => {
-    if (!playerRef.current || !initialProgress) return;
-    
-    const player = playerRef.current;
-    const handleLoadedMetadata = () => {
-      if (initialProgress.progressSeconds > 0 && !initialProgress.completed) {
-        player.currentTime(initialProgress.progressSeconds);
-        lastSavedProgressRef.current = initialProgress.progressSeconds;
-      }
-    };
-
-    player.on('loadedmetadata', handleLoadedMetadata);
-    
-    return () => {
-      player.off('loadedmetadata', handleLoadedMetadata);
-    };
-  }, [initialProgress]);
+  // DO NOT auto-resume from saved progress
+  // Let the parent component (MoviePlayer) show the "Continue Watching" dialog
+  // and handle resume logic via the exposed controls
 
   // Expose player controls to parent component
   useImperativeHandle(ref, () => ({

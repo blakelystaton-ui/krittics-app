@@ -160,8 +160,14 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   // Handler for "Continue Watching" button
   const handleContinueWatching = () => {
     if (playerRef.current && initialProgress) {
+      // Seek to saved position and start playing
       playerRef.current.seekTo(initialProgress.progressSeconds);
-      playerRef.current.play();
+      // Small delay to ensure seek completes before playing
+      setTimeout(() => {
+        if (playerRef.current) {
+          playerRef.current.play();
+        }
+      }, 100);
     }
   };
 
