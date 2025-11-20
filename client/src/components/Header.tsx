@@ -150,14 +150,6 @@ export function Header() {
               </span>
             </button>
           </Link>
-          <Link href="/insights" data-testid="link-insights">
-            <button className="gradient-border-button">
-              <span className="gradient-border-content">
-                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                <span>Insights</span>
-              </span>
-            </button>
-          </Link>
           <Link href="/mission" data-testid="link-mission">
             <button className="gradient-border-button mission-button-attention">
               <span className="gradient-border-content">
@@ -246,6 +238,25 @@ export function Header() {
                 <Target className="h-4 w-4 mr-2" />
                 Mission
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {!isLoading && !isAuthenticated && (
+                <DropdownMenuItem 
+                  onClick={() => window.location.href = '/api/login'}
+                  data-testid="menu-item-sign-in"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </DropdownMenuItem>
+              )}
+              {isAuthenticated && (
+                <DropdownMenuItem 
+                  onClick={() => window.location.href = '/api/logout'}
+                  data-testid="menu-item-logout"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Log Out
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 
