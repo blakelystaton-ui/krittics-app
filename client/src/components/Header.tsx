@@ -142,14 +142,6 @@ export function Header() {
               </span>
             </button>
           </Link>
-          <Link href="/watchlist" data-testid="link-watchlist">
-            <button className="gradient-border-button">
-              <span className="gradient-border-content">
-                <Bookmark className="h-3.5 w-3.5 mr-1.5" />
-                <span>Queue</span>
-              </span>
-            </button>
-          </Link>
           <Link href="/mission" data-testid="link-mission">
             <button className="gradient-border-button mission-button-attention">
               <span className="gradient-border-content">
@@ -203,6 +195,13 @@ export function Header() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Menu</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setLocation("/watchlist")}
+                data-testid="menu-item-queue"
+              >
+                <Bookmark className="h-4 w-4 mr-2" />
+                Queue
+              </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setLocation("/insights")}
                 data-testid="menu-item-insights"
