@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Video Player with Linear Ads (Pre-roll, Mid-roll, Post-roll)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        #player-container {
+            width: 100%;
+            max-width: 1280px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            background: #000;
+        }
+
+        #content-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        #ad-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        /* Ad Badge Overlay */
+        #ad-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 193, 7, 0.95);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 20;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        #ad-badge.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Custom Controls */
+        #custom-controls {
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        #play-pause-btn {
+            background: #ff0000;
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        #play-pause-btn:hover {
+            background: #cc0000;
+            transform: scale(1.1);
+        }
+
+        #play-pause-btn:active {
+            transform: scale(0.95);
+        }
+
+        #progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #progress-filled {
+            height: 100%;
+            background: #ff0000;
+            width: 0;
+            transition: width 0.1s linear;
+            border-radius: 3px;
+        }
+
+        #time-display {
+            color: white;
+            font-size: 14px;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        #volume-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #volume-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+            transition: color 0.3s ease;
+        }
+
+        #volume-btn:hover {
+            color: #ff0000;
+        }
+
+        #volume-slider {
+            width: 80px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        #volume-filled {
+            height: 100%;
+            background: white;
+            width: 100%;
+            border-radius: 2px;
+        }
+
+        #fullscreen-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+            transition: color 0.3s ease;
+        }
+
+        #fullscreen-btn:hover {
+            color: #ff0000;
+        }
+
+        /* Start Button */
+        #start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 8px 24px rgba(255, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        #start-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 12px 32px rgba(255, 0, 0, 0.6);
+        }
+
+        #start-btn:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+
+        #start-btn.hidden {
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 5;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Console Log Display */
+        #console-log {
+            width: 100%;
+            max-width: 1280px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #console-log h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .log-entry {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-bottom: 5px;
+            padding: 5px;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
+
+        .log-entry.ad-event {
+            color: #ffc107;
+            border-left-color: #ffc107;
+        }
+
+        .log-entry.error {
+            color: #ff5252;
+            border-left-color: #ff5252;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 20px;
+            }
+
+            #custom-controls {
+                padding: 15px 10px;
+                gap: 8px;
+            }
+
+            #play-pause-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            #volume-slider {
+                width: 60px;
+            }
+
+            #time-display {
+                font-size: 12px;
+                min-width: 80px;
+            }
+
+            #start-btn {
+                padding: 15px 30px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            #ad-badge {
+                top: 10px;
+                left: 10px;
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            #volume-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎬 HTML5 Video Player with Linear Ads</h1>
+    
+    <div id="player-container">
+        <div id="video-wrapper">
+            <video id="content-video" playsinline></video>
+            <div id="ad-container"></div>
+            <div id="ad-badge">AD</div>
+            <div class="loading" id="loading-spinner"></div>
+            <button id="start-btn">▶ Start Video</button>
+        </div>
+        
+        <div id="custom-controls">
+            <button id="play-pause-btn" title="Play/Pause">▶</button>
+            <div id="progress-bar">
+                <div id="progress-filled"></div>
+            </div>
+            <div id="time-display">0:00 / 0:00</div>
+            <div id="volume-container">
+                <button id="volume-btn" title="Volume">🔊</button>
+                <div id="volume-slider">
+                    <div id="volume-filled"></div>
+                </div>
+            </div>
+            <button id="fullscreen-btn" title="Fullscreen">⛶</button>
+        </div>
+    </div>
+
+    <div id="console-log">
+        <h3>📋 Event Log</h3>
+        <div id="log-content"></div>
+    </div>
+
+    <!-- Load IMA SDK -->
+    <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+    
+    <script>
+        // Configuration
+        const VIDEO_URL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        const AD_TAG_URL = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=' + Date.now();
+
+        // DOM Elements
+        const contentVideo = document.getElementById('content-video');
+        const adContainer = document.getElementById('ad-container');
+        const adBadge = document.getElementById('ad-badge');
+        const startBtn = document.getElementById('start-btn');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFilled = document.getElementById('progress-filled');
+        const timeDisplay = document.getElementById('time-display');
+        const volumeBtn = document.getElementById('volume-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeFilled = document.getElementById('volume-filled');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const logContent = document.getElementById('log-content');
+
+        // IMA Variables
+        let adsLoader;
+        let adsManager;
+        let adDisplayContainer;
+        let isAdPlaying = false;
+        let contentStarted = false;
+        let midrollPlayed = false;
+
+        // Initialize
+        function init() {
+            log('Initializing video player...');
+            contentVideo.src = VIDEO_URL;
+            
+            // Set up IMA
+            setUpIMA();
+            
+            // Event Listeners
+            startBtn.addEventListener('click', startPlayback);
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            progressBar.addEventListener('click', seek);
+            volumeBtn.addEventListener('click', toggleMute);
+            volumeSlider.addEventListener('click', changeVolume);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // Video Events
+            contentVideo.addEventListener('loadedmetadata', onLoadedMetadata);
+            contentVideo.addEventListener('timeupdate', onTimeUpdate);
+            contentVideo.addEventListener('ended', onContentEnded);
+            contentVideo.addEventListener('play', () => updatePlayPauseBtn(true));
+            contentVideo.addEventListener('pause', () => updatePlayPauseBtn(false));
+            
+            // Window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            log('Player initialized successfully', 'ad-event');
+        }
+
+        function setUpIMA() {
+            // Create ad display container
+            adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, contentVideo);
+            
+            // Create ads loader
+            adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+            
+            // Add event listeners
+            adsLoader.addEventListener(
+                google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+                onAdsManagerLoaded,
+                false
+            );
+            adsLoader.addEventListener(
+                google.ima.AdErrorEvent.Type.AD_ERROR,
+                onAdError,
+                false
+            );
+            
+            log('IMA SDK configured', 'ad-event');
+        }
+
+        function startPlayback() {
+            startBtn.classList.add('hidden');
+            loadingSpinner.classList.add('active');
+            
+            // Initialize ad display container (required for mobile)
+            adDisplayContainer.initialize();
+            
+            // Request pre-roll ad
+            requestAds('pre-roll');
+            
+            log('Playback started - requesting pre-roll ad', 'ad-event');
+        }
+
+        function requestAds(adType) {
+            const adsRequest = new google.ima.AdsRequest();
+            adsRequest.adTagUrl = AD_TAG_URL;
+            
+            // Responsive ad dimensions
+            adsRequest.linearAdSlotWidth = contentVideo.clientWidth;
+            adsRequest.linearAdSlotHeight = contentVideo.clientHeight;
+            
+            adsLoader.requestAds(adsRequest);
+            log(`Requesting ${adType} ad...`, 'ad-event');
+        }
+
+        function onAdsManagerLoaded(adsManagerLoadedEvent) {
+            // Create ads rendering settings
+            const adsRenderingSettings = new google.ima.AdsRenderingSettings();
+            adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
+            
+            // Get the ads manager
+            adsManager = adsManagerLoadedEvent.getAdsManager(contentVideo, adsRenderingSettings);
+            
+            // Add event listeners
+            adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+            adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, onContentPauseRequested);
+            adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, onContentResumeRequested);
+            adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdEvent);
+            
+            // Listen to ad events
+            const events = [
+                google.ima.AdEvent.Type.LOADED,
+                google.ima.AdEvent.Type.STARTED,
+                google.ima.AdEvent.Type.COMPLETE,
+                google.ima.AdEvent.Type.SKIPPED
+            ];
+            events.forEach(eventType => adsManager.addEventListener(eventType, onAdEvent));
+            
+            try {
+                const width = contentVideo.clientWidth;
+                const height = contentVideo.clientHeight;
+                adsManager.init(width, height, google.ima.ViewMode.NORMAL);
+                adsManager.start();
+                log('Ads manager initialized and started', 'ad-event');
+            } catch (adError) {
+                log('AdsManager error: ' + adError, 'error');
+                playContent();
+            }
+        }
+
+        function onAdEvent(adEvent) {
+            const ad = adEvent.getAd();
+            
+            switch (adEvent.type) {
+                case google.ima.AdEvent.Type.LOADED:
+                    log('✅ Ad loaded successfully', 'ad-event');
+                    loadingSpinner.classList.remove('active');
+                    if (!ad.isLinear()) {
+                        playContent();
+                    }
+                    break;
+                    
+                case google.ima.AdEvent.Type.STARTED:
+                    log('▶️ Ad started playing', 'ad-event');
+                    isAdPlaying = true;
+                    adBadge.classList.add('active');
+                    if (ad.isLinear()) {
+                        updatePlayPauseBtn(true);
+                    }
+                    break;
+                    
+                case google.ima.AdEvent.Type.COMPLETE:
+                    log('✅ Ad completed successfully', 'ad-event');
+                    adBadge.classList.remove('active');
+                    if (ad.isLinear()) {
+                        isAdPlaying = false;
+                    }
+                    break;
+                    
+                case google.ima.AdEvent.Type.SKIPPED:
+                    log('⏭️ Ad skipped by user', 'ad-event');
+                    adBadge.classList.remove('active');
+                    isAdPlaying = false;
+                    break;
+                    
+                case google.ima.AdEvent.Type.ALL_ADS_COMPLETED:
+                    log('✅ All ads in break completed', 'ad-event');
+                    isAdPlaying = false;
+                    adBadge.classList.remove('active');
+                    break;
+            }
+        }
+
+        function onAdError(adErrorEvent) {
+            log('❌ Ad error: ' + adErrorEvent.getError(), 'error');
+            adBadge.classList.remove('active');
+            loadingSpinner.classList.remove('active');
+            if (adsManager) {
+                adsManager.destroy();
+            }
+            playContent();
+        }
+
+        function onContentPauseRequested() {
+            log('⏸️ Content paused for ad', 'ad-event');
+            contentVideo.pause();
+        }
+
+        function onContentResumeRequested() {
+            log('▶️ Resuming content after ad', 'ad-event');
+            playContent();
+        }
+
+        function playContent() {
+            loadingSpinner.classList.remove('active');
+            contentVideo.play();
+            if (!contentStarted) {
+                contentStarted = true;
+                log('🎬 Main content playback started');
+            }
+        }
+
+        function onLoadedMetadata() {
+            updateTimeDisplay();
+            log('Video metadata loaded - Duration: ' + formatTime(contentVideo.duration));
+        }
+
+        function onTimeUpdate() {
+            if (!isAdPlaying) {
+                // Update progress bar
+                const progress = (contentVideo.currentTime / contentVideo.duration) * 100;
+                progressFilled.style.width = progress + '%';
+                updateTimeDisplay();
+                
+                // Check for mid-roll at 50%
+                if (!midrollPlayed && contentVideo.currentTime >= contentVideo.duration * 0.5) {
+                    midrollPlayed = true;
+                    contentVideo.pause();
+                    log('🎯 Reached 50% - triggering mid-roll ad', 'ad-event');
+                    requestAds('mid-roll');
+                }
+            }
+        }
+
+        function onContentEnded() {
+            log('🎬 Content ended - triggering post-roll ad', 'ad-event');
+            adsLoader.contentComplete();
+            requestAds('post-roll');
+        }
+
+        function togglePlayPause() {
+            if (isAdPlaying) {
+                return; // Don't allow control during ads
+            }
+            
+            if (contentVideo.paused) {
+                contentVideo.play();
+            } else {
+                contentVideo.pause();
+            }
+        }
+
+        function updatePlayPauseBtn(isPlaying) {
+            playPauseBtn.textContent = isPlaying ? '⏸' : '▶';
+        }
+
+        function seek(e) {
+            if (isAdPlaying) return;
+            
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            contentVideo.currentTime = pos * contentVideo.duration;
+        }
+
+        function toggleMute() {
+            contentVideo.muted = !contentVideo.muted;
+            volumeBtn.textContent = contentVideo.muted ? '🔇' : '🔊';
+            volumeFilled.style.width = contentVideo.muted ? '0%' : (contentVideo.volume * 100) + '%';
+        }
+
+        function changeVolume(e) {
+            const rect = volumeSlider.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            contentVideo.volume = Math.max(0, Math.min(1, pos));
+            contentVideo.muted = false;
+            volumeFilled.style.width = (contentVideo.volume * 100) + '%';
+            volumeBtn.textContent = contentVideo.volume === 0 ? '🔇' : '🔊';
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('player-container');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    log('Error attempting to enable fullscreen: ' + err, 'error');
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function updateTimeDisplay() {
+            const current = formatTime(contentVideo.currentTime);
+            const duration = formatTime(contentVideo.duration);
+            timeDisplay.textContent = `${current} / ${duration}`;
+        }
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function onWindowResize() {
+            if (adsManager && contentVideo) {
+                const width = contentVideo.clientWidth;
+                const height = contentVideo.clientHeight;
+                adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+            }
+        }
+
+        function log(message, type = '') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry' + (type ? ' ' + type : '');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+            
+            // Also log to console
+            console.log(`[Video Player] ${message}`);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
