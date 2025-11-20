@@ -383,7 +383,8 @@
     <script>
         // Configuration
         const VIDEO_URL = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-        const AD_TAG_URL = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_ad_samples&sz=640x480&cust_params=sample_ct%3Dlinear&ciu_szs=300x250&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=' + Date.now();
+        // Using VMAP tag for guaranteed video ad delivery with pre-roll, mid-roll, and post-roll
+        const AD_TAG_URL = 'https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostpod&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=' + Date.now();
 
         // DOM Elements
         const contentVideo = document.getElementById('content-video');
@@ -467,10 +468,10 @@
             // Initialize ad display container (required for mobile)
             adDisplayContainer.initialize();
             
-            // Request pre-roll ad
-            requestAds('pre-roll');
+            // Request VMAP ad playlist (includes pre-roll, mid-roll, and post-roll)
+            requestAds('VMAP playlist (pre-roll, mid-roll, post-roll)');
             
-            log('Playback started - requesting pre-roll ad', 'ad-event');
+            log('Playback started - requesting VMAP ad playlist', 'ad-event');
         }
 
         function requestAds(adType) {
@@ -482,7 +483,7 @@
             adsRequest.linearAdSlotHeight = contentVideo.clientHeight;
             
             adsLoader.requestAds(adsRequest);
-            log(`Requesting ${adType} ad...`, 'ad-event');
+            log(`Requesting ${adType}...`, 'ad-event');
         }
 
         function onAdsManagerLoaded(adsManagerLoadedEvent) {
@@ -604,20 +605,15 @@
                 progressFilled.style.width = progress + '%';
                 updateTimeDisplay();
                 
-                // Check for mid-roll at 50%
-                if (!midrollPlayed && contentVideo.currentTime >= contentVideo.duration * 0.5) {
-                    midrollPlayed = true;
-                    contentVideo.pause();
-                    log('🎯 Reached 50% - triggering mid-roll ad', 'ad-event');
-                    requestAds('mid-roll');
-                }
+                // VMAP handles mid-roll automatically - no manual triggering needed
+                // The IMA SDK will pause content and play mid-roll ads based on VMAP cue points
             }
         }
 
         function onContentEnded() {
-            log('🎬 Content ended - triggering post-roll ad', 'ad-event');
+            log('🎬 Content ended', 'ad-event');
+            // Signal content completion to IMA SDK - post-roll will play automatically via VMAP
             adsLoader.contentComplete();
-            requestAds('post-roll');
         }
 
         function togglePlayPause() {
