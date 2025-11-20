@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import 'videojs-contrib-ads';
-import 'videojs-ima';
 import Player from 'video.js/dist/types/player';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -14,9 +12,6 @@ type PlayerWithPlugins = Player & {
     exit: () => void;
     isActive: () => boolean;
   };
-  ads?: () => void;
-  ima?: (options: any) => void;
-  adManagement?: (options: any) => void;
   floatingPlayer?: (options: any) => void;
 };
 
@@ -171,70 +166,6 @@ const floatingPlayerPlugin = function(this: Player, options: { onClose?: () => v
 // Register the plugin
 videojs.registerPlugin('floatingPlayer', floatingPlayerPlugin);
 
-// Custom plugin for ad management
-const adManagementPlugin = function(this: Player, options: {
-  onAdStart?: () => void;
-  onAdEnd?: () => void;
-  getFullScreenActivated: () => boolean; // Changed to function that reads current state
-}) {
-  const player = this;
-  let isAdPlaying = false;
-  let originalFullscreenState = false;
-  let fullscreenChangeHandler: (() => void) | null = null;
-
-  const preventFullscreenExit = () => {
-    if (isAdPlaying && !player.isFullscreen()) {
-      // Force back to fullscreen if user tries to exit during ad
-      player.requestFullscreen();
-    }
-  };
-
-  player.on('adstart', () => {
-    isAdPlaying = true;
-    
-    // Only play ad if fullscreen has been activated at least once
-    // NOW reads current state instead of initialization value
-    if (!options.getFullScreenActivated()) {
-      const playerWithAds = player as any;
-      if (playerWithAds.ads && playerWithAds.ads.skipLinearAdMode) {
-        playerWithAds.ads.skipLinearAdMode();
-      }
-      return;
-    }
-
-    if (options.onAdStart) options.onAdStart();
-
-    // Force fullscreen when ad starts
-    originalFullscreenState = player.isFullscreen() ?? false;
-    if (!originalFullscreenState) {
-      player.requestFullscreen();
-    }
-
-    // Prevent exiting fullscreen during ad
-    fullscreenChangeHandler = preventFullscreenExit;
-    player.on('fullscreenchange', fullscreenChangeHandler);
-  });
-
-  player.on('adend', () => {
-    isAdPlaying = false;
-
-    if (options.onAdEnd) options.onAdEnd();
-
-    // Remove fullscreen exit prevention
-    if (fullscreenChangeHandler) {
-      player.off('fullscreenchange', fullscreenChangeHandler);
-      fullscreenChangeHandler = null;
-    }
-
-    // Restore original fullscreen state
-    if (!originalFullscreenState && player.isFullscreen()) {
-      player.exitFullscreen();
-    }
-  });
-};
-
-videojs.registerPlugin('adManagement', adManagementPlugin);
-
 interface EnhancedVideoPlayerProps {
   src: string;
   poster?: string;
@@ -242,8 +173,6 @@ interface EnhancedVideoPlayerProps {
   onTimeUpdate?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
   className?: string;
-  adTagUrl?: string; // VAST ad tag URL
-  on50PercentAdShown?: () => void; // Callback when 50% ad is shown
 }
 
 export function EnhancedVideoPlayer({
@@ -252,23 +181,16 @@ export function EnhancedVideoPlayer({
   movieId,
   onTimeUpdate,
   onEnded,
-  className = '',
-  adTagUrl,
-  on50PercentAdShown
+  className = ''
 }: EnhancedVideoPlayerProps) {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
-  const [fullScreenActivated, setFullScreenActivated] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
-  const [showAdBadge, setShowAdBadge] = useState(false);
   const lastSavedProgressRef = useRef<number>(0); // Track last saved progress to avoid redundant saves
   
-  // Use refs to store callbacks and state that plugins need to access
-  // This prevents player reinitialization when props change
+  // Use refs to store callbacks to prevent player reinitialization when props change
   const onTimeUpdateRef = useRef(onTimeUpdate);
   const onEndedRef = useRef(onEnded);
-  const fullScreenActivatedRef = useRef(fullScreenActivated);
-  const on50PercentAdShownRef = useRef(on50PercentAdShown);
 
   // Fetch user info to check if authenticated
   const { data: user } = useQuery<{ id: string } | null>({
@@ -303,15 +225,10 @@ export function EnhancedVideoPlayer({
   }, [onEnded]);
 
   useEffect(() => {
-    fullScreenActivatedRef.current = fullScreenActivated;
-  }, [fullScreenActivated]);
-
-  useEffect(() => {
-    on50PercentAdShownRef.current = on50PercentAdShown;
-  }, [on50PercentAdShown]);
-
-  useEffect(() => {
     if (!videoRef.current) return;
+
+    // Debug logging
+    console.log('🎬 Initializing video player with source:', src);
 
     // Initialize Video.js player
     const videoElement = document.createElement('video-js');
@@ -332,6 +249,12 @@ export function EnhancedVideoPlayer({
         pictureInPictureToggle: false // We'll use custom floating mode
       }
     });
+    
+    // Debug: Log player errors
+    player.on('error', () => {
+      const error = player.error();
+      console.error('❌ Video.js error:', error?.code, error?.message, 'Source:', src);
+    });
 
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
@@ -344,22 +267,11 @@ export function EnhancedVideoPlayer({
       });
     }
 
-    // Track fullscreen activation
-    player.on('fullscreenchange', () => {
-      if (player.isFullscreen() && !fullScreenActivatedRef.current) {
-        setFullScreenActivated(true); // This updates state AND ref
-        console.log('Full-screen activated for the first time - ads now enabled');
-      }
-    });
-
-    // Time update for end-credit banner (last 2 minutes), 50% ad, and progress tracking
+    // Time update for progress tracking
     player.on('timeupdate', () => {
       const currentTime = player.currentTime() || 0;
       const duration = player.duration() || 0;
       const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-      // All ads (pre-roll, mid-roll, post-roll) are handled automatically by IMA SDK via VMAP
-      // No manual triggering needed - the video will pause and ads will play seamlessly
 
       // Save progress if authenticated, movieId provided, and significantly changed (5+ seconds)
       if (movieId && user && currentTime > 0 && duration > 0) {
@@ -399,9 +311,8 @@ export function EnhancedVideoPlayer({
       if (player && !player.isDisposed()) {
         player.dispose();
       }
-      setShowAdBadge(false);
     };
-  }, [src, poster, adTagUrl]); // Only reinitialize when video source or ad tag changes
+  }, [src, poster]); // Only reinitialize when video source changes
 
   // Resume from saved progress when player is ready
   useEffect(() => {
@@ -439,20 +350,6 @@ export function EnhancedVideoPlayer({
   return (
     <div className={`enhanced-video-player-wrapper ${className}`} style={{ position: 'relative' }}>
       <div ref={videoRef} data-testid="video-player-enhanced" />
-      
-      {/* Netflix-style "AD" badge overlay during linear ads */}
-      {showAdBadge && (
-        <div 
-          className="absolute top-5 left-5 z-[1000] rounded-md px-4 py-2 font-bold tracking-wide shadow-lg"
-          style={{
-            backgroundColor: 'rgba(255, 193, 7, 0.95)',
-            color: '#000'
-          }}
-          data-testid="ad-badge"
-        >
-          AD
-        </div>
-      )}
 
       {/* Floating mode toggle button */}
       {!isFloating && (
@@ -477,9 +374,6 @@ export function EnhancedVideoPlayer({
           Float Player
         </button>
       )}
-
-      {/* Linear video ads (pre-roll, mid-roll, post-roll) are now handled by IMA SDK */}
-      {/* Ads play seamlessly inside the player - no popups needed */}
 
       <style>{`
         .vjs-floating {
