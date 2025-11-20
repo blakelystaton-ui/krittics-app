@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import 'videojs-contrib-ads';
 import 'videojs-ima';
-import { AdSense, AdSenseInterstitial } from './AdSense';
 import Player from 'video.js/dist/types/player';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -260,13 +258,9 @@ export function EnhancedVideoPlayer({
 }: EnhancedVideoPlayerProps) {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
-  const [showEndCreditBanner, setShowEndCreditBanner] = useState(false);
   const [fullScreenActivated, setFullScreenActivated] = useState(false);
   const [isFloating, setIsFloating] = useState(false);
-  const [showPreRollAd, setShowPreRollAd] = useState(true); // Show ad immediately on load
-  const [show50PercentAd, setShow50PercentAd] = useState(false);
-  const [playerElement, setPlayerElement] = useState<HTMLElement | null>(null);
-  const has50PercentAdShownRef = useRef(false); // Use ref instead of state to prevent closure issues
+  const [showAdBadge, setShowAdBadge] = useState(false);
   const lastSavedProgressRef = useRef<number>(0); // Track last saved progress to avoid redundant saves
   
   // Use refs to store callbacks and state that plugins need to access
@@ -341,34 +335,37 @@ export function EnhancedVideoPlayer({
 
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
-    
-    // Wait for player to be ready before storing element for portal rendering
-    player.ready(() => {
-      setPlayerElement(player.el() as HTMLElement);
-    });
 
     // Initialize ad plugin if adTagUrl provided
     if (adTagUrl) {
       if (playerWithPlugins.ads) playerWithPlugins.ads();
       
-      // Initialize IMA plugin for VAST ads
+      // Initialize IMA plugin for linear video ads (Netflix/Hulu/Tubi style)
+      // This enables pre-roll, mid-roll, and post-roll ads that play INSIDE the player
       if (playerWithPlugins.ima) {
         playerWithPlugins.ima({
           adTagUrl: adTagUrl,
           adsRenderingSettings: {
-            enablePreloading: true
-          }
+            enablePreloading: true,
+            restoreCustomPlaybackStateOnAdBreakComplete: true
+          },
+          debug: false // Set to true for development/debugging
+        });
+
+        // Toggle ad badge overlay on ad start/end
+        player.on('ads-ad-started', () => {
+          console.log('🎬 Linear video ad started playing');
+          setShowAdBadge(true);
+        });
+
+        player.on('ads-ad-ended', () => {
+          console.log('✅ Linear video ad ended');
+          setShowAdBadge(false);
         });
       }
 
-      // Initialize custom ad management
-      if (playerWithPlugins.adManagement) {
-        playerWithPlugins.adManagement({
-          getFullScreenActivated: () => fullScreenActivatedRef.current, // Use ref getter
-          onAdStart: () => console.log('Ad started'),
-          onAdEnd: () => console.log('Ad ended')
-        });
-      }
+      // No ad gating needed - we want ads to play automatically like Netflix/Hulu/Tubi
+      // The IMA SDK will handle all ad playback based on the VMAP schedule
     }
 
     // Initialize floating player plugin
@@ -390,21 +387,10 @@ export function EnhancedVideoPlayer({
     player.on('timeupdate', () => {
       const currentTime = player.currentTime() || 0;
       const duration = player.duration() || 0;
-      const remainingTime = duration - currentTime;
       const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-      // Show banner in last 2 minutes (120 seconds)
-      setShowEndCreditBanner(remainingTime <= 120 && remainingTime > 0);
-
-      // Trigger 50% interstitial ad (use ref to avoid stale closure)
-      if (progress >= 50 && !has50PercentAdShownRef.current) {
-        console.log('50% progress reached - showing interstitial ad inside player');
-        setShow50PercentAd(true);
-        has50PercentAdShownRef.current = true; // Set ref immediately
-        if (on50PercentAdShownRef.current) {
-          on50PercentAdShownRef.current();
-        }
-      }
+      // All ads (pre-roll, mid-roll, post-roll) are handled automatically by IMA SDK via VMAP
+      // No manual triggering needed - the video will pause and ads will play seamlessly
 
       // Save progress if authenticated, movieId provided, and significantly changed (5+ seconds)
       if (movieId && user && currentTime > 0 && duration > 0) {
@@ -444,11 +430,7 @@ export function EnhancedVideoPlayer({
       if (player && !player.isDisposed()) {
         player.dispose();
       }
-      // Reset ad state on cleanup
-      setShowPreRollAd(true); // Reset to show pre-roll on next load
-      setShow50PercentAd(false);
-      has50PercentAdShownRef.current = false;
-      setPlayerElement(null);
+      setShowAdBadge(false);
     };
   }, [src, poster, adTagUrl]); // Only reinitialize when video source or ad tag changes
 
@@ -471,17 +453,6 @@ export function EnhancedVideoPlayer({
     };
   }, [initialProgress]);
 
-  // Fail-safe: Auto-dismiss 50% ad after 6 seconds
-  useEffect(() => {
-    if (!show50PercentAd) return;
-    
-    const failsafeTimer = setTimeout(() => {
-      setShow50PercentAd(false);
-    }, 6000);
-    
-    return () => clearTimeout(failsafeTimer);
-  }, [show50PercentAd]);
-
   // Handle floating mode toggle
   const toggleFloatingMode = () => {
     if (!playerRef.current) return;
@@ -497,27 +468,20 @@ export function EnhancedVideoPlayer({
   };
 
   return (
-    <div className={`enhanced-video-player-wrapper ${className}`}>
+    <div className={`enhanced-video-player-wrapper ${className}`} style={{ position: 'relative' }}>
       <div ref={videoRef} data-testid="video-player-enhanced" />
       
-      {/* End-credit banner ad (last 2 minutes) */}
-      {showEndCreditBanner && (
-        <div className="end-credit-banner" style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: '8px',
-          display: 'flex',
-          justifyContent: 'center'
-        }}>
-          <AdSense 
-            adSlot="5966285343"
-            adFormat="auto"
-            fullWidth={false}
-          />
+      {/* Netflix-style "AD" badge overlay during linear ads */}
+      {showAdBadge && (
+        <div 
+          className="absolute top-5 left-5 z-[1000] rounded-md px-4 py-2 font-bold tracking-wide shadow-lg"
+          style={{
+            backgroundColor: 'rgba(255, 193, 7, 0.95)',
+            color: '#000'
+          }}
+          data-testid="ad-badge"
+        >
+          AD
         </div>
       )}
 
@@ -545,31 +509,8 @@ export function EnhancedVideoPlayer({
         </button>
       )}
 
-      {/* Pre-roll ad - rendered to document.body for fullscreen compatibility */}
-      {showPreRollAd && playerElement && createPortal(
-        <AdSenseInterstitial
-          adSlot="5966285343"
-          onClose={() => {
-            setShowPreRollAd(false);
-            // Auto-play video after ad is dismissed
-            if (playerRef.current && !playerRef.current.isDisposed()) {
-              playerRef.current.play();
-            }
-          }}
-          inline={true}
-        />,
-        document.body
-      )}
-
-      {/* 50% interstitial ad - rendered to document.body for fullscreen compatibility */}
-      {show50PercentAd && playerElement && createPortal(
-        <AdSenseInterstitial
-          adSlot="5966285343"
-          onClose={() => setShow50PercentAd(false)}
-          inline={true}
-        />,
-        document.body
-      )}
+      {/* Linear video ads (pre-roll, mid-roll, post-roll) are now handled by IMA SDK */}
+      {/* Ads play seamlessly inside the player - no popups needed */}
 
       <style>{`
         .vjs-floating {
