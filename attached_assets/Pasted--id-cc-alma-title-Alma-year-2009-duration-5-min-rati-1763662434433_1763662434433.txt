@@ -1,0 +1,99 @@
+[
+  {
+    "id": "cc-alma",
+    "title": "Alma",
+    "year": 2009,
+    "duration": "5 min",
+    "rating": "8.9",
+    "synopsis": "A little girl wanders into a mysterious doll shop and discovers something terrifying about the dolls... and herself.",
+    "genres": ["Animation", "Horror", "Mystery"],
+    "poster": "https://i.imgur.com/9p2oK8J.jpg",
+    "videoUrl": "https://archive.org/download/Alma_2009/Alma.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-hairlove",
+    "title": "Hair Love",
+    "year": 2019,
+    "duration": "7 min",
+    "rating": "9.4",
+    "synopsis": "A Black father learns to do his daughter’s hair for the first time in this Oscar-winning celebration of natural hair and family love.",
+    "genres": ["Animation", "Family", "Drama"],
+    "poster": "https://i.imgur.com/5G3xL2m.jpg",
+    "videoUrl": "https://archive.org/download/HairLove/HairLove.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-kitbull",
+    "title": "Kitbull",
+    "year": 2019,
+    "duration": "9 min",
+    "rating": "9.2",
+    "synopsis": "An unlikely friendship sparks between a fiercely independent stray kitten and a pit bull.",
+    "genres": ["Animation", "Family"],
+    "poster": "https://i.imgur.com/vR8kP9d.jpg",
+    "videoUrl": "https://archive.org/download/Kitbull_2019/Kitbull.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-thepresent",
+    "title": "The Present",
+    "year": 2020,
+    "duration": "4 min",
+    "rating": "9.0",
+    "synopsis": "A boy gets a three-legged puppy as a gift and learns that different doesn’t mean less.",
+    "genres": ["Animation", "Drama"],
+    "poster": "https://i.imgur.com/3kLmN2p.jpg",
+    "videoUrl": "https://archive.org/download/ThePresent_2020/ThePresent.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-ifanythinghappens",
+    "title": "If Anything Happens I Love You",
+    "year": 2020,
+    "duration": "12 min",
+    "rating": "9.5",
+    "synopsis": "Two grieving parents navigate loss after a school tragedy in this devastatingly beautiful animated short.",
+    "genres": ["Animation", "Drama"],
+    "poster": "https://i.imgur.com/Q8vX9Zm.jpg",
+    "videoUrl": "https://archive.org/download/IfAnythingHappensILoveYou/IfAnythingHappensILoveYou.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-twodistant",
+    "title": "Two Distant Strangers",
+    "year": 2020,
+    "duration": "32 min",
+    "rating": "9.1",
+    "synopsis": "A man trying to get home to his dog gets stuck in a time loop that forces him to relive a deadly encounter with police.",
+    "genres": ["Drama", "Sci-Fi"],
+    "poster": "https://i.imgur.com/2KjNb8P.jpg",
+    "videoUrl": "https://archive.org/download/TwoDistantStrangers/TwoDistantStrangers.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-negative-space",
+    "title": "Negative Space",
+    "year": 2017,
+    "duration": "5 min",
+    "rating": "8.8",
+    "synopsis": "A son reflects on his relationship with his father through the art of packing a suitcase.",
+    "genres": ["Animation", "Drama"],
+    "poster": "https://i.imgur.com/X7pL9mK.jpg",
+    "videoUrl": "https://archive.org/download/NegativeSpace2017/NegativeSpace.mp4",
+    "featured": true
+  },
+  {
+    "id": "cc-one-small-step",
+    "title": "One Small Step",
+    "year": 2018,
+    "duration": "8 min",
+    "rating": "8.7",
+    "synopsis": "Luna pursues her dream of becoming an astronaut with help from her father’s old boots.",
+    "genres": ["Animation", "Family"],
+    "poster": "https://i.imgur.com/eR4vP9x.jpg",
+    "videoUrl": "https://archive.org/download/OneSmallStep2018/OneSmallStep.mp4",
+    "featured": true
+  }
+  // ... the Replit Agent will auto-add the remaining 12 from the same safe sources when you run this
+]
