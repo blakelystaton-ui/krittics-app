@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import Player from 'video.js/dist/types/player';
@@ -175,14 +175,22 @@ interface EnhancedVideoPlayerProps {
   className?: string;
 }
 
-export function EnhancedVideoPlayer({
+export interface VideoPlayerHandle {
+  seekTo: (seconds: number) => void;
+  play: () => void;
+  pause: () => void;
+  getCurrentTime: () => number;
+  getDuration: () => number;
+}
+
+export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPlayerProps>(({
   src,
   poster,
   movieId,
   onTimeUpdate,
   onEnded,
   className = ''
-}: EnhancedVideoPlayerProps) {
+}, ref) => {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const [isFloating, setIsFloating] = useState(false);
@@ -333,6 +341,31 @@ export function EnhancedVideoPlayer({
     };
   }, [initialProgress]);
 
+  // Expose player controls to parent component
+  useImperativeHandle(ref, () => ({
+    seekTo: (seconds: number) => {
+      if (playerRef.current) {
+        playerRef.current.currentTime(seconds);
+      }
+    },
+    play: () => {
+      if (playerRef.current) {
+        playerRef.current.play();
+      }
+    },
+    pause: () => {
+      if (playerRef.current) {
+        playerRef.current.pause();
+      }
+    },
+    getCurrentTime: () => {
+      return playerRef.current?.currentTime() || 0;
+    },
+    getDuration: () => {
+      return playerRef.current?.duration() || 0;
+    }
+  }));
+
   // Handle floating mode toggle
   const toggleFloatingMode = () => {
     if (!playerRef.current) return;
@@ -395,4 +428,4 @@ export function EnhancedVideoPlayer({
       `}</style>
     </div>
   );
-}
+});

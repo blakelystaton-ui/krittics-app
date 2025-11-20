@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { AdSense } from "@/components/AdSense";
-import { EnhancedVideoPlayer } from "@/components/EnhancedVideoPlayer";
+import { EnhancedVideoPlayer, type VideoPlayerHandle } from "@/components/EnhancedVideoPlayer";
 import type { Movie } from "@shared/schema";
 import { useReactions } from "@/lib/reactions";
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
   const { user } = useAuth();
+  const playerRef = useRef<VideoPlayerHandle>(null);
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -158,6 +159,14 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     }
   };
 
+  // Handler for "Continue Watching" button
+  const handleContinueWatching = () => {
+    if (playerRef.current && initialProgress) {
+      playerRef.current.seekTo(initialProgress.progressSeconds);
+      playerRef.current.play();
+    }
+  };
+
   // Handler for "Start from Beginning" button
   const startFromBeginningMutation = useMutation({
     mutationFn: async () => {
@@ -169,11 +178,14 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       });
     },
     onSuccess: () => {
-      // Invalidate progress query to trigger reload
+      // Invalidate progress query to update UI
       queryClient.invalidateQueries({ queryKey: ['/api/progress', movie.id] });
       
-      // Force page reload to restart video from beginning
-      window.location.reload();
+      // Seek to beginning and play - no page reload!
+      if (playerRef.current) {
+        playerRef.current.seekTo(0);
+        playerRef.current.play();
+      }
     },
   });
 
@@ -188,6 +200,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         <div className="relative aspect-video bg-black">
           {movie.videoUrl ? (
             <EnhancedVideoPlayer
+              ref={playerRef}
               src={movie.videoUrl}
               movieId={movie.id}
               onTimeUpdate={(currentTime, duration) => {
@@ -253,6 +266,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
                   background: 'linear-gradient(135deg, #1ba9af 0%, #158a8f 100%)',
                   border: '1px solid rgba(27, 169, 175, 0.3)'
                 }}
+                onClick={handleContinueWatching}
                 data-testid="button-continue-watching"
               >
                 <Play className="h-4 w-4" />
