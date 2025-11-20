@@ -195,16 +195,59 @@ export function Header() {
           </button>
 
           {/* Hamburger Menu Icon */}
-          <button 
-            data-testid="button-menu"
-            aria-label="Menu"
-            className="hover-elevate p-2 rounded-md"
-          >
-            <Menu 
-              className="h-5 w-5 text-[#1ba9af]" 
-              strokeWidth={2}
-            />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                data-testid="button-menu"
+                aria-label="Menu"
+                className="hover-elevate p-2 rounded-md"
+              >
+                <Menu 
+                  className="h-5 w-5 text-[#1ba9af]" 
+                  strokeWidth={2}
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Menu</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setLocation("/")}
+                data-testid="menu-item-browse"
+              >
+                <Tv className="h-4 w-4 mr-2" />
+                Browse
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocation("/krossfire")}
+                data-testid="menu-item-krossfire"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Krossfire
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocation("/watchlist")}
+                data-testid="menu-item-watchlist"
+              >
+                <Bookmark className="h-4 w-4 mr-2" />
+                Queue
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocation("/insights")}
+                data-testid="menu-item-insights"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Insights
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setLocation("/mission")}
+                data-testid="menu-item-mission"
+              >
+                <Target className="h-4 w-4 mr-2" />
+                Mission
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {!isLoading && !isAuthenticated && (
             <button 
