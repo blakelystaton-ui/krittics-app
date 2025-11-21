@@ -1,19 +1,17 @@
 .floating-messages-container {
   position: absolute;
-  bottom: 20px;
-  left: 0;
-  right: 0;
+  bottom: 80px; // Above input bar (56px + 12px margin)
+  left: 16px; // Bottom-left alignment
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 16px;
   pointer-events: none;
   gap: 12px;
+  max-width: calc(100% - 32px);
 }
 
 .floating-message {
-  width: 100%;
-  max-width: 80%;
+  max-width: 320px; // Compact width for left-aligned chat
   pointer-events: none;
 }
 

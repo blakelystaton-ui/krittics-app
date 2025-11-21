@@ -44,4 +44,13 @@ export class ApiService {
       withCredentials: true
     });
   }
+
+  // Friend management endpoints
+  searchFriends(query: string): Observable<any[]> {
+    return this.get<any[]>(`/friends/search?q=${encodeURIComponent(query)}`);
+  }
+
+  getTopFriends(limit: number = 10): Observable<any[]> {
+    return this.get<any[]>(`/friends/top?limit=${limit}`);
+  }
 }

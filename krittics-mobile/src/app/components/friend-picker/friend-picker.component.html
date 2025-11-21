@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-toolbar class="picker-header">
+    <ion-title>Invite Friends to Crew Watch</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()" [attr.data-testid]="'button-cancel-picker'">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  
+  <!-- Search Bar -->
+  <ion-toolbar>
+    <ion-searchbar
+      [(ngModel)]="searchQuery"
+      (ionInput)="onSearchChange()"
+      placeholder="Search friends by name or email"
+      [attr.data-testid]="'input-search-friends'">
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="picker-content">
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading friends...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="friends-list">
+    <ion-list>
+      <ion-item
+        *ngFor="let friend of filteredFriends"
+        (click)="toggleFriend(friend.id)"
+        [class.selected]="isFriendSelected(friend.id)"
+        button
+        [attr.data-testid]="'item-friend-' + friend.id">
+        
+        <ion-avatar slot="start">
+          <img [src]="friend.profileImageUrl" [alt]="friend.firstName + ' ' + friend.lastName" />
+        </ion-avatar>
+        
+        <ion-label>
+          <h2>{{ friend.firstName }} {{ friend.lastName }}</h2>
+          <p>{{ friend.email }}</p>
+        </ion-label>
+        
+        <ion-checkbox
+          slot="end"
+          [checked]="isFriendSelected(friend.id)"
+          [attr.data-testid]="'checkbox-friend-' + friend.id">
+        </ion-checkbox>
+      </ion-item>
+    </ion-list>
+    
+    <div *ngIf="filteredFriends.length === 0" class="no-results">
+      <ion-icon name="people-outline" class="no-results-icon"></ion-icon>
+      <p>No friends found</p>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="picker-footer">
+  <ion-toolbar>
+    <div class="footer-content">
+      <p class="selection-count">
+        {{ selectedFriends.size }} {{ selectedFriends.size === 1 ? 'friend' : 'friends' }} selected
+      </p>
+      <ion-button
+        expand="block"
+        [disabled]="selectedFriends.size === 0"
+        (click)="startCrewWatch()"
+        class="start-button"
+        [attr.data-testid]="'button-start-crew-watch'">
+        Start Crew Watch
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

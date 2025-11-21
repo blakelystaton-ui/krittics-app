@@ -8,6 +8,8 @@ import {
   limit,
   addDoc,
   onSnapshot,
+  setDoc,
+  doc,
   Firestore,
   Timestamp,
   DocumentData
@@ -102,6 +104,26 @@ export class FirebaseService {
       });
     } catch (error) {
       console.error('Error sending message:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a private crew room with access control
+   */
+  async createRoom(roomCode: string, roomData: any): Promise<void> {
+    try {
+      const roomRef = doc(this.db, `krittics/multiplayer/rooms/${roomCode}`);
+      
+      await setDoc(roomRef, {
+        ...roomData,
+        createdAt: Timestamp.now(),
+        lastActivity: Timestamp.now()
+      });
+      
+      console.log('Private room created:', roomCode);
+    } catch (error) {
+      console.error('Error creating room:', error);
       throw error;
     }
   }

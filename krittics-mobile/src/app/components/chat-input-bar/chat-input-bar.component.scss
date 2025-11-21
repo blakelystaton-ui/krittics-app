@@ -1,11 +1,12 @@
 .chat-input-container {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 16px; // Bottom-left positioning
+  bottom: 12px; // 12px from bottom
   z-index: 200;
   transition: bottom 0.2s ease-in-out;
   padding-bottom: env(safe-area-inset-bottom); // iOS safe area
+  max-width: 400px; // Constrain width for Netflix/Rabbit-style chat
+  width: calc(100% - 32px); // Responsive width with margins
 }
 
 .input-bar {
@@ -17,7 +18,8 @@
   align-items: center;
   padding: 8px 12px;
   gap: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px; // Fully rounded for modern look
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .message-input {

@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar class="demo-header">
+    <ion-title>Crew Watch Demo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="demo-content">
+  <div class="demo-container">
+    <div class="demo-card">
+      <ion-icon name="people" class="demo-icon"></ion-icon>
+      <h1 class="demo-title">Welcome to Crew Watch!</h1>
+      <p class="demo-description">
+        Watch movies together with friends in real-time with floating chat.
+      </p>
+      
+      <div class="features-list">
+        <div class="feature-item">
+          <ion-icon name="videocam" class="feature-icon"></ion-icon>
+          <span>Synchronized video playback</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="chatbubbles" class="feature-icon"></ion-icon>
+          <span>Floating chat messages</span>
+        </div>
+        <div class="feature-item">
+          <ion-icon name="people-circle" class="feature-icon"></ion-icon>
+          <span>Private friend invites</span>
+        </div>
+      </div>
+
+      <ion-button
+        expand="block"
+        (click)="openFriendPicker()"
+        class="start-demo-button"
+        [attr.data-testid]="'button-start-demo'">
+        <ion-icon name="play-circle" slot="start"></ion-icon>
+        Start Demo
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="clear"
+        (click)="skipDemo()"
+        class="skip-button"
+        [attr.data-testid]="'button-skip-demo'">
+        Skip Demo
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
