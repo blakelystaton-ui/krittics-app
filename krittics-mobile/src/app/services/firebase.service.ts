@@ -17,6 +17,8 @@ import {
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
+export type MessageMode = 'standard' | 'remote' | 'reaction' | 'voice';
+
 export interface ChatMessage {
   id?: string;
   userId: string;
@@ -24,6 +26,10 @@ export interface ChatMessage {
   userAvatar?: string;
   message: string;
   timestamp: Date;
+  mode?: MessageMode;
+  reactionType?: string;
+  isVoice?: boolean;
+  deviceType?: 'phone' | 'tablet' | 'desktop';
 }
 
 @Injectable({
@@ -62,7 +68,11 @@ export class FirebaseService {
               userName: data['userName'] || 'Anonymous',
               userAvatar: data['userAvatar'],
               message: data['message'] || '',
-              timestamp: data['timestamp']?.toDate() || new Date()
+              timestamp: data['timestamp']?.toDate() || new Date(),
+              mode: data['mode'] || 'standard',
+              reactionType: data['reactionType'],
+              isVoice: data['isVoice'] || false,
+              deviceType: data['deviceType']
             });
           });
           // Reverse to show oldest first
@@ -87,7 +97,13 @@ export class FirebaseService {
     userId: string,
     userName: string,
     message: string,
-    userAvatar?: string
+    options?: {
+      userAvatar?: string;
+      mode?: MessageMode;
+      reactionType?: string;
+      isVoice?: boolean;
+      deviceType?: 'phone' | 'tablet' | 'desktop';
+    }
   ): Promise<void> {
     try {
       const messagesRef = collection(
@@ -98,8 +114,12 @@ export class FirebaseService {
       await addDoc(messagesRef, {
         userId,
         userName,
-        userAvatar,
+        userAvatar: options?.userAvatar,
         message,
+        mode: options?.mode || 'standard',
+        reactionType: options?.reactionType,
+        isVoice: options?.isVoice || false,
+        deviceType: options?.deviceType,
         timestamp: Timestamp.now()
       });
     } catch (error) {

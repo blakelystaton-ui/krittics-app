@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@angular/fire": "^20.0.1",
+    "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/keyboard": "^7.0.3",
     "@google/genai": "^1.28.0",
     "@google/generative-ai": "^0.24.1",

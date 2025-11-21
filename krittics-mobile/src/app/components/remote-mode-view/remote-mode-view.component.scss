@@ -1,0 +1,233 @@
+.remote-mode-container {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.remote-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(27, 169, 175, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  
+  .tv-icon {
+    font-size: 24px;
+    color: #1ba9af;
+  }
+  
+  .header-text {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.exit-button {
+  --color: rgba(255, 255, 255, 0.7);
+  
+  ion-icon {
+    font-size: 28px;
+  }
+}
+
+.remote-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 20px;
+  gap: 32px;
+  overflow-y: auto;
+}
+
+.recent-messages {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  max-height: 120px;
+  overflow-y: auto;
+  
+  .message-preview {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    strong {
+      color: #1ba9af;
+    }
+  }
+}
+
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.giant-input {
+  --background: rgba(255, 255, 255, 0.95);
+  --color: #000000;
+  --placeholder-color: rgba(0, 0, 0, 0.5);
+  --padding-start: 24px;
+  --padding-end: 24px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+  
+  font-size: 20px;
+  line-height: 1.5;
+  border-radius: 20px;
+  border: 3px solid #1ba9af;
+  min-height: 140px;
+  width: 80%;
+  margin: 0 auto;
+  
+  @media (min-width: 768px) {
+    width: 70%;
+  }
+}
+
+.button-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 80%;
+  margin: 0 auto;
+  
+  @media (min-width: 768px) {
+    width: 70%;
+  }
+}
+
+.voice-button {
+  --border-color: #1ba9af;
+  --color: #1ba9af;
+  --background: rgba(27, 169, 175, 0.1);
+  
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  
+  &.listening {
+    --background: #1ba9af;
+    --color: #ffffff;
+  }
+  
+  ion-icon {
+    font-size: 28px;
+    
+    &.pulsing {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+.giant-send-button {
+  --background: #1ba9af;
+  --background-activated: #158f94;
+  --background-hover: #15a0a7;
+  --color: #ffffff;
+  
+  flex: 1;
+  height: 60px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 16px;
+  
+  ion-icon {
+    font-size: 24px;
+  }
+  
+  &[disabled] {
+    --background: rgba(27, 169, 175, 0.3);
+    opacity: 0.5;
+  }
+}
+
+.quick-reactions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.reactions-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.reactions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(8, 1fr);
+    max-width: 600px;
+  }
+}
+
+.reaction-button {
+  background: rgba(27, 169, 175, 0.1);
+  border: 2px solid rgba(27, 169, 175, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.95);
+    background: rgba(27, 169, 175, 0.2);
+  }
+  
+  .reaction-emoji {
+    font-size: 32px;
+    
+    @media (min-width: 768px) {
+      font-size: 40px;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Safe area handling for notched devices
+@supports (padding: max(0px)) {
+  .remote-mode-container {
+    padding-top: max(env(safe-area-inset-top), 20px);
+    padding-bottom: max(env(safe-area-inset-bottom), 20px);
+  }
+}

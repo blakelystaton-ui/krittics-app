@@ -2,15 +2,34 @@
   <div
     *ngFor="let msg of displayedMessages; trackBy: trackByMessageId"
     [@floatUp]="msg.animationState"
+    [class.is-reaction]="msg.mode === 'reaction'"
+    [class.is-remote]="msg.mode === 'remote' || msg.mode === 'voice'"
     class="floating-message">
-    <div class="message-bubble">
+    
+    <!-- Regular Message -->
+    <div *ngIf="msg.mode !== 'reaction'" class="message-bubble">
       <div class="message-header">
         <ion-avatar class="message-avatar" *ngIf="msg.userAvatar">
           <img [src]="msg.userAvatar" alt="{{msg.userName}}" />
         </ion-avatar>
         <span class="message-username">{{msg.userName}}</span>
+        <ion-icon 
+          *ngIf="msg.mode === 'remote' || msg.mode === 'voice'"
+          name="phone-portrait-outline"
+          class="remote-icon">
+        </ion-icon>
+        <ion-icon 
+          *ngIf="msg.mode === 'voice'"
+          name="mic-outline"
+          class="voice-icon">
+        </ion-icon>
       </div>
       <div class="message-text">{{msg.message}}</div>
+    </div>
+    
+    <!-- Reaction (emoji only, larger) -->
+    <div *ngIf="msg.mode === 'reaction'" class="reaction-bubble">
+      <span class="reaction-emoji">{{msg.message}}</span>
     </div>
   </div>
 </div>

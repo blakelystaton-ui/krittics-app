@@ -1,6 +1,29 @@
+<ion-header [translucent]="true" *ngIf="!isRemoteMode">
+  <ion-toolbar>
+    <ion-buttons slot="end" *ngIf="showRemoteToggle">
+      <ion-button
+        (click)="toggleRemoteMode()"
+        fill="outline"
+        data-testid="button-toggle-remote">
+        <ion-icon slot="start" name="phone-portrait-outline"></ion-icon>
+        Remote
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true" class="crew-watch-content">
-  <!-- Video Player Container -->
-  <div class="video-container">
+  <!-- Remote Mode View (full-screen) -->
+  <app-remote-mode-view
+    *ngIf="isRemoteMode"
+    [recentMessages]="recentMessages"
+    (messageSent)="onRemoteMessageSent($event)"
+    (reactionSent)="onReactionSent($event)"
+    (exitRemote)="toggleRemoteMode()">
+  </app-remote-mode-view>
+
+  <!-- Normal Crew Watch View -->
+  <div class="video-container" *ngIf="!isRemoteMode">
     <video
       #videoPlayer
       [src]="movieUrl"
@@ -21,9 +44,9 @@
     </app-floating-chat>
   </div>
 
-  <!-- Chat Input Bar (always at bottom) -->
+  <!-- Chat Input Bar (only when not in remote mode) -->
   <app-chat-input-bar
-    *ngIf="roomCode"
+    *ngIf="!isRemoteMode && roomCode"
     (sendMessage)="onSendMessage($event)"
     class="chat-input-fixed">
   </app-chat-input-bar>

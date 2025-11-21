@@ -53,8 +53,55 @@
 .message-username {
   font-size: 13px;
   font-weight: 600;
-  color: #1ba9af; // Teal accent
+  color: #1ba9af;
   opacity: 0.9;
+}
+
+.remote-icon,
+.voice-icon {
+  font-size: 14px;
+  color: #1ba9af;
+  margin-left: 6px;
+}
+
+// Reaction-specific styles
+.floating-message.is-reaction {
+  .message-bubble {
+    display: none;
+  }
+}
+
+.reaction-bubble {
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .reaction-emoji {
+    font-size: 48px;
+    animation: scaleIn 0.3s ease-out;
+  }
+}
+
+// Remote message styles (slightly larger)
+.floating-message.is-remote {
+  .message-bubble {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .message-text {

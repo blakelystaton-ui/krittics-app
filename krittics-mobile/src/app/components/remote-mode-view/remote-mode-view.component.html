@@ -1,0 +1,85 @@
+<div class="remote-mode-container">
+  <!-- Header -->
+  <div class="remote-header">
+    <div class="header-content">
+      <ion-icon name="tv-outline" class="tv-icon"></ion-icon>
+      <span class="header-text">Remote Active — typing for the TV</span>
+    </div>
+    <ion-button 
+      fill="clear" 
+      size="small" 
+      (click)="onExit()"
+      class="exit-button"
+      data-testid="button-exit-remote">
+      <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="remote-content">
+    <!-- Recent Messages Preview (Optional) -->
+    <div *ngIf="recentMessages.length > 0" class="recent-messages">
+      <div *ngFor="let msg of recentMessages" class="message-preview">
+        <strong>{{ msg.userName }}:</strong> {{ msg.message }}
+      </div>
+    </div>
+
+    <!-- Giant Message Input -->
+    <div class="input-section">
+      <ion-textarea
+        [(ngModel)]="messageText"
+        placeholder="Type your message..."
+        class="giant-input"
+        rows="4"
+        (keyup.enter)="onSendMessage()"
+        data-testid="textarea-remote-message"
+        autoGrow="true">
+      </ion-textarea>
+
+      <div class="button-row">
+        <!-- Voice Input Button -->
+        <ion-button
+          *ngIf="voiceSupported"
+          (click)="onVoiceInput()"
+          [class.listening]="isListening"
+          class="voice-button"
+          fill="outline"
+          size="large"
+          data-testid="button-voice-input">
+          <ion-icon 
+            slot="icon-only" 
+            [name]="isListening ? 'mic' : 'mic-outline'"
+            [class.pulsing]="isListening">
+          </ion-icon>
+        </ion-button>
+
+        <!-- Giant Send Button -->
+        <ion-button
+          (click)="onSendMessage()"
+          [disabled]="!messageText.trim()"
+          class="giant-send-button"
+          fill="solid"
+          size="large"
+          expand="block"
+          data-testid="button-send-remote">
+          <ion-icon slot="start" name="send"></ion-icon>
+          Send to TV
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Quick Reactions -->
+    <div class="quick-reactions">
+      <div class="reactions-label">Quick Reactions</div>
+      <div class="reactions-grid">
+        <button
+          *ngFor="let reaction of quickReactions"
+          (click)="onQuickReaction(reaction.emoji)"
+          class="reaction-button"
+          [attr.data-testid]="'button-reaction-' + reaction.name">
+          <span class="reaction-emoji">{{ reaction.emoji }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
