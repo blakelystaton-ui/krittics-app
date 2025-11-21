@@ -1,57 +1,66 @@
 .chat-input-container {
   position: fixed;
-  left: 16px; // Bottom-left positioning
-  bottom: 12px; // 12px from bottom
-  z-index: 200;
+  left: 16px;
+  bottom: 12px;
+  z-index: 10000 !important;
   transition: bottom 0.2s ease-in-out;
-  padding-bottom: env(safe-area-inset-bottom); // iOS safe area
-  max-width: 400px; // Constrain width for Netflix/Rabbit-style chat
-  width: calc(100% - 32px); // Responsive width with margins
+  padding-bottom: env(safe-area-inset-bottom);
+  max-width: 400px;
+  width: calc(100% - 32px);
+  pointer-events: auto !important;
+  
+  // TEMP DEBUG BORDER
+  border: 3px solid red !important;
 }
 
 .input-bar {
   height: 56px;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.6) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   padding: 8px 12px;
   gap: 8px;
-  border-radius: 28px; // Fully rounded for modern look
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  border: 2px solid #1ba9af !important;
+  pointer-events: auto !important;
 }
 
 .message-input {
   flex: 1;
-  --background: rgba(255, 255, 255, 0.1);
-  --color: #ffffff;
-  --placeholder-color: rgba(255, 255, 255, 0.5);
+  --background: rgba(255, 255, 255, 0.95) !important;
+  --color: #000000 !important;
+  --placeholder-color: rgba(0, 0, 0, 0.5) !important;
   --padding-start: 16px;
   --padding-end: 16px;
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(27, 169, 175, 0.3);
   font-size: 15px;
   min-height: 40px;
+  pointer-events: auto !important;
 }
 
 .send-button {
-  --background: #1ba9af; // Teal accent
-  --background-activated: #158f94;
-  --background-hover: #15a0a7;
-  --color: #ffffff;
+  --background: #1ba9af !important;
+  --background-activated: #158f94 !important;
+  --background-hover: #15a0a7 !important;
+  --color: #ffffff !important;
   --padding-start: 0;
   --padding-end: 0;
   width: 40px;
   height: 40px;
   margin: 0;
+  pointer-events: auto !important;
+  flex-shrink: 0;
 
   ion-icon {
     font-size: 20px;
+    color: #ffffff !important;
   }
 
   &[disabled] {
-    --background: rgba(27, 169, 175, 0.3);
+    --background: rgba(27, 169, 175, 0.3) !important;
     opacity: 0.5;
   }
 }
