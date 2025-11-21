@@ -1,0 +1,41 @@
+You are modifying the Krittics iOS/iPadOS app (React Native + Expo project).
+
+Goal: When users are in a "Crew" watch session (watching a movie together with friends), implement a beautiful, modern floating chat that appears only during active Crew movie playback.
+
+Specific requirements:
+
+1. Floating Message Input Bar (always visible at the bottom)
+   - Fixed at the very bottom of the screen, just above the iOS home indicator / safe area (like YouTube or Twitch chat)
+   - Height: 50px (or 56px on iPhone)
+   - Background: blur effect (translucent black or dark vibrancy)
+   - Contains: Text input field (rounded, with light border) + send button (blue circle with paper plane icon)
+   - When keyboard opens, the input bar should stay pinned on top of the keyboard (use KeyboardAvoidingView or native behavior)
+
+2. Chat Messages Overlay (floating over the video)
+   - Messages appear from the bottom (just above the input bar) and slowly float/fade upwards toward the center of the video
+   - Each message is a rounded bubble with slight transparency (background rgba(0,0,0,0.45), white text)
+   - Messages have a max-width of ~80% of screen
+   - Animation: 
+     - Enter from bottom with opacity 0 → 1
+     - Move upward slowly (e.g., translateY -150 over 8–10 seconds)
+     - Fade out completely (opacity → 0) in the last 2 seconds
+     - Then remove from DOM
+   - Messages should stack vertically with small spacing if multiple arrive at once
+   - Do not block video controls (play/pause, scrubber, etc.)
+
+3. Only show this floating chat when:
+   - User is in a Crew room
+   - A video is currently playing (or paused) in the full-screen player
+   - Hide it completely on regular browse/feed mode
+
+4. Reuse the existing room chat messages (already coming from Firestore/WebSocket) — just change the rendering location and style.
+
+5. Make sure it works perfectly on both iPhone and iPad (responsive, respects safe areas).
+
+Technical details:
+- Use React Native Reanimated 3 + React Native Gesture Handler if needed for smooth animations
+- Use expo-blur for the input bar background
+- Use Moti (or Reanimated) for the floating message animations
+- Position: absolute, z-index above video player but below top controls
+
+Implement this now in the file where the Crew video player is rendered (likely components/CrewPlayer.js or screens/CrewWatchScreen.js). Show me the exact code changes.
