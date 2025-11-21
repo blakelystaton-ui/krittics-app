@@ -1,0 +1,30 @@
+<ion-content [fullscreen]="true" class="crew-watch-content">
+  <!-- Video Player Container -->
+  <div class="video-container">
+    <video
+      #videoPlayer
+      [src]="movieUrl"
+      (play)="onVideoPlay()"
+      (pause)="onVideoPause()"
+      (ended)="onVideoEnded()"
+      controls
+      playsinline
+      webkit-playsinline
+      class="video-player">
+    </video>
+
+    <!-- Floating Chat Overlay (only visible during crew playback) -->
+    <app-floating-chat
+      *ngIf="showFloatingChat"
+      [messages]="messages"
+      class="floating-chat-overlay">
+    </app-floating-chat>
+  </div>
+
+  <!-- Chat Input Bar (always at bottom) -->
+  <app-chat-input-bar
+    *ngIf="roomCode"
+    (sendMessage)="onSendMessage($event)"
+    class="chat-input-fixed">
+  </app-chat-input-bar>
+</ion-content>

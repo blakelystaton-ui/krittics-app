@@ -1,0 +1,16 @@
+<div class="floating-messages-container">
+  <div
+    *ngFor="let msg of displayedMessages; trackBy: trackByMessageId"
+    [@floatUp]="msg.animationState"
+    class="floating-message">
+    <div class="message-bubble">
+      <div class="message-header">
+        <ion-avatar class="message-avatar" *ngIf="msg.userAvatar">
+          <img [src]="msg.userAvatar" alt="{{msg.userName}}" />
+        </ion-avatar>
+        <span class="message-username">{{msg.userName}}</span>
+      </div>
+      <div class="message-text">{{msg.message}}</div>
+    </div>
+  </div>
+</div>

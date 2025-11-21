@@ -1,0 +1,22 @@
+<div class="chat-input-container" [style.bottom.px]="keyboardHeight">
+  <div class="input-bar">
+    <ion-input
+      [(ngModel)]="messageText"
+      placeholder="Send a message..."
+      class="message-input"
+      (keyup.enter)="onSend()"
+      type="text"
+      data-testid="input-chat-message">
+    </ion-input>
+    
+    <ion-button
+      (click)="onSend()"
+      [disabled]="!messageText.trim()"
+      class="send-button"
+      shape="round"
+      fill="solid"
+      data-testid="button-send-message">
+      <ion-icon slot="icon-only" name="paper-plane"></ion-icon>
+    </ion-button>
+  </div>
+</div>
