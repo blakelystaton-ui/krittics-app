@@ -14,7 +14,7 @@
             [class.selected]="isSelected(genre)"
             (click)="toggleGenre(genre)"
             class="genre-chip"
-            data-testid="chip-genre-{{genre.toLowerCase()}}">
+            [attr.data-testid]="'chip-genre-' + genre.toLowerCase()">
             <ion-label>{{ genre }}</ion-label>
           </ion-chip>
         </ion-col>
@@ -22,7 +22,7 @@
     </ion-grid>
 
     <div class="footer-section">
-      <p class="selection-count" data-testid="text-selection-count">
+      <p class="selection-count" [attr.data-testid]="'text-selection-count'">
         Selected: {{ selectedGenres.size }} {{ selectedGenres.size === 1 ? 'genre' : 'genres' }}
       </p>
       <ion-button
@@ -30,7 +30,7 @@
         [disabled]="!hasSelection || isLoading"
         (click)="saveInterests()"
         class="continue-button"
-        data-testid="button-save-interests">
+        [attr.data-testid]="'button-save-interests'">
         {{ isLoading ? 'Saving...' : 'Continue to Krittics' }}
       </ion-button>
     </div>
@@ -41,6 +41,6 @@
     [message]="toastMessage"
     [duration]="3000"
     (didDismiss)="showToast = false"
-    data-testid="toast-message">
+    [attr.data-testid]="'toast-message'">
   </ion-toast>
 </ion-content>

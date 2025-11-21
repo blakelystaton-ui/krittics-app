@@ -6,7 +6,7 @@ import {
   Injectable,
   inject,
 } from '@angular/core';
-import { CommonModule, NgClass, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -59,7 +59,7 @@ const initialAuthToken =
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, NgClass, CurrencyPipe],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="bg-gray-900 shadow-md p-4 pt-6">
