@@ -323,6 +323,51 @@ export default function PrivateRoomsPage() {
     }
   };
 
+  // Add member to existing room
+  const handleAddMemberToRoom = async (friend: User) => {
+    if (!db || !userId || !currentRoom || !isFirebaseConfigured) {
+      setStatusMessage('Unable to add member to room.');
+      return;
+    }
+
+    // Check if member already in room
+    if (currentRoom.members.includes(friend.id)) {
+      setStatusMessage('This user is already in the room.');
+      return;
+    }
+
+    const friendName = friend.firstName && friend.lastName 
+      ? `${friend.firstName} ${friend.lastName}` 
+      : friend.email || 'Friend';
+    const roomRef = doc(db, roomsCollectionPath, currentRoom.roomCode);
+
+    try {
+      // Add member to room using arrayUnion
+      await updateDoc(roomRef, {
+        members: arrayUnion(friend.id)
+      });
+
+      // Send welcome message
+      const messagesCollectionPath = `${roomsCollectionPath}/${currentRoom.roomCode}/messages`;
+      await addDoc(collection(db, messagesCollectionPath), {
+        userId: 'system',
+        userName: 'Krittics',
+        text: `${friendName} has been added to the crew!`,
+        timestamp: serverTimestamp(),
+      });
+
+      // Track friend interaction
+      await apiRequest('POST', `/api/friends/${friend.id}/track`, {
+        interactionType: 'room_invite',
+      });
+
+      setStatusMessage(`${friendName} added to the crew!`);
+    } catch (error) {
+      console.error("Error adding member to room:", error);
+      setStatusMessage(`Failed to add ${friendName}. Please try again.`);
+    }
+  };
+
   // Real-time listener for the current room
   useEffect(() => {
     if (!db || !isAuthReady || !roomCode || !isFirebaseConfigured) return;
