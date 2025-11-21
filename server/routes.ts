@@ -469,9 +469,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GET /api/progress/:movieId - Get specific movie progress
-  app.get("/api/progress/:movieId", isAuthenticated, async (req: any, res) => {
+  // GET /api/progress/:movieId - Get specific movie progress (works for both auth and unauth)
+  app.get("/api/progress/:movieId", async (req: any, res) => {
     try {
+      // If not authenticated, return null (no progress)
+      if (!req.user?.claims?.sub) {
+        return res.json(null);
+      }
+      
       const userId = req.user.claims.sub;
       const { movieId } = req.params;
       const progress = await storage.getVideoProgress(userId, movieId);
