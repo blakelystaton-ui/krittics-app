@@ -73,16 +73,19 @@ Enter (instant) → Float upward 8s → Fade out 2s → Remove from DOM
 ### Host-Only Manual Invites
 - No auto-join or public room behavior
 - Host taps "Start Crew Watch" → Friend picker opens
+- **Real friend data** fetched from backend API (`/friends/top`, `/friends/search`)
 - Select friends from list (with search)
 - Only selected friends + host can join the room
-- Private room enforcement
+- Private room enforcement via Firebase room creation
 
 ### Features
-- **Search:** Filter friends by name or email
+- **Real API Integration:** Loads actual friend suggestions from PostgreSQL backend
+- **Live Search:** Filter friends by name or email with instant results
 - **Multi-select:** Tap to toggle friend selection
 - **Visual feedback:** Selected friends highlighted in teal
 - **Selection count:** Shows "X friends selected" at bottom
 - **Teal gradient styling:** Matches web app aesthetic
+- **Loading states:** Spinner while fetching friends from API
 
 ---
 
@@ -113,11 +116,17 @@ Enter (instant) → Float upward 8s → Fade out 2s → Remove from DOM
 ## 📝 Routes Available
 
 ```
-/crew-demo       → Auto-demo with friend picker
+/tabs/home       → DEFAULT - Main home page with "Start Crew Watch" button
+/crew-demo       → Auto-demo with friend picker (testing only)
 /crew-watch      → Main Crew watch page (requires roomCode query param)
 /interests       → User interests selection
-/tabs/home       → Main home page
 ```
+
+### New in This Build
+- **HomePage as Default:** App now opens to `/tabs/home` with integrated Crew Watch launcher
+- **Real Friend Data:** Friend picker fetches actual friends from backend API
+- **Private Room Creation:** FirebaseService creates rooms with invitedUsers list for access control
+- **Bottom Navigation:** Home, Browse, and Profile tabs
 
 ---
 
