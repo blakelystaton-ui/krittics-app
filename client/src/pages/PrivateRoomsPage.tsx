@@ -25,6 +25,7 @@ import {
 import { ArrowLeft, Crown, Send, Users, UserPlus, Search, Play, Pause, Film } from 'lucide-react';
 import { CrewMatches } from '@/components/CrewMatches';
 import { FriendSearchDropdown } from '@/components/FriendSearchDropdown';
+import { FriendInvitePopover } from '@/components/FriendInvitePopover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { User, Movie } from '@shared/schema';
 import { EnhancedVideoPlayer } from '@/components/EnhancedVideoPlayer';
@@ -323,14 +324,20 @@ export default function PrivateRoomsPage() {
     }
   };
 
-  // Add member to existing room
+  // Add member to existing room (host only)
   const handleAddMemberToRoom = async (friend: User) => {
     if (!db || !userId || !currentRoom || !isFirebaseConfigured) {
       setStatusMessage('Unable to add member to room.');
       return;
     }
 
-    // Check if member already in room
+    // Only host can add members
+    if (currentRoom.hostId !== userId) {
+      setStatusMessage('Only the host can invite members to the room.');
+      return;
+    }
+
+    // Check if member already in room (prevent duplicate invites)
     if (currentRoom.members.includes(friend.id)) {
       setStatusMessage('This user is already in the room.');
       return;
@@ -342,7 +349,7 @@ export default function PrivateRoomsPage() {
     const roomRef = doc(db, roomsCollectionPath, currentRoom.roomCode);
 
     try {
-      // Add member to room using arrayUnion
+      // Add member to room using arrayUnion (prevents duplicates at Firebase level)
       await updateDoc(roomRef, {
         members: arrayUnion(friend.id)
       });
@@ -360,6 +367,9 @@ export default function PrivateRoomsPage() {
       await apiRequest('POST', `/api/friends/${friend.id}/track`, {
         interactionType: 'room_invite',
       });
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['/api/friends'] });
 
       setStatusMessage(`${friendName} added to the crew!`);
     } catch (error) {
@@ -861,11 +871,19 @@ export default function PrivateRoomsPage() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className="teal-icon-subtle flex h-8 w-8 items-center justify-center rounded-md">
-                    <Users className="h-5 w-5" />
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="teal-icon-subtle flex h-8 w-8 items-center justify-center rounded-md">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    Members ({currentRoom.members.length})
                   </div>
-                  Members ({currentRoom.members.length})
+                  {currentRoom.hostId === userId && (
+                    <FriendInvitePopover 
+                      onSelectFriend={handleAddMemberToRoom}
+                      existingMemberIds={currentRoom.members}
+                    />
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>

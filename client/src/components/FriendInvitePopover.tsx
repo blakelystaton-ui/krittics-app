@@ -72,8 +72,8 @@ export function FriendInvitePopover({ onSelectFriend, existingMemberIds = [] }: 
       <PopoverTrigger asChild>
         <Button 
           size="sm" 
-          variant="ghost"
-          className="h-8 px-2 gap-1 hover-elevate"
+          variant="outline"
+          className="h-8 px-2 gap-1 border-[var(--teal)]/30 text-[var(--teal)]"
           data-testid="button-add-member"
         >
           <UserPlus className="h-4 w-4" />
@@ -132,7 +132,8 @@ export function FriendInvitePopover({ onSelectFriend, existingMemberIds = [] }: 
             <div className="p-2">
               {displayedFriends.map((friend, index) => {
                 const isTopFriend = searchQuery.length < 2;
-                const interactionCount = 'interactionCount' in friend ? friend.interactionCount : 0;
+                const friendWithCount = friend as User & { interactionCount?: number };
+                const interactionCount = friendWithCount.interactionCount ?? 0;
                 
                 return (
                   <button
