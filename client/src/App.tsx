@@ -33,6 +33,7 @@ function Router() {
       <Route path="/" component={BrowsePage} />
       <Route path="/player" component={HomePage} />
       <Route path="/krossfire" component={KrossfirePage} />
+      <Route path="/crew" component={PrivateRoomsPage} />
       <Route path="/private-rooms" component={PrivateRoomsPage} />
       <Route path="/watchlist" component={QueuePage} />
       <Route path="/mission" component={MissionPage} />

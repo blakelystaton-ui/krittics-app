@@ -57,12 +57,12 @@ export function FriendInvitePopover({ onSelectFriend, existingMemberIds = [] }: 
     return '?';
   };
 
-  // Filter out existing members
-  const filteredTopFriends = topFriends
+  // Filter out existing members (with null safety)
+  const filteredTopFriends = (topFriends || [])
     .filter(friend => !existingMemberIds.includes(friend.id))
     .slice(0, 5);
   
-  const filteredSearchResults = searchResults
+  const filteredSearchResults = (searchResults || [])
     .filter(friend => !existingMemberIds.includes(friend.id));
 
   const displayedFriends = searchQuery.length >= 2 ? filteredSearchResults : filteredTopFriends;
