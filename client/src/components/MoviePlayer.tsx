@@ -28,16 +28,17 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const playerRef = useRef<VideoPlayerHandle>(null);
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // Load initial progress to check if movie is partially watched
+  // Wait for auth to finish loading, then fetch progress regardless of user state
   const { data: initialProgress } = useQuery<{ progressSeconds: number; completed: boolean } | null>({
     queryKey: ['/api/progress', movie.id],
-    enabled: !!movie.id && !!user,
+    enabled: !!movie.id && !authLoading,
   });
 
   // Calculate saved progress in seconds
