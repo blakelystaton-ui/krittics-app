@@ -15,15 +15,18 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// User storage table - Production-ready with payout integration
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
+  phone: varchar("phone").unique(), // E.164 format: +15551234567
+  username: varchar("username").unique().notNull(),
+  passwordHash: varchar("password_hash").notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   interests: text("interests").array(),
+  payoutId: varchar("payout_id"), // Acorns ID, Venmo $cashtag, Cash App, or bank info
   hasCompletedOnboarding: boolean("has_completed_onboarding").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

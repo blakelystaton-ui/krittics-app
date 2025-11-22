@@ -8,6 +8,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "../storage";
 import { setupAuth } from "../middleware/auth";
+import { setupAuthRoutes } from "./authRoutes";
 import { registerMovieRoutes } from "./movieRoutes";
 import { registerTriviaRoutes } from "./triviaRoutes";
 import { registerUserRoutes } from "./userRoutes";
@@ -24,6 +25,9 @@ import { registerAdTargetingRoutes } from "./adTargetingRoutes";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication middleware (MUST be first)
   await setupAuth(app);
+
+  // Setup new email/password authentication routes
+  setupAuthRoutes(app);
 
   // Register all route modules
   registerMovieRoutes(app, storage);

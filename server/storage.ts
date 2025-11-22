@@ -77,6 +77,18 @@ export class MemStorage implements IStorage {
     throw new Error("MemStorage does not support user operations");
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    throw new Error("MemStorage does not support user operations");
+  }
+
+  async getUserByPhone(phone: string): Promise<User | undefined> {
+    throw new Error("MemStorage does not support user operations");
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    throw new Error("MemStorage does not support user operations");
+  }
+
   async upsertUser(user: UpsertUser): Promise<User> {
     throw new Error("MemStorage does not support user operations");
   }
@@ -343,6 +355,21 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .returning();
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByPhone(phone: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.phone, phone));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
 

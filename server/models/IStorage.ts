@@ -23,9 +23,12 @@ import type {
 
 export interface IStorage {
   // ============================================
-  // User Operations (REQUIRED for Replit Auth)
+  // User Operations
   // ============================================
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByPhone(phone: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
 
   // ============================================
