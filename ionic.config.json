@@ -1,0 +1,8 @@
+{
+  "name": "Krittics",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "Krittics"
+}
