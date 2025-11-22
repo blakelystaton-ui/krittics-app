@@ -24,6 +24,8 @@ import Article6 from "@/pages/insights/Article6";
 import Article7 from "@/pages/insights/Article7";
 import Article8 from "@/pages/insights/Article8";
 import InterestsSelection from "@/pages/interests-selection";
+import SignupPage from "@/pages/SignupPage";
+import LoginPage from "@/pages/LoginPage";
 import NotFound from "@/pages/not-found";
 import type { User } from "@shared/schema";
 
@@ -31,6 +33,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={BrowsePage} />
+      <Route path="/signup" component={SignupPage} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/player" component={HomePage} />
       <Route path="/krossfire" component={KrossfirePage} />
       <Route path="/crew" component={PrivateRoomsPage} />
