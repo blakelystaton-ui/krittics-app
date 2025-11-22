@@ -1,5 +1,10 @@
-// Gemini AI Integration for Krittics Trivia Generation
-// Reference: blueprint:javascript_gemini_ai_integrations
+/**
+ * gemini.ts
+ * 
+ * Google Gemini 2.0 Flash AI integration for trivia generation
+ * Reference: blueprint:javascript_gemini_ai_integrations
+ * Handles structured JSON output with retry logic
+ */
 
 import { GoogleGenAI, Type } from "@google/genai";
 

@@ -11,7 +11,7 @@
 
 import type { IStorage } from "../models/IStorage";
 import { generateMovieTriviaWithRetry } from "../config/gemini";
-import crypto from "crypto";
+import { generateSHA256Hash } from "../utils/crypto";
 
 export interface FreshQuestionsParams {
   userId: string;
@@ -30,7 +30,7 @@ export class TriviaService {
    */
   private generateQuestionHash(question: string, options: string[]): string {
     const content = question + options.join('|');
-    return crypto.createHash('sha256').update(content).digest('hex');
+    return generateSHA256Hash(content);
   }
 
   /**
