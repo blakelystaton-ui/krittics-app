@@ -5,20 +5,24 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Film, Laugh, Drama, Skull, Rocket, Heart, FileVideo, Palette, Ghost, Users } from "lucide-react";
 
-// Available interest categories with icons
+// Available hobby interests with emojis
 const INTERESTS = [
-  { name: "Action", icon: Rocket, color: "bg-red-500" },
-  { name: "Comedy", icon: Laugh, color: "bg-yellow-500" },
-  { name: "Drama", icon: Drama, color: "bg-blue-500" },
-  { name: "Horror", icon: Skull, color: "bg-purple-500" },
-  { name: "Sci-Fi", icon: Ghost, color: "bg-cyan-500" },
-  { name: "Romance", icon: Heart, color: "bg-pink-500" },
-  { name: "Documentary", icon: FileVideo, color: "bg-green-500" },
-  { name: "Animation", icon: Palette, color: "bg-orange-500" },
-  { name: "Thriller", icon: Film, color: "bg-indigo-500" },
-  { name: "Family", icon: Users, color: "bg-teal-500" },
+  { name: "Sports", emoji: "⚽", color: "bg-orange-600" },
+  { name: "Cars", emoji: "🚗", color: "bg-red-600" },
+  { name: "Outdoors", emoji: "🏕️", color: "bg-green-600" },
+  { name: "Gaming", emoji: "🎮", color: "bg-purple-600" },
+  { name: "Music", emoji: "🎵", color: "bg-pink-600" },
+  { name: "Travel", emoji: "✈️", color: "bg-blue-600" },
+  { name: "Cooking", emoji: "🍳", color: "bg-orange-500" },
+  { name: "Fitness", emoji: "💪", color: "bg-lime-500" },
+  { name: "Fashion", emoji: "👗", color: "bg-fuchsia-600" },
+  { name: "Tech", emoji: "🤖", color: "bg-cyan-600" },
+  { name: "Photography", emoji: "📸", color: "bg-yellow-500" },
+  { name: "Art", emoji: "🎨", color: "bg-purple-800" },
+  { name: "Books", emoji: "📚", color: "bg-amber-700" },
+  { name: "Foodie", emoji: "🍔", color: "bg-orange-600" },
+  { name: "Animals", emoji: "🐾", color: "bg-sky-500" },
 ];
 
 export default function InterestsSelection() {
@@ -81,7 +85,7 @@ export default function InterestsSelection() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {INTERESTS.map(({ name, icon: Icon, color }) => {
+            {INTERESTS.map(({ name, emoji, color }) => {
               const isSelected = selectedInterests.includes(name);
               return (
                 <button
@@ -97,7 +101,7 @@ export default function InterestsSelection() {
                   data-testid={`interest-${name.toLowerCase()}`}
                 >
                   <div className={`w-12 h-12 rounded-full ${color} flex items-center justify-center mb-2`}>
-                    <Icon className="w-6 h-6 text-white" />
+                    <span className="text-2xl">{emoji}</span>
                   </div>
                   <span className="text-sm font-medium">{name}</span>
                   {isSelected && (
