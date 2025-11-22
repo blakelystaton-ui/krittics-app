@@ -1,0 +1,38 @@
+/**
+ * routes/index.ts
+ * 
+ * Consolidated router - registers all API routes
+ */
+
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "../storage";
+import { setupAuth } from "../middleware/auth";
+import { registerMovieRoutes } from "./movieRoutes";
+import { registerTriviaRoutes } from "./triviaRoutes";
+import { registerUserRoutes } from "./userRoutes";
+import { registerWatchlistRoutes } from "./watchlistRoutes";
+import { registerVideoProgressRoutes } from "./videoProgressRoutes";
+import { registerLeaderboardRoutes } from "./leaderboardRoutes";
+
+/**
+ * Register all API routes and setup authentication
+ * Returns HTTP server instance for WebSocket support
+ */
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication middleware (MUST be first)
+  await setupAuth(app);
+
+  // Register all route modules
+  registerMovieRoutes(app, storage);
+  registerTriviaRoutes(app, storage);
+  registerUserRoutes(app, storage);
+  registerWatchlistRoutes(app, storage);
+  registerVideoProgressRoutes(app, storage);
+  registerLeaderboardRoutes(app, storage);
+
+  // Create HTTP server for potential WebSocket support
+  const server = createServer(app);
+  
+  return server;
+}

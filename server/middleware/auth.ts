@@ -1,14 +1,19 @@
-// Replit Auth integration for user authentication
-// Based on blueprint:javascript_log_in_with_replit
+/**
+ * auth.ts
+ * 
+ * Authentication middleware using Replit Auth (OIDC)
+ * Provides isAuthenticated middleware and session setup
+ * Based on blueprint:javascript_log_in_with_replit
+ */
+
+import type { Express, Request, Response, NextFunction } from "express";
 import * as client from "openid-client";
 import { Strategy, type VerifyFunction } from "openid-client/passport";
-
 import passport from "passport";
 import session from "express-session";
-import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
-import { storage } from "./storage";
+import { storage } from "../storage";
 
 const getOidcConfig = memoize(
   async () => {
@@ -20,7 +25,7 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
-export function getSession() {
+function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -52,9 +57,7 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(
-  claims: any,
-) {
+async function upsertUser(claims: any) {
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
@@ -64,6 +67,10 @@ async function upsertUser(
   });
 }
 
+/**
+ * Setup Replit Auth (OIDC) for the Express app
+ * REQUIRED: Must be called before any authenticated routes
+ */
 export async function setupAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
@@ -98,67 +105,78 @@ export async function setupAuth(app: Express) {
         },
         verify,
       );
-      passport.use(strategy);
+      passport.use(strategyName, strategy);
       registeredStrategies.add(strategyName);
     }
+    return strategyName;
   };
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  // Serialize user for session
+  passport.serializeUser((user: any, done) => {
+    done(null, user);
+  });
 
+  passport.deserializeUser((user: any, done) => {
+    done(null, user);
+  });
+
+  // ===============================
+  // Auth Routes
+  // ===============================
+
+  /**
+   * GET /api/login
+   * Initiate Replit Auth login flow
+   */
   app.get("/api/login", (req, res, next) => {
-    ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
-  });
-
-  app.get("/api/callback", (req, res, next) => {
-    ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const domain = req.hostname;
+    const strategyName = ensureStrategy(domain);
+    passport.authenticate(strategyName, {
       successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
     })(req, res, next);
   });
 
-  app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+  /**
+   * GET /api/callback
+   * Handle Replit Auth callback
+   */
+  app.get("/api/callback", (req, res, next) => {
+    const domain = req.hostname;
+    const strategyName = ensureStrategy(domain);
+    passport.authenticate(strategyName, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/",
+    })(req, res, next);
+  });
+
+  /**
+   * POST /api/logout
+   * Logout and destroy session
+   */
+  app.post("/api/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        console.error("[Auth] Logout error:", err);
+        return res.status(500).json({ error: "Logout failed" });
+      }
+      req.session.destroy(() => {
+        res.json({ success: true });
+      });
     });
   });
 }
 
-export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
+/**
+ * Middleware: Require authentication for a route
+ * Usage: app.get('/protected', isAuthenticated, (req, res) => { ... })
+ */
+export function isAuthenticated(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (req.isAuthenticated()) {
     return next();
   }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-};
+  res.status(401).json({ error: "Unauthorized - Please login" });
+}

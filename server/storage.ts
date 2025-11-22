@@ -1,3 +1,10 @@
+/**
+ * storage.ts
+ * 
+ * Main storage implementation using PostgreSQL via Drizzle ORM
+ * Implements IStorage interface for all database operations
+ */
+
 import {
   type Movie,
   type InsertMovie,
@@ -27,68 +34,9 @@ import {
   videoProgress,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { db } from "./db";
+import { db } from "./config/db";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
-
-export interface IStorage {
-  // User operations (REQUIRED for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-
-  // Movies
-  getMovie(id: string): Promise<Movie | undefined>;
-  getAllMovies(): Promise<Movie[]>;
-  createMovie(movie: InsertMovie): Promise<Movie>;
-
-  // Game Sessions
-  getGameSession(id: string): Promise<GameSession | undefined>;
-  createGameSession(session: InsertGameSession): Promise<GameSession>;
-  updateGameSession(id: string, updates: Partial<GameSession>): Promise<GameSession>;
-  getSessionsByUser(userId: string): Promise<GameSession[]>;
-
-  // Trivia Questions
-  getTriviaQuestion(id: string): Promise<TriviaQuestion | undefined>;
-  getQuestionsByMovie(movieId: string): Promise<TriviaQuestion[]>;
-  createTriviaQuestion(question: InsertTriviaQuestion): Promise<TriviaQuestion>;
-  upsertTriviaQuestion(question: InsertTriviaQuestion): Promise<TriviaQuestion>;
-  createManyTriviaQuestions(questions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]>;
-  getTriviaQuestionsByFilter(filter: { movieId?: string; category?: string; difficulty?: string }): Promise<TriviaQuestion[]>;
-  getTriviaQuestionByHash(hash: string): Promise<TriviaQuestion | undefined>;
-  getUserSeenQuestions(userId: string): Promise<string[]>;
-  getUserSeenQuestionsForMovie(userId: string, movieId: string): Promise<string[]>;
-  markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void>;
-  clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void>;
-  reserveQuestionsForUser(userId: string, movieId: string, count: number, category?: string, difficulty?: string): Promise<TriviaQuestion[]>;
-
-  // Answers
-  createAnswer(answer: InsertAnswer): Promise<Answer>;
-  getAnswersBySession(sessionId: string): Promise<Answer[]>;
-
-  // Leaderboard
-  getTopPlayersByMode(gameMode: string, limit?: number, period?: 'daily' | 'weekly' | 'all-time'): Promise<{ userId: string; username: string; totalScore: number; gamesPlayed: number; averageScore: number }[]>;
-
-  // Friends
-  getFriendsByUser(userId: string): Promise<(User & { interactionCount: number; lastInteractionAt: Date | null })[]>;
-  searchUsers(query: string, excludeUserId?: string): Promise<User[]>;
-  addFriend(userId: string, friendId: string): Promise<Friendship>;
-  trackInteraction(userId: string, friendId: string, interactionType: string): Promise<void>;
-
-  // Watchlist
-  addToWatchlist(userId: string, movieId: string): Promise<void>;
-  removeFromWatchlist(userId: string, movieId: string): Promise<void>;
-  getWatchlistByUser(userId: string): Promise<Movie[]>;
-  isInWatchlist(userId: string, movieId: string): Promise<boolean>;
-
-  // User Interests
-  updateUserInterests(userId: string, interests: string[]): Promise<User>;
-  getUserInterests(userId: string): Promise<string[]>;
-  findCrewByInterests(userId: string): Promise<(User & { sharedInterests: string[] })[]>;
-
-  // Video Progress
-  updateVideoProgress(userId: string, movieId: string, progressSeconds: number, completed: boolean): Promise<any>;
-  getVideoProgress(userId: string, movieId: string): Promise<any>;
-  getContinueWatching(userId: string): Promise<(Movie & { progressSeconds: number; progressPercentage: number })[]>;
-}
+import type { IStorage } from "./models/IStorage";
 
 export class MemStorage implements IStorage {
   private movies: Map<string, Movie>;

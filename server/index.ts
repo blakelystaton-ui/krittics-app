@@ -1,5 +1,12 @@
+/**
+ * index.ts
+ * 
+ * Main server entry point for Krittics platform
+ * Initializes Express app, registers routes, and starts HTTP server
+ */
+
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
