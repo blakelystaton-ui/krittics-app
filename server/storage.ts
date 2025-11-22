@@ -17,6 +17,7 @@ import {
   movies,
   gameSessions,
   triviaQuestions,
+  userSeenQuestions,
   answers,
   users,
   leaderboardEntries,
@@ -49,7 +50,13 @@ export interface IStorage {
   getTriviaQuestion(id: string): Promise<TriviaQuestion | undefined>;
   getQuestionsByMovie(movieId: string): Promise<TriviaQuestion[]>;
   createTriviaQuestion(question: InsertTriviaQuestion): Promise<TriviaQuestion>;
+  upsertTriviaQuestion(question: InsertTriviaQuestion): Promise<TriviaQuestion>;
   createManyTriviaQuestions(questions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]>;
+  getTriviaQuestionsByFilter(filter: { movieId?: string; category?: string; difficulty?: string }): Promise<TriviaQuestion[]>;
+  getTriviaQuestionByHash(hash: string): Promise<TriviaQuestion | undefined>;
+  getUserSeenQuestions(userId: string): Promise<string[]>;
+  markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void>;
+  clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void>;
 
   // Answers
   createAnswer(answer: InsertAnswer): Promise<Answer>;
@@ -209,6 +216,30 @@ export class MemStorage implements IStorage {
 
   async createManyTriviaQuestions(insertQuestions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]> {
     return Promise.all(insertQuestions.map((q) => this.createTriviaQuestion(q)));
+  }
+
+  async getTriviaQuestionsByFilter(filter: { movieId?: string; category?: string; difficulty?: string }): Promise<TriviaQuestion[]> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async getTriviaQuestionByHash(hash: string): Promise<TriviaQuestion | undefined> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async upsertTriviaQuestion(insertQuestion: InsertTriviaQuestion): Promise<TriviaQuestion> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async getUserSeenQuestions(userId: string): Promise<string[]> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void> {
+    throw new Error("MemStorage does not support trivia question pool features");
   }
 
   // Answers
@@ -439,9 +470,105 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
+  async upsertTriviaQuestion(insertQuestion: InsertTriviaQuestion): Promise<TriviaQuestion> {
+    // Try to insert, ignore conflicts
+    const result = await db
+      .insert(triviaQuestions)
+      .values(insertQuestion)
+      .onConflictDoNothing()
+      .returning();
+    
+    // If conflict occurred (empty result), fetch the existing question by hash
+    if (result.length === 0) {
+      const existing = await this.getTriviaQuestionByHash(insertQuestion.questionHash!);
+      if (!existing) {
+        throw new Error('Upsert failed: question not found after conflict');
+      }
+      return existing;
+    }
+    
+    return result[0];
+  }
+
   async createManyTriviaQuestions(insertQuestions: InsertTriviaQuestion[]): Promise<TriviaQuestion[]> {
     if (insertQuestions.length === 0) return [];
     return await db.insert(triviaQuestions).values(insertQuestions).returning();
+  }
+
+  async getTriviaQuestionsByFilter(filter: { movieId?: string; category?: string; difficulty?: string }): Promise<TriviaQuestion[]> {
+    const conditions = [];
+    if (filter.movieId) {
+      conditions.push(eq(triviaQuestions.movieId, filter.movieId));
+    }
+    if (filter.category) {
+      conditions.push(eq(triviaQuestions.category, filter.category));
+    }
+    if (filter.difficulty) {
+      conditions.push(eq(triviaQuestions.difficulty, filter.difficulty));
+    }
+    
+    // Handle 0, 1, or multiple conditions properly
+    if (conditions.length === 0) {
+      return await db.select().from(triviaQuestions);
+    } else if (conditions.length === 1) {
+      return await db.select().from(triviaQuestions).where(conditions[0]);
+    } else {
+      return await db.select().from(triviaQuestions).where(and(...conditions));
+    }
+  }
+
+  async getTriviaQuestionByHash(hash: string): Promise<TriviaQuestion | undefined> {
+    const result = await db
+      .select()
+      .from(triviaQuestions)
+      .where(eq(triviaQuestions.questionHash, hash))
+      .limit(1);
+    return result[0];
+  }
+
+  async getUserSeenQuestions(userId: string): Promise<string[]> {
+    const { userSeenQuestions } = await import("@shared/schema");
+    const result = await db
+      .select({ questionId: userSeenQuestions.questionId })
+      .from(userSeenQuestions)
+      .where(eq(userSeenQuestions.userId, userId));
+    return result.map(r => r.questionId);
+  }
+
+  async markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void> {
+    if (questionIds.length === 0) return;
+    
+    const values = questionIds.map(questionId => ({
+      userId,
+      questionId
+    }));
+    
+    // ON CONFLICT DO NOTHING handles concurrent/duplicate inserts gracefully
+    await db.insert(userSeenQuestions).values(values).onConflictDoNothing();
+  }
+
+  async clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void> {
+    const { userSeenQuestions } = await import("@shared/schema");
+    
+    if (!movieId && !category) {
+      // Clear all seen questions for this user
+      await db.delete(userSeenQuestions).where(eq(userSeenQuestions.userId, userId));
+    } else {
+      // Clear only questions matching the criteria
+      const matchingQuestions = await this.getTriviaQuestionsByFilter({ movieId, category });
+      const questionIds = matchingQuestions.map(q => q.id);
+      
+      if (questionIds.length > 0) {
+        await db
+          .delete(userSeenQuestions)
+          .where(
+            and(
+              eq(userSeenQuestions.userId, userId),
+              sql`${userSeenQuestions.questionId} = ANY(${questionIds})`
+            )
+          );
+      }
+    }
   }
 
   // Answers

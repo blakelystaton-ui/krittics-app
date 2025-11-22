@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { generateMovieTriviaWithRetry } from "./gemini";
+import { getFreshQuestions } from "./triviaService";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { z } from "zod";
 
@@ -24,6 +25,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Validation schemas
   const triviaGenerationSchema = z.object({
     movieTitle: z.string().min(1, "Movie title is required"),
+    movieId: z.string().optional(),
+    category: z.string().optional(),
+    difficulty: z.enum(["easy", "medium", "hard"]).optional(),
+    count: z.number().int().min(1).max(10).optional(),
   });
 
   const createGameSchema = z.object({
@@ -101,19 +106,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/trivia/generate - Generate trivia questions using Gemini AI
-  app.post("/api/trivia/generate", async (req, res) => {
+  // POST /api/trivia/generate - Generate fresh trivia questions (no duplicates)
+  app.post("/api/trivia/generate", isAuthenticated, async (req: any, res) => {
     try {
       const validated = triviaGenerationSchema.parse(req.body);
+      const userId = req.user.claims.sub;
 
-      console.log(`Generating trivia for movie: ${validated.movieTitle}`);
+      console.log(`Getting fresh trivia for user ${userId}, movie: ${validated.movieTitle}`);
 
-      // Generate trivia using Gemini AI with retry logic
-      const questions = await generateMovieTriviaWithRetry(validated.movieTitle);
+      // Get fresh questions using the question pool (no duplicates)
+      const questions = await getFreshQuestions({
+        userId,
+        count: validated.count || 5,
+        movieId: validated.movieId,
+        category: validated.category,
+        difficulty: validated.difficulty || 'medium'
+      });
 
-      console.log(`Successfully generated ${questions.length} trivia questions`);
+      console.log(`Successfully retrieved ${questions.length} fresh trivia questions`);
 
-      res.json({ questions });
+      // Format response to match existing frontend expectations
+      const formattedQuestions = questions.map(q => ({
+        question: q.question,
+        options: q.options,
+        correctAnswer: q.correctAnswer
+      }));
+
+      res.json({ questions: formattedQuestions });
     } catch (error) {
       console.error("Error generating trivia:", error);
 

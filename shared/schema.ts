@@ -56,7 +56,18 @@ export const triviaQuestions = pgTable("trivia_questions", {
   question: text("question").notNull(),
   options: json("options").$type<string[]>().notNull(),
   correctAnswer: text("correct_answer").notNull(),
+  difficulty: text("difficulty").default('medium'), // easy, medium, hard
+  category: text("category"), // genre/interest category
+  questionHash: varchar("question_hash").unique(), // SHA-256 hash for deduplication
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User seen questions tracking table
+export const userSeenQuestions = pgTable("user_seen_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  questionId: varchar("question_id").references(() => triviaQuestions.id).notNull(),
+  seenAt: timestamp("seen_at").defaultNow(),
 });
 
 // Game sessions table
@@ -193,6 +204,11 @@ export const insertTriviaQuestionSchema = createInsertSchema(triviaQuestions).om
   createdAt: true,
 });
 
+export const insertUserSeenQuestionSchema = createInsertSchema(userSeenQuestions).omit({
+  id: true,
+  seenAt: true,
+});
+
 export const insertGameSessionSchema = createInsertSchema(gameSessions).omit({
   id: true,
   createdAt: true,
@@ -254,6 +270,7 @@ export const insertMovieReactionSchema = createInsertSchema(movieReactions).omit
 export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
 export type TriviaQuestion = typeof triviaQuestions.$inferSelect;
+export type UserSeenQuestion = typeof userSeenQuestions.$inferSelect;
 export type GameSession = typeof gameSessions.$inferSelect;
 export type Answer = typeof answers.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
@@ -271,6 +288,7 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type InsertMovie = z.infer<typeof insertMovieSchema>;
 export type InsertTriviaQuestion = z.infer<typeof insertTriviaQuestionSchema>;
+export type InsertUserSeenQuestion = z.infer<typeof insertUserSeenQuestionSchema>;
 export type InsertGameSession = z.infer<typeof insertGameSessionSchema>;
 export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
