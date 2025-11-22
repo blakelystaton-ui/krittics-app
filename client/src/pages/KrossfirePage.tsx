@@ -4,9 +4,10 @@ import { Zap, Users, Trophy, Crown, Target, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AdSenseInterstitial } from "@/components/AdSense";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,8 @@ export default function KrossfirePage() {
   const [, setLocation] = useLocation();
   const [gameMode, setGameMode] = useState<"lobby" | "waiting" | "playing">("lobby");
   const [timePeriod, setTimePeriod] = useState<'daily' | 'weekly' | 'all-time'>('all-time');
-  const [showInterstitialAd, setShowInterstitialAd] = useState(false);
+  const [waitTimeMs, setWaitTimeMs] = useState(0);
+  const { toast } = useToast();
 
   // Scroll to top when page opens
   useEffect(() => {
@@ -36,6 +38,11 @@ export default function KrossfirePage() {
 
   // Get current user ID from localStorage
   const currentUserId = localStorage.getItem('krittics-user-id');
+
+  // Fetch current user to get interests
+  const { data: currentUser } = useQuery<{ id: string; interests?: string[] } | null>({
+    queryKey: ['/api/auth/user'],
+  });
 
   // Fetch leaderboard data
   const { data: leaderboard = [], isLoading } = useQuery<LeaderboardEntry[]>({
@@ -46,6 +53,84 @@ export default function KrossfirePage() {
       return response.json();
     },
   });
+
+  // Join matchmaking queue mutation
+  const joinQueueMutation = useMutation({
+    mutationFn: async () => {
+      if (!currentUser?.interests || currentUser.interests.length === 0) {
+        throw new Error("Please select your interests in your profile first to use Quick Match");
+      }
+      return await apiRequest('POST', '/api/matchmaking/join', {
+        interests: currentUser.interests,
+      });
+    },
+    onSuccess: () => {
+      setGameMode("waiting");
+      setWaitTimeMs(0);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Could not join Quick Match",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Leave matchmaking queue mutation
+  const leaveQueueMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/matchmaking/leave', {});
+    },
+    onSuccess: () => {
+      setGameMode("lobby");
+      setWaitTimeMs(0);
+    },
+  });
+
+  // Poll matchmaking status while waiting
+  useEffect(() => {
+    if (gameMode !== "waiting") return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/matchmaking/status');
+        if (!response.ok) throw new Error('Failed to check match status');
+        
+        const result = await response.json();
+        
+        if (result.matched) {
+          // Match found! Show success and navigate to game session
+          toast({
+            title: "Match Found!",
+            description: `Matched with ${result.matchedPlayers.length - 1} other player(s). Get ready to compete!`,
+            duration: 3000,
+          });
+          
+          // Clear the interval before navigating
+          clearInterval(pollInterval);
+          
+          // Leave the queue before navigating
+          await fetch('/api/matchmaking/leave', { method: 'POST' });
+          
+          // Navigate to the game session lobby (Crew Command Center supports multiplayer games)
+          // For now, navigate to crew page where multiplayer games can be played
+          // In a full implementation, this would create/join a dedicated Krossfire game session
+          setTimeout(() => {
+            setLocation(`/crew`);
+          }, 1500); // Small delay to show the success toast
+          
+          return; // Exit early to prevent further polling
+        } else if (result.waitTimeMs) {
+          setWaitTimeMs(result.waitTimeMs);
+        }
+      } catch (error) {
+        console.error("Error polling match status:", error);
+      }
+    }, 2000); // Poll every 2 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [gameMode, toast, setLocation]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,11 +181,22 @@ export default function KrossfirePage() {
                   </p>
                   <button
                     className="gradient-border-button mt-6 w-full"
-                    onClick={() => setShowInterstitialAd(true)}
+                    onClick={() => {
+                      if (!currentUser) {
+                        toast({
+                          title: "Please log in",
+                          description: "You must be logged in to use Quick Match",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      joinQueueMutation.mutate();
+                    }}
+                    disabled={joinQueueMutation.isPending}
                     data-testid="button-quick-match"
                   >
                     <span className="gradient-border-content px-6 py-3 text-base font-medium">
-                      Find Match
+                      {joinQueueMutation.isPending ? "Joining..." : "Find Match"}
                     </span>
                   </button>
                 </div>
@@ -286,8 +382,15 @@ export default function KrossfirePage() {
                   Finding Players...
                 </h3>
                 <p className="mt-2 text-base text-muted-foreground">
-                  Matching you with opponents of similar skill
+                  Matching you with players who share your interests
                 </p>
+                
+                {waitTimeMs > 0 && (
+                  <Badge variant="outline" className="mt-4" style={{ borderColor: '#1ba9af', color: '#1ba9af' }}>
+                    <Clock className="mr-2 h-3 w-3" />
+                    {Math.floor(waitTimeMs / 1000)}s elapsed
+                  </Badge>
+                )}
 
                 <div className="mx-auto mt-8 max-w-md">
                   <div className="flex items-center justify-center gap-2">
@@ -306,25 +409,16 @@ export default function KrossfirePage() {
 
                 <Button
                   variant="outline"
-                  onClick={() => setGameMode("lobby")}
+                  onClick={() => leaveQueueMutation.mutate()}
                   className="mt-8"
+                  disabled={leaveQueueMutation.isPending}
                   data-testid="button-cancel-match"
                 >
-                  Cancel
+                  {leaveQueueMutation.isPending ? "Canceling..." : "Cancel"}
                 </Button>
               </div>
             </Card>
           </div>
-        )}
-
-        {showInterstitialAd && (
-          <AdSenseInterstitial
-            adSlot="5966285343"
-            onClose={() => {
-              setShowInterstitialAd(false);
-              setGameMode("waiting");
-            }}
-          />
         )}
       </div>
     </div>

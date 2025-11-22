@@ -17,6 +17,8 @@ import type {
   User,
   UpsertUser,
   Friendship,
+  MatchmakingQueue,
+  InsertMatchmakingQueue,
 } from "@shared/schema";
 
 export interface IStorage {
@@ -109,4 +111,13 @@ export interface IStorage {
   updateVideoProgress(userId: string, movieId: string, progressSeconds: number, completed: boolean): Promise<any>;
   getVideoProgress(userId: string, movieId: string): Promise<any>;
   getContinueWatching(userId: string): Promise<(Movie & { progressSeconds: number; progressPercentage: number })[]>;
+
+  // ============================================
+  // Matchmaking Queue (Quick Match)
+  // ============================================
+  createQueueEntry(entry: InsertMatchmakingQueue): Promise<MatchmakingQueue>;
+  getActiveQueueEntry(userId: string): Promise<MatchmakingQueue | undefined>;
+  getWaitingPlayers(excludeUserId: string): Promise<MatchmakingQueue[]>;
+  updateQueueEntry(entryId: string, updates: Partial<MatchmakingQueue>): Promise<MatchmakingQueue>;
+  deleteExpiredQueueEntries(): Promise<number>;
 }

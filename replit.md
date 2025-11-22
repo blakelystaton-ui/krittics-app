@@ -1,11 +1,7 @@
 # Krittics - AI-Powered Movie Trivia Platform
 
 ## Overview
-Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. It features a single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards. The platform showcases 4 open-source Blender Foundation movies with mobile-compatible video hosting from Google Cloud Storage, providing a Netflix-style browsing experience for movie discovery alongside engaging trivia.
-
-### Platform Structure
-- **Web Application** (client/, server/, shared/): Production-ready React/TypeScript app with Express backend
-- **Mobile Application** (krittics-mobile/): Ionic/Angular companion app (in development) that connects to the same Express API
+Krittics is an immersive movie trivia platform that combines cinematic experiences with AI-powered trivia challenges. It features a single-player Deep Dive mode, multiplayer Private Rooms with live chat, and competitive Krossfire leaderboards. The platform showcases 4 open-source Blender Foundation movies with mobile-compatible video hosting from Google Cloud Storage, providing a Netflix-style browsing experience for movie discovery alongside engaging trivia. Its purpose is to deliver a production-ready React/TypeScript web application with an Express backend, and an Ionic/Angular mobile companion app (in development) that connects to the same Express API.
 
 ## User Preferences
 - Primary theme: Dark mode only (locked, no theme toggle)
@@ -14,54 +10,54 @@ Krittics is an immersive movie trivia platform that combines cinematic experienc
 - Visual style: Content-first design, smooth transitions, subtle elevations, teal gradient aesthetics
 
 ## System Architecture
-The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadcn/ui) and an **Express.js** backend (TypeScript). Data persistence uses **PostgreSQL via Neon HTTP driver** with **Drizzle ORM** for core application data (users, movies, games, trivia questions) and **Firebase Firestore** for real-time multiplayer features (rooms, chat). **Google Gemini 2.5 Flash** (via Replit AI Integrations) is used for AI-powered trivia generation. **TanStack Query v5** manages frontend data fetching, and **Wouter** handles client-side routing.
+The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadcn/ui) and an **Express.js** backend (TypeScript). Data persistence uses **PostgreSQL via Neon HTTP driver** with **Drizzle ORM** for core application data and **Firebase Firestore** for real-time multiplayer features. **Google Gemini 2.5 Flash** (via Replit AI Integrations) is used for AI-powered trivia generation. **TanStack Query v5** manages frontend data fetching, and **Wouter** handles client-side routing.
 
 ### Database Driver
-- Uses **neon-http driver** for Replit compatibility
-- Transactions not supported (use sequential queries with ON CONFLICT DO NOTHING)
-- Alternative approach: Neon WebSocket driver supports transactions but fails in Replit environment
+- Uses **neon-http driver** for Replit compatibility, which does not support transactions.
 
 ### UI/UX Decisions
-- **Netflix-style Browse Page**: Features an auto-rotating hero carousel with 2.5-second crossfade transitions, dynamic color theming based on featured movies, carousel indicators positioned above content sections, horizontal scrolling content rows, and movie cards with hover effects.
-- **Queue Page**: Personal watchlist where users can manage movies they want to watch, featuring a teal gradient hero section and grid layout for saved movies.
-- **Dynamic Color Theming**: Movies influence the UI's accent colors for buttons, badges, and text, with smooth transitions.
-- **Responsive Design**: Mobile-first approach with smooth momentum scrolling on touch devices.
-- **Header Navigation**: Browse, Krossfire, and Mission buttons with teal gradient aesthetic. Hamburger menu (☰) dropdown provides access to Queue, Insights, and Sign In/Log Out. Avatar with dropdown (Help, Sign Out) for logged-in users. Search icon opens movie search dialog with teal gradient styling.
-- **Search Dialog**: Full Krittics aesthetic with dark zinc gradient background (zinc-900 to zinc-950), teal gradient title text, and teal-accented borders. Features intelligent search history that persists the last 5 searched movies in localStorage (newest at top, oldest removed automatically). History items display with position numbers (#1-5), movie metadata, and teal gradient styling. Clear All button allows instant history reset. Search history only appears when input is empty, making way for live search results when typing.
-- **Continue Watching & Start from Beginning**: Cross-platform compatible progress restoration system that works seamlessly on all devices including iPad and mobile Safari. Buttons appear when a movie has been watched for at least 15 seconds and is not yet completed. Progress queries are optimized to wait for authentication to finish loading rather than blocking on user state, ensuring reliable functionality across all platforms and network conditions.
+- **Netflix-style Browse Page**: Features an auto-rotating hero carousel, dynamic color theming, horizontal scrolling content rows, and movie cards with hover effects.
+- **Queue Page**: Personal watchlist for managing movies, featuring a teal gradient hero section.
+- **Dynamic Color Theming**: Movies influence the UI's accent colors with smooth transitions.
+- **Responsive Design**: Mobile-first approach with smooth momentum scrolling.
+- **Header Navigation**: Browse, Krossfire, Mission, and hamburger menu for additional options. Search icon opens a dialog with intelligent search history.
+- **Search Dialog**: Full Krittics aesthetic with dark gradient background, teal gradient title text, and teal-accented borders. Features intelligent search history that persists the last 5 searched movies.
+- **Continue Watching & Start from Beginning**: Cross-platform compatible progress restoration system for video playback.
 
 ### Technical Implementations
-- **Authentication**: Utilizes Replit Auth as an OpenID Connect provider, supporting various login methods and session management with PostgreSQL.
-- **Onboarding & Interests**: New users complete an interests selection process upon first login, choosing from 10 movie genres (Action, Comedy, Drama, Horror, Sci-Fi, Romance, Documentary, Animation, Thriller, Family). Interests are stored in PostgreSQL and used for crew matching and personalized ad targeting.
-- **Crew Matching**: PostgreSQL-powered matchmaking system that finds users with shared interests using array overlap queries. Displays top 20 matches ranked by number of shared interests, showing profile avatars and common genre preferences.
-- **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback and score tracking. Features teal gradient aesthetics with centralized CSS utilities (.teal-gradient-bg, .teal-icon-glow, .teal-icon-subtle) for consistent visual branding across loading, initial, and final score screens. Deep Dive button intelligently hides when the trivia notification appears at 95%+ video progress to avoid duplicate controls.
-  - **Trivia Question Pool System** (Production Ready ✅): Intelligent question management that prevents duplicate questions for users across sessions. Uses SHA-256 hash deduplication to detect duplicate questions, tracks which questions each user has seen in PostgreSQL (user_seen_questions table with unique constraint on user_id + question_id), automatically resets user history when 80%+ of available questions have been seen, generates fresh questions via Gemini AI when pool is exhausted, and marks questions as seen immediately upon selection to minimize concurrent duplicates (trade-off: questions "wasted" if user abandons without playing). Concurrent requests handled via sequential SELECT → INSERT with ON CONFLICT DO NOTHING due to neon-http driver limitations (no transaction support). System guarantees no duplicate questions for individual users in sequential requests, minimizes (but doesn't eliminate) duplicates in concurrent requests.
-- **Movie Catalog**: 4 open-source Blender Foundation movies with comprehensive metadata including detailed synopses, directors, cast, taglines, studios, countries, languages, and awards. Movies hosted via mobile-compatible Google Cloud Storage: Big Buck Bunny (2008, Comedy, directed by Sacha Goedegebure), Sintel (2010, Fantasy, directed by Colin Levy), Tears of Steel (2012, Science Fiction, directed by Ian Hubert), and Elephants Dream (2006, Surreal, directed by Bassam Kurdali). All videos work reliably across desktop and mobile devices including iOS Safari. Movie player displays rich metadata including director, cast, studio, release year, country, language, and festival awards.
-- **Netflix/Hulu/Tubi-Style Linear Video Ads** (Production Ready ✅): Seamless in-player video advertising powered by Google IMA SDK with videojs-ima plugin. Features VMAP-based ad scheduling for automatic pre-roll, mid-roll (50% progress), and post-roll ads that play directly inside the video player without popups or interruptions. Professional yellow "AD" badge overlay appears during ad playback with React state management, Tailwind styling, and data-testid accessibility. Three-tier ad tag configuration: per-movie adTagUrl field (future use for targeted inventory) > VITE_AD_TAG_URL environment variable (global production config) > default Google test VMAP. All ads are linear (full-screen video commercials that pause content), matching industry-standard streaming platforms. Debug mode can be enabled for development testing. No fullscreen gating - ads play automatically for maximum monetization potential.
-- **Crew Command Center (Private Rooms)**: Real-time room creation/joining with unique codes, live chat, and host controls, powered by Firebase Firestore. Firebase Anonymous Authentication is enabled and Firestore security rules are configured for production use. Features unified teal gradient aesthetics with gradient-bordered CTAs, teal-icon-glow host badges, and teal-accented chat messages for visual consistency with Deep Dive trivia. Hero section uses darkened teal gradient for optimal text visibility. Accessible at `/crew` route.
-  - **Synchronized Video Playback** (Production Ready ✅): Host-controlled movie watching with real-time synchronization across all room members. Host selects a movie from the catalog, and all playback controls (play/pause/seek) automatically sync to every member's video player. Non-host members have controls disabled and their video state is defensively enforced to match the host's state every 100ms, preventing desynchronization. Room video state (movieId, isPlaying, currentTime, lastUpdated) is stored in Firebase Firestore for real-time propagation. Features teal gradient styling with "Now Watching" header and sync status indicator for members. Fully tested and verified working in production environment.
-  - **Friends System & Quick Invite**: Integrated friend search and management within Private Rooms. Features a **Quick Invite** dropdown that allows users to search and instantly invite friends - automatically creating a crew room, adding both users, and sending a welcome message. When creating a crew call, users can also manually search for friends by name/email and view their top 10 most frequent collaborators, sorted by interaction count. Friend interactions are automatically tracked across room joins, messages, and games via dedicated API endpoints. PostgreSQL stores friendships and interaction metrics for persistent friend rankings with null-safe rendering. The FriendSearchDropdown component provides live search with profile pictures, real-time filtering, and one-click invite functionality.
-  - **In-Room Member Invitation** (Production Ready ✅): Host-only "+Add" button next to Members section in active rooms opens FriendInvitePopover with intelligent friend suggestions and search. Displays top 5 friends ranked by interaction count (room invites, messages, games) with #1-5 badges and interaction metrics. Real-time search bar filters friends by name or email with live results. Clicking a friend adds them to the existing room via Firebase arrayUnion, posts a welcome message to chat, tracks the interaction for future rankings, and refreshes the UI. Non-host members don't see the button (host-only access control). Uses teal gradient styling (`border-[var(--teal)]/30 text-[var(--teal)]`) with null-safe data handling for graceful degradation when unauthenticated. Fully tested with e2e verification.
-- **Firebase Configuration** (Production Ready ✅): Firebase Anonymous Authentication enabled and Firestore security rules configured for krittics/multiplayer/rooms collection. Rules allow authenticated users to create/update rooms, read room data, send messages, and hosts to delete rooms. Smart error handling differentiates between missing secrets, auth disabled, and other errors with actionable user guidance.
-- **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering and user highlighting, persisted in PostgreSQL.
-- **Krittics Insights**: Comprehensive blog section with 8 in-depth articles exploring AVOD business strategy, interactive content economics, technology choices, and platform development. Articles cover: Interactive AVOD market dominance, Krossfire engagement economics, Firebase/Gemini/Node.js tech stack rationale, content licensing for startups, monetization metrics (ARPU, eCPM, LTV, Fill Rate), Firebase backend scaling best practices, beta testing methodologies, and mobile-first optimization strategies. Accessible via header navigation with teal gradient styling matching overall platform aesthetic.
-- **API Endpoints**: Comprehensive set of RESTful APIs for movies, trivia generation, game sessions, leaderboards, and friend management (search, add, top friends).
-- **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties (--teal, --teal-light, --teal-dark with RGB variants) for maintainable, reusable gradient effects. Includes 135° multi-stop gradient backgrounds and triple-layer glow effects for icons.
-- **Production Teaser Overlay**: Semi-transparent "KRITTICS — LAUNCHING SOON" overlay displayed only in production (www.krittics.com) with 75% opacity dark background and pointer-events: none, allowing Google bots and crawlers to fully access all content while maintaining pre-launch privacy. Subtitle notes "(Full site visible to Google reviewers)" for transparency. Does not block scrolling, clicking, or content indexing.
+- **Authentication**: Utilizes Replit Auth as an OpenID Connect provider with PostgreSQL for session management.
+- **Onboarding & Interests**: New users select interests, stored in PostgreSQL, for crew matching and ad targeting.
+- **Interest-Based Ad Targeting**: Maps user interests to ad keywords for Google Ad Manager integration with various targeting modes.
+- **Quick Match Matchmaking**: Intelligent 1-3 player matchmaking with interest-based prioritization, using a 15-second queue in PostgreSQL.
+- **Crew Matching**: Finds users with shared interests using PostgreSQL array overlap queries.
+- **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback.
+  - **Trivia Question Pool System**: Prevents duplicate questions for users across sessions using SHA-256 hash deduplication and user history tracking in PostgreSQL.
+- **Movie Catalog**: 4 open-source Blender Foundation movies with comprehensive metadata, hosted via Google Cloud Storage.
+- **Netflix/Hulu/Tubi-Style Linear Video Ads**: Seamless in-player video advertising powered by Google IMA SDK with VMAP-based ad scheduling.
+- **Crew Command Center (Private Rooms)**: Real-time room creation/joining, live chat, and host controls, powered by Firebase Firestore.
+  - **Synchronized Video Playback**: Host-controlled movie watching with real-time synchronization across all room members.
+  - **Friends System & Quick Invite**: Integrated friend search and management within Private Rooms, allowing quick invites and tracking interactions in PostgreSQL.
+  - **In-Room Member Invitation**: Host-only functionality for inviting friends to active rooms with intelligent suggestions.
+- **Firebase Configuration**: Firebase Anonymous Authentication and Firestore security rules configured for multiplayer features.
+- **Leaderboard System**: Real-time rankings with daily/weekly/all-time filtering, persisted in PostgreSQL.
+- **Krittics Insights**: Blog section with articles on business strategy, technology, and platform development.
+- **API Endpoints**: Comprehensive RESTful APIs for core functionalities.
+- **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties for consistent branding.
+- **Production Teaser Overlay**: Semi-transparent "KRITTICS — LAUNCHING SOON" overlay for production environment.
 
 ### System Design Choices
-- **Hybrid Storage**: PostgreSQL for structured, persistent data and Firebase Firestore for real-time, dynamic data.
-- **AI Integration**: Gemini 2.5 Flash provides structured JSON output for trivia questions, including retry logic.
-- **Graceful Degradation**: Multiplayer features are designed to work in a fallback mode if Firebase is not configured.
-- **Smart Error Handling**: Firebase error handling differentiates between three error states (missing secrets, anonymous auth disabled, other errors) and provides contextually appropriate user guidance with actionable instructions.
+- **Hybrid Storage**: PostgreSQL for structured data and Firebase Firestore for real-time data.
+- **AI Integration**: Gemini 2.5 Flash for structured JSON output trivia questions.
+- **Graceful Degradation**: Multiplayer features designed with fallback mechanisms.
+- **Smart Error Handling**: Differentiates Firebase errors for user guidance.
 
 ## External Dependencies
-- **Replit Auth**: For user authentication and session management.
-- **Google Gemini 2.5 Flash**: Accessed via Replit AI Integrations for AI-powered trivia generation.
-- **Firebase Firestore**: For real-time multiplayer functionality (Private Rooms, live chat).
-- **PostgreSQL**: Primary database for application data persistence.
-- **Drizzle ORM**: ORM for interacting with PostgreSQL.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
-- **shadcn/ui**: Component library for UI elements.
-- **TanStack Query v5**: For data fetching, caching, and state management.
-- **Wouter**: Lightweight client-side routing library.
+- **Replit Auth**: For user authentication.
+- **Google Gemini 2.5 Flash**: For AI-powered trivia generation.
+- **Firebase Firestore**: For real-time multiplayer functionality.
+- **PostgreSQL**: Primary database.
+- **Drizzle ORM**: For PostgreSQL interaction.
+- **Tailwind CSS**: For styling.
+- **shadcn/ui**: For UI components.
+- **TanStack Query v5**: For data fetching and state management.
+- **Wouter**: For client-side routing.

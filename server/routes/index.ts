@@ -14,6 +14,8 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerWatchlistRoutes } from "./watchlistRoutes";
 import { registerVideoProgressRoutes } from "./videoProgressRoutes";
 import { registerLeaderboardRoutes } from "./leaderboardRoutes";
+import { registerMatchmakingRoutes } from "./matchmakingRoutes";
+import { registerAdTargetingRoutes } from "./adTargetingRoutes";
 
 /**
  * Register all API routes and setup authentication
@@ -30,6 +32,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerWatchlistRoutes(app, storage);
   registerVideoProgressRoutes(app, storage);
   registerLeaderboardRoutes(app, storage);
+  registerMatchmakingRoutes(app, storage);
+  registerAdTargetingRoutes(app, storage);
 
   // Create HTTP server for potential WebSocket support
   const server = createServer(app);

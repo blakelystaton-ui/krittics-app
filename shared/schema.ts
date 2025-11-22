@@ -122,6 +122,18 @@ export const leaderboardEntries = pgTable("leaderboard_entries", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Matchmaking queue table (for Quick Match feature)
+export const matchmakingQueue = pgTable("matchmaking_queue", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  interests: text("interests").array().notNull(),
+  status: text("status").notNull().default('waiting'), // 'waiting', 'matched', 'expired'
+  matchedWith: text("matched_with").array(), // Array of user IDs matched with
+  gameSessionId: varchar("game_session_id").references(() => gameSessions.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(), // 15 second timeout
+});
+
 // Video progress table (for resume functionality)
 export const videoProgress = pgTable("video_progress", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -266,6 +278,11 @@ export const insertMovieReactionSchema = createInsertSchema(movieReactions).omit
   updatedAt: true,
 });
 
+export const insertMatchmakingQueueSchema = createInsertSchema(matchmakingQueue).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Select types
 export type User = typeof users.$inferSelect;
 export type Movie = typeof movies.$inferSelect;
@@ -282,6 +299,7 @@ export type Friendship = typeof friendships.$inferSelect;
 export type FriendInteraction = typeof friendInteractions.$inferSelect;
 export type MovieReaction = typeof movieReactions.$inferSelect;
 export type PlayerRequest = typeof playerRequests.$inferSelect;
+export type MatchmakingQueue = typeof matchmakingQueue.$inferSelect;
 
 // Insert types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -300,6 +318,7 @@ export type InsertFriendship = z.infer<typeof insertFriendshipSchema>;
 export type InsertFriendInteraction = z.infer<typeof insertFriendInteractionSchema>;
 export type InsertMovieReaction = z.infer<typeof insertMovieReactionSchema>;
 export type InsertPlayerRequest = z.infer<typeof insertPlayerRequestSchema>;
+export type InsertMatchmakingQueue = z.infer<typeof insertMatchmakingQueueSchema>;
 
 // API response types
 export interface TriviaGenerationRequest {

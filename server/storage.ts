@@ -21,6 +21,8 @@ import {
   type InsertFriendship,
   type FriendInteraction,
   type InsertFriendInteraction,
+  type MatchmakingQueue,
+  type InsertMatchmakingQueue,
   movies,
   gameSessions,
   triviaQuestions,
@@ -32,6 +34,7 @@ import {
   friendInteractions,
   watchlist,
   videoProgress,
+  matchmakingQueue,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./config/db";
@@ -1061,6 +1064,64 @@ export class DatabaseStorage implements IStorage {
         ? Math.round((item.progressSeconds / item.duration) * 100)
         : 0,
     }));
+  }
+
+  // ============================================
+  // Matchmaking Queue (Quick Match)
+  // ============================================
+
+  async createQueueEntry(entry: InsertMatchmakingQueue): Promise<MatchmakingQueue> {
+    const [result] = await db.insert(matchmakingQueue).values(entry).returning();
+    return result;
+  }
+
+  async getActiveQueueEntry(userId: string): Promise<MatchmakingQueue | undefined> {
+    const [result] = await db
+      .select()
+      .from(matchmakingQueue)
+      .where(
+        and(
+          eq(matchmakingQueue.userId, userId),
+          inArray(matchmakingQueue.status, ['waiting', 'matched']),
+          sql`${matchmakingQueue.expiresAt} > NOW()`
+        )
+      )
+      .orderBy(desc(matchmakingQueue.createdAt))
+      .limit(1);
+
+    return result;
+  }
+
+  async getWaitingPlayers(excludeUserId: string): Promise<MatchmakingQueue[]> {
+    return await db
+      .select()
+      .from(matchmakingQueue)
+      .where(
+        and(
+          sql`${matchmakingQueue.userId} != ${excludeUserId}`,
+          eq(matchmakingQueue.status, 'waiting'),
+          sql`${matchmakingQueue.expiresAt} > NOW()`
+        )
+      )
+      .orderBy(matchmakingQueue.createdAt); // FIFO
+  }
+
+  async updateQueueEntry(entryId: string, updates: Partial<MatchmakingQueue>): Promise<MatchmakingQueue> {
+    const [result] = await db
+      .update(matchmakingQueue)
+      .set(updates)
+      .where(eq(matchmakingQueue.id, entryId))
+      .returning();
+
+    return result;
+  }
+
+  async deleteExpiredQueueEntries(): Promise<number> {
+    const result = await db
+      .delete(matchmakingQueue)
+      .where(sql`${matchmakingQueue.expiresAt} < NOW()`);
+
+    return result.rowCount || 0;
   }
 }
 
