@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import type { Movie } from "@shared/schema";
 
 export function Header() {
@@ -212,7 +213,7 @@ export function Header() {
               <DropdownMenuSeparator />
               {!isLoading && !isAuthenticated && (
                 <DropdownMenuItem 
-                  onClick={() => window.location.href = '/api/login'}
+                  onClick={() => setLocation("/login")}
                   data-testid="menu-item-sign-in"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
@@ -221,7 +222,15 @@ export function Header() {
               )}
               {isAuthenticated && (
                 <DropdownMenuItem 
-                  onClick={() => window.location.href = '/api/logout'}
+                  onClick={async () => {
+                    try {
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                      setLocation("/login");
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                    }
+                  }}
                   data-testid="menu-item-logout"
                 >
                   <LogIn className="h-4 w-4 mr-2" />
@@ -234,7 +243,7 @@ export function Header() {
           {!isLoading && !isAuthenticated && (
             <button 
               className="gradient-border-button"
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => setLocation("/login")}
               data-testid="button-sign-in"
             >
               <span className="gradient-border-content">
@@ -272,7 +281,15 @@ export function Header() {
                   <HelpCircle className="h-4 w-4 ml-2" />
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => window.location.href = '/api/logout'}
+                  onClick={async () => {
+                    try {
+                      await fetch('/api/auth/logout', { method: 'POST' });
+                      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                      setLocation("/login");
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                    }
+                  }}
                   data-testid="menu-item-logout"
                 >
                   Sign Out
