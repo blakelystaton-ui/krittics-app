@@ -20,7 +20,7 @@ function generateQuestionHash(question: string, options: string[]): string {
 
 /**
  * Get fresh trivia questions that the user hasn't seen before
- * Implements the question pool logic with seen question tracking
+ * Uses transactional row-locking to prevent concurrent requests from getting duplicates
  */
 export async function getFreshQuestions(params: FreshQuestionsParams) {
   const {
@@ -31,75 +31,90 @@ export async function getFreshQuestions(params: FreshQuestionsParams) {
     difficulty = 'medium'
   } = params;
 
+  if (!movieId) {
+    throw new Error('movieId is required');
+  }
+
   try {
-    // Step 1: Get all questions matching criteria
-    const allQuestions = await storage.getTriviaQuestionsByFilter({
+    // Try to reserve questions atomically using database-level locking
+    let reservedQuestions = await storage.reserveQuestionsForUser(
+      userId,
       movieId,
+      count,
       category,
       difficulty
-    });
-
-    // Step 2: Get questions the user has already seen
-    const seenQuestionIds = await storage.getUserSeenQuestions(userId);
-
-    // Step 3: Filter out seen questions
-    let availableQuestions = allQuestions.filter(
-      (q: any) => !seenQuestionIds.includes(q.id)
     );
 
-    // Step 4: If not enough unseen questions, reset the user's history
-    if (availableQuestions.length < count) {
-      console.log(`User ${userId} has seen most questions, resetting history`);
-      await storage.clearUserSeenQuestions(userId, movieId, category);
+    // If not enough questions were reserved, we need to generate more
+    if (reservedQuestions.length < count) {
+      console.log(`Only ${reservedQuestions.length} questions available, need ${count}. Checking if reset or generation needed.`);
       
-      // Refetch questions after reset to update availableQuestions
-      const refreshedSeenIds = await storage.getUserSeenQuestions(userId);
-      availableQuestions = allQuestions.filter(
-        (q: any) => !refreshedSeenIds.includes(q.id)
-      );
-    }
-
-    // Step 5: If still not enough questions, generate new ones
-    if (availableQuestions.length < count) {
-      if (!movieId) {
-        throw new Error(`Not enough trivia questions available. Please provide a movieId to generate fresh questions.`);
-      }
-      
-      console.log(`Not enough questions in pool, generating fresh ones`);
-      const movie = await storage.getMovie(movieId);
-      if (!movie) {
-        throw new Error(`Movie ${movieId} not found`);
-      }
-      
-      // Get current seen questions to avoid duplicates
-      const currentSeenIds = await storage.getUserSeenQuestions(userId);
-      
-      const freshQuestions = await generateAndStoreQuestions(
-        movie.title,
+      // Get total available questions in the pool
+      const allQuestions = await storage.getTriviaQuestionsByFilter({
         movieId,
-        userId,
-        currentSeenIds,
         category,
         difficulty
-      );
-      availableQuestions.push(...freshQuestions);
+      });
+
+      // If pool is exhausted (80%+ seen for THIS MOVIE), reset user history
+      const movieSeenIds = await storage.getUserSeenQuestionsForMovie(userId, movieId);
+      const seenPercentage = allQuestions.length > 0 ? (movieSeenIds.length / allQuestions.length) : 0;
       
-      // Still not enough after generation?
-      if (availableQuestions.length < count) {
-        throw new Error(`Unable to generate ${count} questions. Only ${availableQuestions.length} available.`);
+      if (seenPercentage >= 0.8 && allQuestions.length > 0) {
+        console.log(`User ${userId} has seen ${seenPercentage * 100}% of questions, resetting history`);
+        await storage.clearUserSeenQuestions(userId, movieId, category);
+        
+        // Retry reservation after reset
+        reservedQuestions = await storage.reserveQuestionsForUser(
+          userId,
+          movieId,
+          count,
+          category,
+          difficulty
+        );
+      }
+      
+      // If still not enough, generate fresh questions
+      if (reservedQuestions.length < count) {
+        console.log(`Generating new questions to satisfy request`);
+        const movie = await storage.getMovie(movieId);
+        if (!movie) {
+          throw new Error(`Movie ${movieId} not found`);
+        }
+        
+        // Get current seen IDs to avoid regenerating duplicates
+        const currentSeenIds = await storage.getUserSeenQuestions(userId);
+        
+        // Generate new questions
+        const freshQuestions = await generateAndStoreQuestions(
+          movie.title,
+          movieId,
+          userId,
+          currentSeenIds,
+          category,
+          difficulty
+        );
+        
+        // If generation succeeded, retry reservation
+        if (freshQuestions.length > 0) {
+          reservedQuestions = await storage.reserveQuestionsForUser(
+            userId,
+            movieId,
+            count,
+            category,
+            difficulty
+          );
+        }
+        
+        // Final check - if still not enough, throw error
+        if (reservedQuestions.length < count) {
+          throw new Error(`Unable to generate ${count} questions. Only ${reservedQuestions.length} available.`);
+        }
       }
     }
 
-    // Step 6: Randomly select questions
-    const selectedQuestions = shuffleArray(availableQuestions).slice(0, count);
-
-    // Step 7: Mark these questions as seen
-    await storage.markQuestionsAsSeen(
-      userId,
-      selectedQuestions.map((q: any) => q.id)
-    );
-
-    return selectedQuestions;
+    console.log(`Successfully reserved ${reservedQuestions.length} fresh trivia questions atomically`);
+    return reservedQuestions;
   } catch (error) {
     console.error('Error getting fresh questions:', error);
     throw error;

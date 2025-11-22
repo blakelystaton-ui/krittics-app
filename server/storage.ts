@@ -28,7 +28,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (REQUIRED for Replit Auth)
@@ -55,8 +55,10 @@ export interface IStorage {
   getTriviaQuestionsByFilter(filter: { movieId?: string; category?: string; difficulty?: string }): Promise<TriviaQuestion[]>;
   getTriviaQuestionByHash(hash: string): Promise<TriviaQuestion | undefined>;
   getUserSeenQuestions(userId: string): Promise<string[]>;
+  getUserSeenQuestionsForMovie(userId: string, movieId: string): Promise<string[]>;
   markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void>;
   clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void>;
+  reserveQuestionsForUser(userId: string, movieId: string, count: number, category?: string, difficulty?: string): Promise<TriviaQuestion[]>;
 
   // Answers
   createAnswer(answer: InsertAnswer): Promise<Answer>;
@@ -234,11 +236,19 @@ export class MemStorage implements IStorage {
     throw new Error("MemStorage does not support trivia question pool features");
   }
 
+  async getUserSeenQuestionsForMovie(userId: string, movieId: string): Promise<string[]> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
   async markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void> {
     throw new Error("MemStorage does not support trivia question pool features");
   }
 
   async clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void> {
+    throw new Error("MemStorage does not support trivia question pool features");
+  }
+
+  async reserveQuestionsForUser(userId: string, movieId: string, count: number, category?: string, difficulty?: string): Promise<TriviaQuestion[]> {
     throw new Error("MemStorage does not support trivia question pool features");
   }
 
@@ -535,6 +545,33 @@ export class DatabaseStorage implements IStorage {
     return result.map(r => r.questionId);
   }
 
+  /**
+   * Get seen questions for a specific movie (for per-movie reset logic)
+   */
+  async getUserSeenQuestionsForMovie(userId: string, movieId: string): Promise<string[]> {
+    // Get all questions for this movie
+    const movieQuestions = await db
+      .select({ id: triviaQuestions.id })
+      .from(triviaQuestions)
+      .where(eq(triviaQuestions.movieId, movieId));
+    const movieQuestionIds = movieQuestions.map(q => q.id);
+    
+    if (movieQuestionIds.length === 0) return [];
+    
+    // Get user's seen questions that are from this movie
+    const seenResult = await db
+      .select({ questionId: userSeenQuestions.questionId })
+      .from(userSeenQuestions)
+      .where(
+        and(
+          eq(userSeenQuestions.userId, userId),
+          inArray(userSeenQuestions.questionId, movieQuestionIds)
+        )
+      );
+    
+    return seenResult.map(r => r.questionId);
+  }
+
   async markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void> {
     if (questionIds.length === 0) return;
     
@@ -545,6 +582,63 @@ export class DatabaseStorage implements IStorage {
     
     // ON CONFLICT DO NOTHING handles concurrent/duplicate inserts gracefully
     await db.insert(userSeenQuestions).values(values).onConflictDoNothing();
+  }
+
+  /**
+   * Reserve questions for a user (WITHOUT transactions - neon-http doesn't support them)
+   * Marks questions as seen BEFORE returning them to prevent concurrent duplicates
+   * Trade-off: If user abandons without playing, questions are "wasted"
+   */
+  async reserveQuestionsForUser(
+    userId: string,
+    movieId: string,
+    count: number,
+    category?: string,
+    difficulty?: string
+  ): Promise<TriviaQuestion[]> {
+    // Step 1: Get user's seen questions
+    const seenResult = await db
+      .select({ questionId: userSeenQuestions.questionId })
+      .from(userSeenQuestions)
+      .where(eq(userSeenQuestions.userId, userId));
+    const seenIds = seenResult.map(r => r.questionId);
+    
+    // Step 2: Build query for unseen questions
+    const conditions = [eq(triviaQuestions.movieId, movieId)];
+    if (category) conditions.push(eq(triviaQuestions.category, category));
+    if (difficulty) conditions.push(eq(triviaQuestions.difficulty, difficulty));
+    
+    let query = db.select().from(triviaQuestions);
+    
+    // Apply WHERE conditions
+    if (conditions.length === 1) {
+      query = query.where(conditions[0]);
+    } else {
+      query = query.where(and(...conditions));
+    }
+    
+    // Exclude seen questions
+    if (seenIds.length > 0) {
+      query = query.where(sql`${triviaQuestions.id} NOT IN ${seenIds}`);
+    }
+    
+    // Step 3: Select random unseen questions
+    const selectedQuestions = await query
+      .orderBy(sql`RANDOM()`)
+      .limit(count);
+    
+    // Step 4: Mark as seen IMMEDIATELY (before returning)
+    // This prevents concurrent requests from getting the same questions
+    // Trade-off: Questions are "wasted" if user abandons without playing
+    if (selectedQuestions.length > 0) {
+      const values = selectedQuestions.map(q => ({
+        userId,
+        questionId: q.id
+      }));
+      await db.insert(userSeenQuestions).values(values).onConflictDoNothing();
+    }
+    
+    return selectedQuestions;
   }
 
   async clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void> {
@@ -564,7 +658,7 @@ export class DatabaseStorage implements IStorage {
           .where(
             and(
               eq(userSeenQuestions.userId, userId),
-              sql`${userSeenQuestions.questionId} = ANY(${questionIds})`
+              inArray(userSeenQuestions.questionId, questionIds)
             )
           );
       }
