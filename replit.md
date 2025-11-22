@@ -28,7 +28,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Authentication**: Utilizes Replit Auth as an OpenID Connect provider with PostgreSQL for session management.
 - **Onboarding & Interests**: New users select interests, stored in PostgreSQL, for crew matching and ad targeting.
 - **Interest-Based Ad Targeting**: Maps user interests to ad keywords for Google Ad Manager integration with various targeting modes.
-- **Quick Match Matchmaking**: Intelligent 1-3 player matchmaking with interest-based prioritization, using a 15-second queue in PostgreSQL.
+- **Quick Match Matchmaking Infrastructure**: Backend matchmaking system with interest-based matching (2+ shared interests prioritization), 15-second queue timeout, PostgreSQL queue management, and TanStack Query integration. Frontend includes join/leave/status UI, but requires Krossfire multiplayer game session implementation to complete the flow.
 - **Crew Matching**: Finds users with shared interests using PostgreSQL array overlap queries.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback.
   - **Trivia Question Pool System**: Prevents duplicate questions for users across sessions using SHA-256 hash deduplication and user history tracking in PostgreSQL.
