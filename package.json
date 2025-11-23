@@ -129,5 +129,6 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
-  }
+  },
+  "description": "Krittics app built with correct codesigning logic."
 }
