@@ -1,0 +1,569 @@
+Running with gitlab-runner 14.10.1/1.6.1 (029651c8)
+  on ANKA_RUNNER 161fa1c3
+Preparing the "anka" executor
+Opening a connection to the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443
+Starting Anka VM using:
+  - VM Template UUID: 4e82f4f5-40db-4bd4-93d1-81ec458d4325
+  - VM Template Tag Name: v2
+Please be patient...
+You can check the status of starting your Instance on the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443/#/instances
+Verifying connectivity to the VM: build_stack_2025.06_arm64-1763941887815644000 (171de71b-f9ed-4788-81aa-7bab2d3940bb) | Controller Instance ID: fd21795f-8c51-4cdd-405b-334b2ac1dd20 | Host: 10.2.182.10 | Port: 10000 
+VM "build_stack_2025.06_arm64-1763941887815644000" (171de71b-f9ed-4788-81aa-7bab2d3940bb) / Controller Instance ID fd21795f-8c51-4cdd-405b-334b2ac1dd20 running on Node ip-10-2-182-10.us-west-2.compute.internal (10.2.182.10), is ready for work (10.2.182.10:10000)
+Preparing environment
+Running on ip-192-168-64-23.us-west-2.compute.internal via ip-10-2-128-202.us-west-2.compute.internal...
+Getting source from Git repository
+$ pre-clone
+[23:51:59]: Cloning repository...
+Fetching changes...
+Initialized empty Git repository in /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/.git/
+Created fresh repository.
+Checking out f1da85a5 as main...
+Updating/initializing submodules...
+$ post-clone
+[23:52:00]: Cloning complete...
+Restoring cache
+Not downloading cache 2032fe53/node-cache-stack-package-ios-2025.06-arm64.zip due to policy
+Executing "step_script" stage of the job script
+$ pre-build
+[23:52:01]: Building project....
+$ fetch-updates || true
+Checking for build process updates...
+$ build-ios
+[23:52:05]: ---------------------------------
+[23:52:05]: --- Step: add_extra_platforms ---
+[23:52:05]: ---------------------------------
+[23:52:05]: Setting '[:web]' as extra SupportedPlatforms
+/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fastlane/outsystems/errors/detectors/pdm_plugins.rb:8: warning: character class has '-' without escape
+/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fastlane/outsystems/errors/detectors/pdm_plugins.rb:15: warning: character class has '-' without escape
+[23:52:05]: ------------------------------
+[23:52:05]: --- Step: default_platform ---
+[23:52:05]: ------------------------------
+[23:52:05]: Driving the lane 'ios build_capacitor' 🚀
+[23:52:05]: ---------------------------------
+[23:52:05]: --- Step: prepare_environment ---
+[23:52:05]: ---------------------------------
+[23:52:05]: Setting default environment variables to tidy up logs. These can be overridden by setting them in Appflow.
+[23:52:05]: 
+[23:52:05]: No changes needed - logs are already tidy! 🧹
+[23:52:05]: -------------------------
+[23:52:05]: --- Step: sentry_init ---
+[23:52:05]: -------------------------
+[23:52:05]: ----------------------------
+[23:52:05]: --- Step: begin_building ---
+[23:52:05]: ----------------------------
+[23:52:05]: Began building @ 2025-11-23T23:52:05
+[23:52:05]: ---------------------------
+[23:52:05]: --- Step: build_summary ---
+[23:52:05]: ---------------------------
+
++---------------------------------------------------+
+|                   Build Summary                   |
++---------------------+-----------------------------+
+| Runners Revision    | 631c60c                     |
+| Job ID              | 10586330                    |
+| Node.js version     | v20.19.3                    |
+| Cordova CLI version | 12.0.0 (cordova-lib@12.0.2) |
+| npm version         | 10.8.2                      |
+| yarn version        | 1.22.19                     |
+| macOS version       | 15.4                        |
+| Xcode version       | Xcode 16.4                  |
+|                     | Build version 16F6          |
+| Fastlane version    | fastlane (2.228.0)          |
++---------------------+-----------------------------+
+
+[23:52:08]: -----------------------------
+[23:52:08]: --- Step: create_keychain ---
+[23:52:08]: -----------------------------
+[23:52:08]: $ security list-keychains -d user
+[23:52:08]: ▸ "/Users/ionic-cloud-team/Library/Keychains/login.keychain-db"
+[23:52:08]: ------------------------------------------
+[23:52:08]: --- Step: get_ios_credentials_from_api ---
+[23:52:08]: ------------------------------------------
+[23:52:08]: Fetching certificate and profile(s) from Ionic Appflow
+[23:52:09]: ---------------------------------
+[23:52:09]: --- Step: set_ios_credentials ---
+[23:52:09]: ---------------------------------
+[23:52:09]: Installing provisioning profile...
+[23:52:13]: /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ed996f30-63b0-4adf-a445-f6a5f985b9f0.mobileprovision
+
++---------------------------------------------------------------------+
+|                        Installed Certificate                        |
++-------------------+-------------------------------------------------+
+| User ID           | 9SA2W557K5                                      |
+| Common Name       | Apple Distribution: Staton Blakely (9SA2W557K5) |
+| Organization Unit | 9SA2W557K5                                      |
+| Organization      | Staton Blakely                                  |
+| Country           | US                                              |
++-------------------+-------------------------------------------------+
+
+[23:52:13]: --------------------------------
+[23:52:13]: --- Step: import_certificate ---
+[23:52:13]: --------------------------------
+[23:52:13]: Setting key partition list... (this can take a minute if there are a lot of keys installed)
+[23:52:13]: ---------------------------
+[23:52:13]: --- Step: set_ionic_cli ---
+[23:52:13]: ---------------------------
+[23:52:14]: Preinstalled @ionic/cli compatible with project `angular`
+[23:52:14]: ------------------------------------
+[23:52:14]: --- Step: detect_package_manager ---
+[23:52:14]: ------------------------------------
+[23:52:14]: Detecting package manager
+[23:52:14]: Defaulting to npm
+[23:52:14]: ---------------------------------
+[23:52:14]: --- Step: add_git_credentials ---
+[23:52:14]: ---------------------------------
+[23:52:14]: Writing git-credentials files
+[23:52:14]: git-credentials successfully added to project
+[23:52:14]: --------------------------------
+[23:52:14]: --- Step: get_appflow_config ---
+[23:52:14]: --------------------------------
+[23:52:14]: Checking for appflow.config.json
+[23:52:14]: Appflow config not detected
+[23:52:14]: --------------------------------
+[23:52:14]: --- Step: dependency_install ---
+[23:52:14]: --------------------------------
+[23:52:14]: Installing Dependencies (in /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app)
+[23:52:14]: $ npm ci --quiet 
+[23:52:14]: ▸ npm warn ERESOLVE overriding peer dependency
+[23:52:14]: ▸ npm warn While resolving: babel-preset-expo@54.0.7
+[23:52:14]: ▸ npm warn Found: react-refresh@0.14.2
+[23:52:14]: ▸ npm warn node_modules/babel-preset-expo/node_modules/react-refresh
+[23:52:14]: ▸ npm warn   react-refresh@"^0.14.0" from @react-native/babel-preset@0.81.5
+[23:52:14]: ▸ npm warn   node_modules/babel-preset-expo/node_modules/@react-native/babel-preset
+[23:52:14]: ▸ npm warn     @react-native/babel-preset@"0.81.5" from babel-preset-expo@54.0.7
+[23:52:14]: ▸ npm warn     node_modules/babel-preset-expo
+[23:52:14]: ▸ npm warn
+[23:52:14]: ▸ npm warn Could not resolve dependency:
+[23:52:14]: ▸ npm warn peer react-refresh@">=0.14.0 <1.0.0" from babel-preset-expo@54.0.7
+[23:52:14]: ▸ npm warn node_modules/babel-preset-expo
+[23:52:14]: ▸ npm warn   babel-preset-expo@"~54.0.7" from expo@54.0.25
+[23:52:14]: ▸ npm warn   node_modules/expo
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: '@react-native/debugger-frontend@0.81.5',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: '@react-native/dev-middleware@0.81.5',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-babel-transformer@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-cache@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-cache-key@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-config@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-core@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-file-map@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-minify-terser@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-resolver@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-runtime@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-source-map@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-symbolicate@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-transform-plugins@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'metro-transform-worker@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: 'ob1@0.83.2',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: '@react-native/babel-plugin-codegen@0.81.5',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: '@react-native/babel-preset@0.81.5',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:14]: ▸ npm warn EBADENGINE Unsupported engine {
+[23:52:14]: ▸ npm warn EBADENGINE   package: '@react-native/codegen@0.81.5',
+[23:52:14]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[23:52:14]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[23:52:14]: ▸ npm warn EBADENGINE }
+[23:52:16]: ▸ npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[23:52:16]: ▸ npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+[23:52:16]: ▸ npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[23:52:16]: ▸ npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+[23:52:18]: ▸ npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[23:52:20]: ▸ npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[23:52:20]: ▸ npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[23:52:20]: ▸ npm warn deprecated @babel/plugin-proposal-optional-chaining@7.21.0: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
+[23:52:20]: ▸ npm warn deprecated @babel/plugin-proposal-nullish-coalescing-operator@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-nullish-coalescing-operator instead.
+[23:52:20]: ▸ npm warn deprecated @babel/plugin-proposal-class-properties@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
+[23:52:21]: ▸ npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+[23:52:35]: ▸ added 1517 packages, and audited 1518 packages in 21s
+[23:52:35]: ▸ 151 packages are looking for funding
+[23:52:35]: ▸ run `npm fund` for details
+[23:52:35]: ▸ 5 moderate severity vulnerabilities
+[23:52:35]: ▸ To address all issues (including breaking changes), run:
+[23:52:35]: ▸ npm audit fix --force
+[23:52:35]: ▸ Run `npm audit` for details.
+[23:52:35]: -------------------------------------
+[23:52:35]: --- Step: create_capacitor_config ---
+[23:52:35]: -------------------------------------
+[23:52:35]: -------------------------
+[23:52:35]: --- Step: get_web_dir ---
+[23:52:35]: -------------------------
+[23:52:35]: webDir is `dist/public`
+[23:52:35]: -----------------------------------
+[23:52:35]: --- Step: modify_cap_web_config ---
+[23:52:35]: -----------------------------------
+[23:52:35]: No custom native config detected.
+[23:52:35]: ---------------------------
+[23:52:35]: --- Step: build_pro_app ---
+[23:52:35]: ---------------------------
+[23:52:35]: Building app from /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app
+[23:52:35]: Build script detected...
+[23:52:35]: $ npm run build
+[23:52:35]: ▸ > rest-express@1.0.0 build
+[23:52:35]: ▸ > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[23:52:35]: ▸ vite v5.4.21 building for production...
+[23:52:36]: ▸ transforming...
+[23:52:36]: ▸ warn - The class `duration-[2500ms]` is ambiguous and matches multiple utilities.
+[23:52:36]: ▸ warn - If this is content and not a class, replace it with `duration-&lsqb;2500ms&rsqb;` to silence this warning.
+[23:52:36]: ▸ A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+[23:52:39]: ▸ ✓ 1846 modules transformed.
+[23:52:39]: ▸ rendering chunks...
+[23:52:39]: ▸ computing gzip size...
+[23:52:39]: ▸ ../dist/public/index.html                              1.50 kB │ gzip:   0.78 kB
+[23:52:39]: ▸ ../dist/public/assets/index-DbdKeedX.css             149.03 kB │ gzip:  29.26 kB
+[23:52:39]: ▸ ../dist/public/assets/adsenseKeywords-CYNx3xIc.js      1.29 kB │ gzip:   0.69 kB
+[23:52:39]: ▸ ../dist/public/assets/index-CEc2Vb9w.js            1,628.14 kB │ gzip: 464.33 kB
+[23:52:39]: ▸ 
+[23:52:39]: ▸ (!) Some chunks are larger than 500 kB after minification. Consider:
+[23:52:39]: ▸ - Using dynamic import() to code-split the application
+[23:52:39]: ▸ - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[23:52:39]: ▸ - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[23:52:39]: ▸ ✓ built in 3.97s
+[23:52:39]: ▸ dist/index.js  91.5kb
+[23:52:39]: ▸ ⚡ Done in 9ms
+[23:52:39]: $ ionic info
+[23:52:40]: ▸ [WARN] Error loading @ionic/angular package.json: Error: Cannot find module '@ionic/angular/package.json'
+[23:52:40]: ▸ Require stack:
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/project/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/bin/ionic
+[23:52:40]: ▸ [WARN] Error loading @ionic/angular-toolkit package.json: Error: Cannot find module '@ionic/angular-toolkit/package.json'
+[23:52:40]: ▸ Require stack:
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/project/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/bin/ionic
+[23:52:40]: ▸ [WARN] Error loading @angular/cli package.json: Error: Cannot find module '@angular/cli/package.json'
+[23:52:40]: ▸ Require stack:
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/project/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/bin/ionic
+[23:52:40]: ▸ [WARN] Error loading @angular-devkit/build-angular package.json: Error: Cannot find module '@angular-devkit/build-angular/package.json'
+[23:52:40]: ▸ Require stack:
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/project/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/lib/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/index.js
+[23:52:40]: ▸ - /Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli/bin/ionic
+[23:52:40]: ▸ Ionic:
+[23:52:40]: ▸ Ionic CLI                     : 7.2.1 (/Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/lib/node_modules/@ionic/cli)
+[23:52:40]: ▸ Ionic Framework               : not installed
+[23:52:40]: ▸ @angular-devkit/build-angular : not installed
+[23:52:40]: ▸ @angular-devkit/schematics    : 20.3.11
+[23:52:40]: ▸ @angular/cli                  : not installed
+[23:52:40]: ▸ @ionic/angular-toolkit        : not installed
+[23:52:40]: ▸ Capacitor:
+[23:52:40]: ▸ Capacitor CLI      : 7.4.4
+[23:52:40]: ▸ @capacitor/android : 7.4.4
+[23:52:40]: ▸ @capacitor/core    : 7.4.4
+[23:52:40]: ▸ @capacitor/ios     : 7.4.4
+[23:52:40]: ▸ Utility:
+[23:52:40]: ▸ cordova-res : 0.15.4
+[23:52:40]: ▸ native-run  : 2.0.1
+[23:52:40]: ▸ System:
+[23:52:40]: ▸ NodeJS : v20.19.3 (/Users/ionic-cloud-team/.nvm/versions/node/v20.19.3/bin/node)
+[23:52:40]: ▸ npm    : 10.8.2
+[23:52:40]: ▸ OS     : macOS Unknown
+[23:52:40]: Generating app manifest...
+[23:52:41]: -------------------------------------
+[23:52:41]: --- Step: get_xcode_project_paths ---
+[23:52:41]: -------------------------------------
+[23:52:41]: -------------------------------
+[23:52:41]: --- Step: modify_ios_config ---
+[23:52:41]: -------------------------------
+[23:52:41]: No custom native config detected.
+[23:52:41]: -------------------------------
+[23:52:41]: --- Step: install_cocoapods ---
+[23:52:41]: -------------------------------
+[23:52:41]: ----------------------
+[23:52:41]: --- Step: cap_sync ---
+[23:52:41]: ----------------------
+[23:52:41]: $ npx cap sync ios
+[23:52:42]: ▸ ✔ Copying web assets from public to ios/App/App/public in 9.29ms
+[23:52:42]: ▸ ✔ Creating capacitor.config.json in ios/App/App in 717.63μs
+[23:52:42]: ▸ ✔ copy ios in 55.04ms
+[23:52:42]: ▸ ✔ Updating iOS plugins in 8.65ms
+[23:52:52]: ▸ ✔ Updating iOS native dependencies with pod install in 10.26s
+[23:52:52]: ▸ [info] Found 2 Capacitor plugins for ios:
+[23:52:52]: ▸ @capacitor-community/speech-recognition@7.0.1
+[23:52:52]: ▸ @capacitor/keyboard@7.0.3
+[23:52:52]: ▸ ✔ update ios in 10.33s
+[23:52:52]: ▸ [info] Sync finished in 10.653s
+[23:52:52]: -------------------------------
+[23:52:52]: --- Step: cap_custom_deploy ---
+[23:52:52]: -------------------------------
+[23:52:52]: No custom native config detected.
+[23:52:52]: ------------------------------------------
+[23:52:52]: --- Step: update_code_signing_settings ---
+[23:52:52]: ------------------------------------------
+
++------------------------------------------------------------------------------------------------------------+
+|                                     Summary for code signing settings                                      |
++-----------------------+------------------------------------------------------------------------------------+
+| path                  | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcodeproj |
+| use_automatic_signing | false                                                                              |
+| team_id               | 9SA2W557K5                                                                         |
+| code_sign_identity    | Apple Distribution: Staton Blakely (9SA2W557K5)                                    |
++-----------------------+------------------------------------------------------------------------------------+
+
+[23:52:53]: Updating the Automatic Codesigning flag to disabled for the given project '/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcodeproj/project.pbxproj'
+[23:52:53]: Set Team id to: 9SA2W557K5 for target: App for build configuration: Debug
+[23:52:53]: Set Code Sign identity to: Apple Distribution: Staton Blakely (9SA2W557K5) for target: App for build configuration: Debug
+[23:52:53]: Set Team id to: 9SA2W557K5 for target: App for build configuration: Release
+[23:52:53]: Set Code Sign identity to: Apple Distribution: Staton Blakely (9SA2W557K5) for target: App for build configuration: Release
+[23:52:53]: Successfully updated project settings to use Code Sign Style = 'Manual'
+[23:52:53]: Modified Targets:
+[23:52:53]: 	 * App
+[23:52:53]: Modified Build Configurations:
+[23:52:53]: 	 * Debug
+[23:52:53]: 	 * Release
+[23:52:53]: ------------------------------------------
+[23:52:53]: --- Step: update_provisioning_profiles ---
+[23:52:53]: ------------------------------------------
+[23:52:53]: ---------------------------
+[23:52:53]: --- Step: build_ios_app ---
+[23:52:53]: ---------------------------
+[23:52:53]: Resolving Swift Package Manager dependencies...
+[23:52:53]: $ xcodebuild -resolvePackageDependencies -workspace /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace -scheme App
+[23:52:53]: ▸ Command line invocation:
+[23:52:53]: ▸     /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -resolvePackageDependencies -workspace /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace -scheme App
+[23:52:53]: ▸ resolved source packages: 
+[23:52:53]: $ xcodebuild -showBuildSettings -workspace /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace -scheme App 2>&1
+[23:52:54]: Detected provisioning profile mapping: {"com.blakely.krittics": "Krittics App Store Profile"}
+
++-------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                             Summary for gym 2.228.0                                                             |
++----------------------------------------------------------+--------------------------------------------------------------------------------------+
+| workspace                                                | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace |
+| output_directory                                         | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app                         |
+| output_name                                              | 07aa817e-479a-4b96-a4de-ef1b0e61601d-app-store                                       |
+| archive_path                                             | 07aa817e-479a-4b96-a4de-ef1b0e61601d-app-store.xcarchive                             |
+| scheme                                                   | App                                                                                  |
+| codesigning_identity                                     | Apple Distribution: Staton Blakely (9SA2W557K5)                                      |
+| export_team_id                                           | 9SA2W557K5                                                                           |
+| catalyst_platform                                        | ios                                                                                  |
+| export_options.provisioningProfiles.com.blakely.krittics | Krittics App Store Profile                                                           |
+| clean                                                    | false                                                                                |
+| silent                                                   | false                                                                                |
+| skip_package_ipa                                         | false                                                                                |
+| export_method                                            | app-store                                                                            |
+| build_path                                               | /Users/ionic-cloud-team/Library/Developer/Xcode/Archives/2025-11-23                  |
+| result_bundle                                            | false                                                                                |
+| buildlog_path                                            | ~/Library/Logs/gym                                                                   |
+| destination                                              | generic/platform=iOS                                                                 |
+| xcodebuild_formatter                                     | xcbeautify                                                                           |
+| build_timing_summary                                     | false                                                                                |
+| skip_profile_detection                                   | false                                                                                |
+| xcodebuild_command                                       | xcodebuild                                                                           |
+| skip_package_dependencies_resolution                     | false                                                                                |
+| disable_package_automatic_updates                        | false                                                                                |
+| use_system_scm                                           | false                                                                                |
+| skip_package_pkg                                         | false                                                                                |
+| xcode_path                                               | /Applications/Xcode.app                                                              |
++----------------------------------------------------------+--------------------------------------------------------------------------------------+
+
+[23:52:54]: $ set -o pipefail && xcodebuild -workspace /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace -scheme App -destination 'generic/platform=iOS' -archivePath 07aa817e-479a-4b96-a4de-ef1b0e61601d-app-store.xcarchive archive CODE_SIGN_IDENTITY=Apple\ Distribution:\ Staton\ Blakely\ \(9SA2W557K5\) | tee /Users/ionic-cloud-team/Library/Logs/gym/App-App.log | xcbeautify
+[23:52:54]: ▸ ----- xcbeautify -----
+[23:52:54]: ▸ Version: 2.28.0
+[23:52:54]: ▸ ----------------------
+[23:52:55]: ▸ note: Using codesigning identity override: Apple Distribution: Staton Blakely (9SA2W557K5)
+[23:52:55]: ▸ note: Building targets in dependency order
+[23:52:55]: ▸ note: Target dependency graph (6 targets)
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Pods-App' from project 'Pods')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CapacitorCordova' from project 'Pods')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CapacitorCommunitySpeechRecognition' from project 'Pods')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Capacitor' from project 'Pods')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CapacitorKeyboard' from project 'Pods')
+[23:52:58]: ▸ ❌ /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcodeproj: error: "App" requires a provisioning profile. Select a provisioning profile in the Signing & Capabilities editor. (in target 'App' from project 'App')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'App' from project 'App')
+[23:52:58]: ▸ ⚠️ Run script build phase '[CP] Embed Pods Frameworks' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'App' from project 'App')
+[23:52:58]: ▸ ** ARCHIVE FAILED **
+[23:52:58]: ▸ The following build commands failed:
+[23:52:58]: ▸ 	Archiving workspace App with scheme App
+[23:52:58]: ▸ (1 failure)
+[23:52:58]: Exit status: 65
+
++-----------------------------------------+
+|            Build environment            |
++---------------+-------------------------+
+| xcode_path    | /Applications/Xcode.app |
+| gym_version   | 2.228.0                 |
+| export_method | app-store               |
+| sdk           | iPhoneOS18.5.sdk        |
++---------------+-------------------------+
+
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Capacitor' from project 'Pods')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CapacitorKeyboard' from project 'Pods')
+[23:52:58]: ▸ /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcodeproj: error: "App" requires a provisioning profile. Select a provisioning profile in the Signing & Capabilities editor. (in target 'App' from project 'App')
+[23:52:58]: ▸ note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'App' from project 'App')
+[23:52:58]: ▸ warning: Run script build phase '[CP] Embed Pods Frameworks' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'App' from project 'App')
+[23:52:58]: 
+[23:52:58]: ⬆️  Check out the few lines of raw `xcodebuild` output above for potential hints on how to solve this error
+[23:52:58]: 📋  For the complete and more detailed error log, check the full log at:
+[23:52:58]: 📋  /Users/ionic-cloud-team/Library/Logs/gym/App-App.log
+[23:52:58]: 
+[23:52:58]: Looks like fastlane ran into a build/archive error with your project
+[23:52:58]: It's hard to tell what's causing the error, so we wrote some guides on how
+[23:52:58]: to troubleshoot build and signing issues: https://docs.fastlane.tools/codesigning/getting-started/
+[23:52:58]: Before submitting an issue on GitHub, please follow the guide above and make
+[23:52:58]: sure your project is set up correctly.
+[23:52:58]: fastlane uses `xcodebuild` commands to generate your binary, you can see the
+[23:52:58]: the full commands printed out in yellow in the above log.
+[23:52:58]: Make sure to inspect the output above, as usually you'll find more error information there
+[23:52:58]: 
+[23:52:58]: -------------------------
+[23:52:58]: --- Step: upload_logs ---
+[23:52:58]: -------------------------
+[23:53:03]: --------------------------------------
+[23:53:03]: --- Step: sentry_capture_exception ---
+[23:53:03]: --------------------------------------
+[23:53:05]: ---------------------------
+[23:53:05]: --- Step: shell command ---
+[23:53:05]: ---------------------------
+[23:53:05]: -----------------------------
+[23:53:05]: --- Step: delete_keychain ---
+[23:53:05]: -----------------------------
+[23:53:05]: Error building the application - see the log above
++-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                        Lane Context                                                                         |
++-------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+| DEFAULT_PLATFORM                    | ios                                                                                                                   |
+| PLATFORM_NAME                       | ios                                                                                                                   |
+| LANE_NAME                           | ios build_capacitor                                                                                                   |
+| KEYCHAIN_PATH                       | ~/Library/Keychains/IonicKeychain                                                                                     |
+| DOWNLOAD_CERTS_PROVISION_FILE_UUID  | ed996f30-63b0-4adf-a445-f6a5f985b9f0                                                                                  |
+| DOWNLOAD_CERTS_CODESIGNING_IDENTITY | Apple Distribution: Staton Blakely (9SA2W557K5)                                                                       |
+| DOWNLOAD_CERTS_TEAM_ID              | 9SA2W557K5                                                                                                            |
+| DOWNLOAD_CERTS_CERT_PATH            | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/cert_file.p12                                            |
+| SIGH_PROFILE_PATHS                  | ["/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ed996f30-63b0-4adf-a445-f6a5f985b9f0.mobileprovision"] |
+| IONIC_CLI_VERSION                   | 7.2.1                                                                                                                 |
+| NODE_PACKAGE_MANAGER                | npm                                                                                                                   |
+| PROJECT_WEB_DIR                     | dist/public                                                                                                           |
+| XCODE_PROJECT_NAME                  | App                                                                                                                   |
+| XCODE_PROJECT_PATH                  | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcodeproj                                    |
+| XCODE_WORKSPACE_PATH                | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ios/App/App.xcworkspace                                  |
++-------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+[23:53:05]: Error building the application - see the log above
+
+
+[!] Error building the application - see the log above
++---------------------------------------------------+
+|                 fastlane summary                  |
++------+------------------------------+-------------+
+| Step | Action                       | Time (in s) |
++------+------------------------------+-------------+
+| 1    | add_extra_platforms          | 0           |
+| 2    | default_platform             | 0           |
+| 3    | prepare_environment          | 0           |
+| 4    | sentry_init                  | 0           |
+| 5    | begin_building               | 0           |
+| 6    | build_summary                | 3           |
+| 7    | create_keychain              | 0           |
+| 8    | get_ios_credentials_from_api | 0           |
+| 9    | set_ios_credentials          | 3           |
+| 10   | import_certificate           | 0           |
+| 11   | set_ionic_cli                | 0           |
+| 12   | detect_package_manager       | 0           |
+| 13   | add_git_credentials          | 0           |
+| 14   | get_appflow_config           | 0           |
+| 15   | dependency_install           | 21          |
+| 16   | create_capacitor_config      | 0           |
+| 17   | get_web_dir                  | 0           |
+| 18   | modify_cap_web_config        | 0           |
+| 19   | build_pro_app                | 6           |
+| 20   | get_xcode_project_paths      | 0           |
+| 21   | modify_ios_config            | 0           |
+| 22   | install_cocoapods            | 0           |
+| 23   | cap_sync                     | 11          |
+| 24   | cap_custom_deploy            | 0           |
+| 25   | update_code_signing_settings | 0           |
+| 26   | update_provisioning_profiles | 0           |
+| 💥   | build_ios_app                | 5           |
+| 28   | upload_logs                  | 4           |
+| 29   | sentry_capture_exception     | 1           |
+| 30   | shell command                | 0           |
+| 31   | delete_keychain              | 0           |
++------+------------------------------+-------------+
+
+[23:53:05]: fastlane finished with errors
+Running after_script
+Running after script...
+$ clean-up
+Cleaning up project directory and file based variables
+Terminating VM: build_stack_2025.06_arm64-1763941887815644000 (171de71b-f9ed-4788-81aa-7bab2d3940bb) | Controller Instance ID: fd21795f-8c51-4cdd-405b-334b2ac1dd20 | Host: 10.2.182.10
+ERROR: Job failed: Process exited with status 1
