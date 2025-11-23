@@ -293,6 +293,7 @@
 			name = Debug;
 		};
 		504EC3151FED79650016851F /* Release */ = {
+							PROVISIONING_PROFILE = "";
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -341,6 +342,7 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+							PROVISIONING_PROFILE = "";
 		};
 		504EC3171FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -363,6 +365,7 @@
 			name = Debug;
 		};
 		504EC3181FED79650016851F /* Release */ = {
+							PROVISIONING_PROFILE = "";
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */;
 			buildSettings = {
@@ -380,6 +383,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+							PROVISIONING_PROFILE = "";
 		};
 /* End XCBuildConfiguration section */
 
@@ -389,18 +393,22 @@
 			buildConfigurations = (
 				504EC3141FED79650016851F /* Debug */,
 				504EC3151FED79650016851F /* Release */,
+							PROVISIONING_PROFILE = "";
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+							PROVISIONING_PROFILE = "";
 		};
 		504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+							PROVISIONING_PROFILE = "";
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+							PROVISIONING_PROFILE = "";
 		};
 /* End XCConfigurationList section */
 	};
