@@ -52,15 +52,3 @@ def fix_pbxproj_signing():
 if __name__ == "__main__":
     fix_pbxproj_signing()
 
-    content = pattern.sub(fix_release_block, content)
-    print(f'-> Enforced PROVISIONING_PROFILE_SPECIFIER to {PROFILE_SPECIFIER} for Release build.')
-
-    # Save the modified content back to the project file
-    with open(PROJECT_FILE, 'w') as f:
-        f.write(content)
-    
-    print('Successfully patched Xcode project file. Ready for build.')
-
-if __name__ == '__main__':
-    fix_pbxproj_signing()
-
