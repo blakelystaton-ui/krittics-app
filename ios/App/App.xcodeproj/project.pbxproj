@@ -1,14 +1,9 @@
-# This is a minimal fix — we only replace the critical lines
-# Find all lines with PROVISIONING_PROFILE_SPECIFIER and force the correct profile
 perl -i -pe 's/PROVISIONING_PROFILE_SPECIFIER\s*=\s*.*;/PROVISIONING_PROFILE_SPECIFIER = "Krittics App Store Profile";/g' ios/App/App.xcodeproj/project.pbxproj
 
-# Force Manual signing everywhere
 perl -i -pe 's/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g' ios/App/App.xcodeproj/project.pbxproj
 
-# Force the bundle ID one last time just in case
 perl -i -pe 's/PRODUCT_BUNDLE_IDENTIFIER\s*=\s*[^;]*/PRODUCT_BUNDLE_IDENTIFIER = "com.blakely.krittics"/g' ios/App/App.xcodeproj/project.pbxproj
 
-# Now commit and push — this time it WILL see the changes
 git add -f ios/App/App.xcodeproj/project.pbxproj
 git commit -m "NUCLEAR FIX: force bundle ID + Manual signing + correct profile name"
 git push --force-with-lease
