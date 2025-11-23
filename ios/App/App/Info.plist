@@ -2,3 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.blakely.krittics</string>
+	<!-- Keep everything else that was there — Capacitor will fill the rest on sync -->
+	<key>CFBundleName</key>
+	<string>Krittics</string>
+</dict>
+</plist>
