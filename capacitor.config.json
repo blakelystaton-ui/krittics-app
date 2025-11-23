@@ -1,0 +1,6 @@
+{
+  "appId": "com.krittics.app",
+  "appName": "Krittics",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
