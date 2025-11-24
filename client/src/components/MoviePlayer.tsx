@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -344,17 +344,19 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               >
                 <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
               </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 rounded-full"
-                onClick={onTriviaReady}
-                data-testid="button-deep-dive-trivia"
-                title="Start Deep Dive Trivia"
-              >
-                <Trophy className="h-5 w-5 text-primary" />
-              </Button>
             </div>
+            
+            {/* Deep Dive Trivia Button */}
+            <button
+              onClick={onTriviaReady}
+              className="gradient-border-button mb-6 w-full"
+              data-testid="button-deep-dive-trivia"
+            >
+              <span className="gradient-border-content px-6 py-3 font-semibold text-base">
+                <Sparkles className="mr-2 h-5 w-5 inline-block" />
+                Start Deep Dive Trivia
+              </span>
+            </button>
             
             {movie.tagline && (
               <div className="mb-6">
