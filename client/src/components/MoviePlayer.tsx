@@ -223,7 +223,8 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
                 }
               }}
               onEnded={() => {
-                // Video ended - handled by Video.js
+                // Trigger Deep Dive trivia when video ends
+                onTriviaReady();
               }}
               className="w-full h-full"
             />
