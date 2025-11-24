@@ -24,6 +24,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
+  const [triviaAutoTriggered, setTriviaAutoTriggered] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
@@ -47,6 +48,12 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   // Show buttons only if watched at least 15 seconds and not completed
   const showProgressButtons = savedProgressSeconds >= 15 && !initialProgress?.completed;
 
+  // Reset auto-trigger state when movie changes
+  useEffect(() => {
+    setTriviaAutoTriggered(false);
+    setShowTriviaNotification(false);
+  }, [movie.id]);
+
   // Load user's reaction for this movie
   useEffect(() => {
     const loadReaction = async () => {
@@ -56,12 +63,29 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     loadReaction();
   }, [movie.id, getReaction]);
 
-  // Show trivia notification when 95% complete
+  // AUTO-TRIGGER: Show trivia 2 minutes (120 seconds) before video ends
   useEffect(() => {
-    if (progress >= 95 && !showTriviaNotification) {
-      setShowTriviaNotification(true);
+    if (duration > 0 && currentTime > 0 && !triviaAutoTriggered) {
+      const timeRemaining = duration - currentTime;
+      
+      // Trigger when 2 minutes (120 seconds) or less remaining
+      // Works even if user scrubs or player updates in >1s increments
+      if (timeRemaining <= 120) {
+        console.log(`[Auto-Trigger] Deep-Dive Trivia – 2 minutes remaining (${Math.floor(timeRemaining)}s left)`);
+        setShowTriviaNotification(true);
+        setTriviaAutoTriggered(true);
+        
+        // Auto-trigger the trivia overlay
+        onTriviaReady();
+        
+        toast({
+          title: "Deep Dive Trivia Ready!",
+          description: "Your trivia challenge is starting now",
+          duration: 3000,
+        });
+      }
     }
-  }, [progress, showTriviaNotification]);
+  }, [currentTime, duration, triviaAutoTriggered, onTriviaReady, toast]);
 
   // Handler for bookmark button
   const handleBookmark = () => {

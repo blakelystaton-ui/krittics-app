@@ -63,6 +63,10 @@ export interface IStorage {
   markQuestionsAsSeen(userId: string, questionIds: string[]): Promise<void>;
   clearUserSeenQuestions(userId: string, movieId?: string, category?: string): Promise<void>;
   reserveQuestionsForUser(userId: string, movieId: string, count: number, category?: string, difficulty?: string): Promise<TriviaQuestion[]>;
+  
+  // Trivia cache (30-day TTL for Gemini responses)
+  getCachedTrivia(movieTitle: string): Promise<{ questions: any[]; generatedAt: Date } | undefined>;
+  setCachedTrivia(movieTitle: string, questions: any[]): Promise<void>;
 
   // ============================================
   // Answers

@@ -146,6 +146,7 @@ export class TriviaService {
 
   /**
    * Generate new questions using Gemini AI and store them in the database
+   * NOW WITH 30-DAY CACHE: Checks cache first before calling Gemini
    * Returns only questions that haven't been seen by the user
    */
   private async generateAndStoreQuestions(
@@ -156,7 +157,23 @@ export class TriviaService {
     category?: string,
     difficulty: string = 'medium'
   ) {
-    const generatedQuestions = await generateMovieTriviaWithRetry(movieTitle);
+    let generatedQuestions: Array<{ question: string; options: string[]; correctAnswer: string }>;
+
+    // Step 1: Check cache first (30-day TTL)
+    const cached = await this.storage.getCachedTrivia(movieTitle);
+    
+    if (cached) {
+      console.log(`[Trivia] ✓ Cache HIT for "${movieTitle}" – serving cached questions (saved $0.00)`);
+      generatedQuestions = cached.questions;
+    } else {
+      // Step 2: Cache miss – call Gemini
+      console.log(`[Trivia] ✗ Cache MISS for "${movieTitle}" – generating fresh trivia via Gemini`);
+      generatedQuestions = await generateMovieTriviaWithRetry(movieTitle);
+      
+      // Step 3: Store in cache for future requests
+      await this.storage.setCachedTrivia(movieTitle, generatedQuestions);
+    }
+
     const storedQuestions = [];
 
     for (const q of generatedQuestions) {

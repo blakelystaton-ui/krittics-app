@@ -73,6 +73,17 @@ export const userSeenQuestions = pgTable("user_seen_questions", {
   seenAt: timestamp("seen_at").defaultNow(),
 });
 
+// Trivia cache table - 30-day TTL for Gemini-generated questions
+export const triviaCache = pgTable("trivia_cache", {
+  movieTitle: text("movie_title").primaryKey(),
+  questions: jsonb("questions").$type<Array<{
+    question: string;
+    options: string[];
+    correctAnswer: string;
+  }>>().notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+});
+
 // Game sessions table
 export const gameSessions = pgTable("game_sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

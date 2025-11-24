@@ -35,6 +35,7 @@ import {
   watchlist,
   videoProgress,
   matchmakingQueue,
+  triviaCache,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./config/db";
@@ -641,6 +642,62 @@ export class DatabaseStorage implements IStorage {
           );
       }
     }
+  }
+
+  /**
+   * Get cached trivia questions for a movie (30-day TTL)
+   * Returns undefined if cache miss or expired
+   */
+  async getCachedTrivia(movieTitle: string): Promise<{ questions: any[]; generatedAt: Date } | undefined> {
+    const result = await db
+      .select()
+      .from(triviaCache)
+      .where(eq(triviaCache.movieTitle, movieTitle))
+      .limit(1);
+    
+    if (!result[0]) {
+      return undefined;
+    }
+    
+    const cacheEntry = result[0];
+    const generatedAt = new Date(cacheEntry.generatedAt);
+    const now = new Date();
+    const daysSinceGeneration = (now.getTime() - generatedAt.getTime()) / (1000 * 60 * 60 * 24);
+    
+    // Check if cache is expired (> 30 days)
+    if (daysSinceGeneration > 30) {
+      console.log(`[Cache] Expired cache for "${movieTitle}" (${Math.floor(daysSinceGeneration)} days old)`);
+      return undefined;
+    }
+    
+    console.log(`[Cache] ✓ Hit for "${movieTitle}" (${Math.floor(daysSinceGeneration)} days old)`);
+    return {
+      questions: cacheEntry.questions as any[],
+      generatedAt
+    };
+  }
+
+  /**
+   * Set cached trivia questions for a movie
+   * Uses INSERT ... ON CONFLICT to upsert
+   */
+  async setCachedTrivia(movieTitle: string, questions: any[]): Promise<void> {
+    await db
+      .insert(triviaCache)
+      .values({
+        movieTitle,
+        questions: questions as any,
+        generatedAt: new Date()
+      })
+      .onConflictDoUpdate({
+        target: triviaCache.movieTitle,
+        set: {
+          questions: questions as any,
+          generatedAt: new Date()
+        }
+      });
+    
+    console.log(`[Cache] ✓ Stored for "${movieTitle}" (${questions.length} questions)`);
   }
 
   // Answers
