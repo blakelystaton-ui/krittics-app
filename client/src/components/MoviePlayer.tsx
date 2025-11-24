@@ -384,17 +384,19 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               
               {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
               {showTriviaButton && (
-                <button
-                  className="teal-gradient-button flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold animate-in fade-in duration-500"
-                  onClick={() => {
-                    setManuallyOpenedTrivia(true);
-                    onTriviaReady();
-                  }}
-                  data-testid="button-deep-dive-trivia"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Trivia
-                </button>
+                <div className="flex flex-col items-start gap-1 animate-in fade-in duration-500">
+                  <span className="text-xs font-medium text-muted-foreground">Deep Dive Trivia</span>
+                  <Button
+                    className="h-10 w-auto px-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                    onClick={() => {
+                      setManuallyOpenedTrivia(true);
+                      onTriviaReady();
+                    }}
+                    data-testid="button-deep-dive-trivia"
+                  >
+                    Start
+                  </Button>
+                </div>
               )}
             </div>
             
