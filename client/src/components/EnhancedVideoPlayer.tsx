@@ -468,6 +468,27 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
       await player.play();
       console.log('✅ Manual play started');
       
+      // Enter full-screen mode immediately after playback starts
+      const videoElement = player.el();
+      if (videoElement) {
+        try {
+          // Try to enter full-screen using the video element's requestFullscreen API
+          if (videoElement.requestFullscreen) {
+            await videoElement.requestFullscreen();
+          } else if ((videoElement as any).webkitRequestFullscreen) {
+            // Safari/iOS fallback
+            await (videoElement as any).webkitRequestFullscreen();
+          } else if ((videoElement as any).webkitEnterFullscreen) {
+            // iOS video element fullscreen fallback
+            await (videoElement as any).webkitEnterFullscreen();
+          }
+          console.log('✅ Entered full-screen mode');
+        } catch (fsError) {
+          console.warn('⚠️ Full-screen request failed:', fsError);
+          // Continue playback even if full-screen fails
+        }
+      }
+      
       // Only unmute AFTER successful playback start (Safari/iOS may reject otherwise)
       if (player.muted()) {
         player.muted(false);
@@ -531,15 +552,16 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
               </p>
             </>
           ) : (
-            // Show play button
-            <>
-              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-primary/50">
-                <Play className="h-10 w-10 text-primary-foreground" fill="currentColor" />
-              </div>
-              <p className="mt-4 text-foreground text-base font-semibold">
-                Click to Play
-              </p>
-            </>
+            // Show large teal play button matching web carousel
+            <div 
+              className="w-40 h-40 rounded-full flex items-center justify-center transition-transform active:scale-95"
+              style={{
+                backgroundColor: 'rgba(0, 255, 255, 0.65)',
+                boxShadow: '0 0 30px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.2)'
+              }}
+            >
+              <Play className="h-16 w-16 text-white ml-1" fill="currentColor" />
+            </div>
           )}
         </div>
       )}
