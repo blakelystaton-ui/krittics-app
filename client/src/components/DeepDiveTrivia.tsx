@@ -44,6 +44,9 @@ export function DeepDiveTrivia({
       console.log("[Trivia] Starting 5-minute idle timeout");
       const timeout = setTimeout(() => {
         console.log("[Trivia] Idle 5min after auto-trigger → autoplaying random movie");
+        // Always reset state before navigation
+        if (onClose) onClose();
+        
         if (onPlayRandomMovie) {
           onPlayRandomMovie();
         } else {
@@ -54,7 +57,7 @@ export function DeepDiveTrivia({
 
       return () => clearTimeout(timeout);
     }
-  }, [gameStatus, isGenerating, error, onPlayRandomMovie, setLocation]);
+  }, [gameStatus, isGenerating, error, onPlayRandomMovie, onClose, setLocation]);
 
   // 60-second countdown for "Up Next" screen
   useEffect(() => {
@@ -65,18 +68,19 @@ export function DeepDiveTrivia({
             // Clear interval before navigation
             clearInterval(interval);
             
+            // Always reset state before navigation
+            if (onClose) onClose();
+            
             // Auto-play random movie when countdown reaches 0
             try {
               if (onPlayRandomMovie) {
                 onPlayRandomMovie();
               } else {
-                if (onClose) onClose();
                 setLocation("/");
               }
             } catch (error) {
               console.error("[Trivia] Error playing random movie:", error);
               // Still navigate away on error
-              if (onClose) onClose();
               setLocation("/");
             }
             return 0;
@@ -250,10 +254,12 @@ export function DeepDiveTrivia({
           <div className="flex justify-center gap-4">
             <button
               onClick={() => {
+                // Always reset state before navigation
+                if (onClose) onClose();
+                
                 if (onPlayRandomMovie) {
                   onPlayRandomMovie();
                 } else {
-                  if (onClose) onClose();
                   setLocation("/");
                 }
               }}
