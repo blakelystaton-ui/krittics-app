@@ -1,5 +1,5 @@
 const functions = require('firebase-functions');
-const { GoogleGenAI } = require('@google/genai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
