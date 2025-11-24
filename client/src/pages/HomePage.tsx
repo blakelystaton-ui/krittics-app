@@ -145,7 +145,10 @@ export default function HomePage() {
       const response = await apiRequest(
         "POST",
         "/api/trivia/generate",
-        { movieTitle: selectedMovie.title }
+        { 
+          movieTitle: selectedMovie.title,
+          movieId: selectedMovie.id
+        }
       );
       const data = await response.json() as { questions: GeneratedTriviaQuestion[] };
       setTriviaQuestions(data.questions);
