@@ -1,0 +1,37 @@
+Running with gitlab-runner 14.10.1/1.6.1 (029651c8)
+  on ANKA_RUNNER 161fa1c3
+Preparing the "anka" executor
+Opening a connection to the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443
+Starting Anka VM using:
+  - VM Template UUID: 4e82f4f5-40db-4bd4-93d1-81ec458d4325
+  - VM Template Tag Name: v2
+Please be patient...
+You can check the status of starting your Instance on the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443/#/instances
+Verifying connectivity to the VM: build_stack_2025.06_arm64-1763948202565788000 (50218a23-cc0a-474b-a313-d181f16758f2) | Controller Instance ID: 59e7b5b1-9d1e-418e-586c-5c90f068ba0d | Host: 10.2.161.152 | Port: 10000 
+VM "build_stack_2025.06_arm64-1763948202565788000" (50218a23-cc0a-474b-a313-d181f16758f2) / Controller Instance ID 59e7b5b1-9d1e-418e-586c-5c90f068ba0d running on Node ip-10-2-161-152.us-west-2.compute.internal (10.2.161.152), is ready for work (10.2.161.152:10000)
+Preparing environment
+Running on ip-192-168-64-23.us-west-2.compute.internal via ip-10-2-128-202.us-west-2.compute.internal...
+Getting source from Git repository
+$ pre-clone
+[01:37:14]: Cloning repository...
+Fetching changes...
+Initialized empty Git repository in /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/.git/
+Created fresh repository.
+Checking out 808059a6 as main...
+Updating/initializing submodules...
+$ post-clone
+[01:37:16]: Cloning complete...
+Executing "step_script" stage of the job script
+$ pre-build
+[01:37:17]: Building project....
+$ fetch-updates || true
+Checking for build process updates...
+$ build-ios
+[SUCCESS] Node has been overridden to version 20
+jq: error (at appflow.config.json:8): Cannot iterate over null (null)
+Running after_script
+Running after script...
+$ clean-up
+Cleaning up project directory and file based variables
+Terminating VM: build_stack_2025.06_arm64-1763948202565788000 (50218a23-cc0a-474b-a313-d181f16758f2) | Controller Instance ID: 59e7b5b1-9d1e-418e-586c-5c90f068ba0d | Host: 10.2.161.152
+ERROR: Job failed: Process exited with status 1
