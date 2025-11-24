@@ -1,0 +1,8 @@
+{
+  "appId": "com.blakely.krittics",
+  "nativeConfig": {
+    "ios": {
+      "xcconfigFile": "ios/App/config/manual-signing.xcconfig"
+    }
+  }
+}
