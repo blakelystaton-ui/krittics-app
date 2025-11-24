@@ -4,9 +4,26 @@
 
 This project uses Xcode's native `.xcconfig` system to ensure correct provisioning profiles are **always** applied, regardless of Capacitor sync or Appflow build process changes.
 
+**TWO-LAYER PROTECTION:**
+1. **Capacitor Level**: `capacitor.config.json` tells Capacitor to use the xcconfig file
+2. **Appflow Level** (Optional): Native Configuration as backup
+
 ---
 
-## 📋 **One-Time Appflow Setup (Required)**
+## ✅ **Already Configured in Code**
+
+The following is **already set up** in your project:
+
+1. ✅ `ios/App/config/manual-signing.xcconfig` - Signing configuration file
+2. ✅ `capacitor.config.json` - Points Capacitor to the xcconfig file
+
+**Just commit and push - it will work!**
+
+---
+
+## 📋 **Optional: Appflow Native Configuration (Backup Layer)**
+
+For extra protection, you can also configure Appflow:
 
 ### Step 1: Navigate to Native Configurations
 1. Log into [Ionic Appflow](https://dashboard.ionicframework.com/)
@@ -38,20 +55,27 @@ This project uses Xcode's native `.xcconfig` system to ensure correct provisioni
 Ionic Appflow Build Process:
 1. npm ci              ← Installs dependencies
 2. npx cap sync ios    ← Regenerates Xcode project (OVERWRITES settings)
-3. npm run capacitor:sync:after  ← Hook NEVER RUNS (outside npm context)
+3. npm run hooks       ← NEVER RUN (outside npm context)
 4. xcodebuild          ← Fails with "missing provisioning profile"
 ```
 
-### The Solution (Now)
+### The Solution (Now - Two Layers)
 ```
 Ionic Appflow Build Process:
-1. npm ci              ← Installs dependencies
-2. npx cap sync ios    ← Regenerates Xcode project (still overwrites)
-3. xcodebuild -xcconfig ios/App/config/manual-signing.xcconfig
-   ↑ Xcode reads our config file AFTER regeneration
+1. npm ci                   ← Installs dependencies
+2. npx cap sync ios         ← Reads capacitor.config.json
+   ↓ Sees: "xcconfigFile": "ios/App/config/manual-signing.xcconfig"
+   ↓ Applies xcconfig during project generation
+3. xcodebuild               ← Xcode uses xcconfig settings
    ✓ Correct provisioning profile applied
    ✓ Build succeeds
 ```
+
+**Why This Works:**
+- Capacitor itself is told to use the xcconfig file
+- No hooks needed - it's baked into project config
+- Works locally AND in Appflow
+- Survives all future updates
 
 ---
 

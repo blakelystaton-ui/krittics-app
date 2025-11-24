@@ -1,0 +1,77 @@
+// === PERMANENT iOS CODESIGNING FIX – ONE CLICK FOR REPLIT AGENT ===
+await $`echo "Running permanent iOS codesigning fix..."`;
+
+// 1. Ensure the xcconfig folder and file exist with correct content
+await $`mkdir -p ios/App/config`;
+
+const xcconfigContent = `PRODUCT_BUNDLE_IDENTIFIER = com.blakely.krittics
+DEVELOPMENT_TEAM = 9SA2W557K5
+PROVISIONING_PROFILE_SPECIFIER = Krittics App Store Profile
+CODE_SIGN_IDENTITY = Apple Distribution: Staton Blakely (9SA2W557K5)
+CODE_SIGN_STYLE = Manual
+`;
+
+await Deno.writeTextFile("ios/App/config/manual-signing.xcconfig", xcconfigContent.trim() + "\n");
+await $`echo "✓ Created/updated ios/App/config/manual-signing.xcconfig"`;
+
+// 2. Update capacitor.config (supports both .json and .ts)
+let configPath = "";
+let configContent = "";
+
+if (await Deno.stat("capacitor.config.json").catch(() => false)) {
+  configPath = "capacitor.config.json";
+} else if (await Deno.stat("capacitor.config.ts").catch(() => false)) {
+  configPath = "capacitor.config.ts";
+} else {
+  await $`echo "ERROR: No capacitor.config.json or .ts found!"`;
+  throw new Error("Capacitor config not found");
+}
+
+configContent = await Deno.readTextFile(configPath);
+
+// For JSON
+if (configPath.endsWith(".json")) {
+  let json = JSON.parse(configContent);
+  json.ios = json.ios || {};
+  json.ios.xcconfigFile = "ios/App/config/manual-signing.xcconfig";
+  await Deno.writeTextFile(configPath, JSON.stringify(json, null, 2) + "\n");
+  await $`echo "✓ Added xcconfigFile to capacitor.config.json"`;
+}
+
+// For TypeScript
+if (configPath.endsWith(".ts")) {
+  const marker = "xcconfigFile:";
+  if (!configContent.includes(marker)) {
+    const insertBeforeLastBrace = configContent.lastIndexOf("}");
+    const newContent = 
+      configContent.slice(0, insertBeforeLastBrace) +
+      `  ios: {\n    xcconfigFile: "ios/App/config/manual-signing.xcconfig"\n  },\n` +
+      configContent.slice(insertBeforeLastBrace);
+    await Deno.writeTextFile(configPath, newContent);
+    await $`echo "✓ Added xcconfigFile to capacitor.config.ts"`;
+  } else {
+    await $`echo "✓ xcconfigFile already exists in capacitor.config.ts"`;
+  }
+}
+
+// 3. Clean up any old broken fixes (optional but keeps repo clean)
+await $`rm -f fix_bundle_id.py cleanup_old_fixes.js 2>/dev/null || true`;
+await $`echo "✓ Removed any obsolete scripts"`;
+
+// 4. Show exactly what changed
+await $`echo "\n=== FINAL xcconfig FILE ==="`;
+await $`cat ios/App/config/manual-signing.xcconfig`;
+
+await $`echo "\n=== capacitor.config excerpt ==="`;
+await $`grep -A 5 -B 5 xcconfigFile ${configPath} || echo "xcconfigFile entry added"`;
+
+await $`echo "\n=== Files to commit ==="`;
+await $`git add ios/App/config/manual-signing.xcconfig ${configPath}`;
+await $`git status --short`;
+
+// 5. Final message
+await $`echo "\nBULLETPROOF FIX COMPLETE!"`;
+await $`echo "Now just run:"`;
+await $`echo "   git commit -m 'fix: permanent iOS codesigning via xcconfig (Appflow compatible)'"`;
+await $`echo "   git push"`;
+await $`echo "Then trigger a new iOS build in Appflow — it will succeed permanently!"`;
