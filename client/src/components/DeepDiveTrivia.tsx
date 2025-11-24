@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, X, Trophy, RotateCcw, Sparkles, Film } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,17 @@ export function DeepDiveTrivia({
   const [showAd, setShowAd] = useState(false);
 
   const currentQuestion = questions?.[currentQuestionIndex];
+
+  // Auto-start game when questions are loaded after generation
+  useEffect(() => {
+    if (!isGenerating && questions && questions.length > 0 && gameStatus === "initial") {
+      setGameStatus("playing");
+      setScore(0);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setIsCorrect(null);
+    }
+  }, [isGenerating, questions, gameStatus]);
 
   const handleAnswer = (option: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists

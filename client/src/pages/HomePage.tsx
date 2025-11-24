@@ -131,10 +131,7 @@ export default function HomePage() {
 
   const handleTriviaReady = () => {
     setShowTrivia(true);
-    // Auto-generate trivia when user clicks "Start Now"
-    if (triviaQuestions.length === 0) {
-      handleGenerateTrivia();
-    }
+    // Don't auto-generate - let user click "Start Trivia Now" to begin
   };
 
   const handleGenerateTrivia = async () => {
