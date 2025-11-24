@@ -353,7 +353,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
             }}
           >
             {/* Action buttons */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-start gap-2 mb-4">
               <Button
                 size="icon"
                 variant="ghost"
@@ -385,7 +385,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
               {showTriviaButton && (
                 <div 
-                  className="flex flex-col items-center gap-1 flex-1 transition-opacity duration-600 ease-in-out"
+                  className="flex flex-col items-center gap-1 flex-1 mt-2.5 transition-opacity duration-600 ease-in-out"
                   style={{ 
                     opacity: showTriviaButton ? 1 : 0,
                     pointerEvents: showTriviaButton ? 'auto' : 'none'
