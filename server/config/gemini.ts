@@ -8,13 +8,12 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Initialize Gemini AI client using Replit AI Integrations
+// Log to verify Gemini API key is loaded
+console.log("Gemini key found:", !!process.env.GEMINI_API_KEY);
+
+// Initialize Gemini AI client with user's API key
 const ai = new GoogleGenAI({
-  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
-  httpOptions: {
-    apiVersion: "",
-    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL!,
-  },
+  apiKey: process.env.GEMINI_API_KEY!,
 });
 
 interface TriviaQuestion {
