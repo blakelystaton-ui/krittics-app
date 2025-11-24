@@ -102,8 +102,12 @@ function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progre
           onClick={handlePlay}
           className="hidden md:flex absolute inset-0 items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         >
-          <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl transition-all scale-100 hover:scale-110"
-            style={{ backgroundColor: 'rgba(0, 245, 255, 0.8)', backdropFilter: 'blur(4px)' }}
+          <div className="w-20 h-20 rounded-full flex items-center justify-center transition-all scale-100 hover:scale-110"
+            style={{ 
+              backgroundColor: 'rgba(0, 245, 255, 0.65)', 
+              backdropFilter: 'blur(4px)',
+              boxShadow: '0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(0, 245, 255, 0.3)'
+            }}
           >
             <Play className="w-10 h-10 text-white ml-1" fill="white" />
           </div>
@@ -115,7 +119,10 @@ function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progre
           className="md:hidden absolute inset-0 flex items-center justify-center bg-black/30"
         >
           <div className="w-16 h-16 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(0, 245, 255, 0.7)' }}
+            style={{ 
+              backgroundColor: 'rgba(0, 245, 255, 0.6)',
+              boxShadow: '0 0 15px rgba(0, 245, 255, 0.4), 0 0 30px rgba(0, 245, 255, 0.2)'
+            }}
           >
             <Play className="w-8 h-8 text-white ml-1" fill="white" />
           </div>
@@ -135,38 +142,30 @@ function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progre
         )}
       </div>
 
-      {/* Title row with Crew icon on far right */}
+      {/* Title row with Crew text on far right */}
       <div className="p-4">
         <div className="flex items-center justify-between mb-1 gap-2">
           <h3 className="text-white font-bold text-lg truncate">
             {movie.title}
           </h3>
-          {/* Custom Crew Icon */}
+          {/* Crew text */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleCrew();
             }}
-            className="text-[#00F5FF] hover:text-[#00D4E6] transition-colors flex-shrink-0"
+            className="text-[#00F5FF] hover:text-[#00D4E6] transition-colors flex-shrink-0 font-bold text-lg"
             title="Open with Crew"
             data-testid="button-crew"
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3">
-              <circle cx="8" cy="8" r="3.2"/>
-              <circle cx="16" cy="8" r="3.2"/>
-              <path d="M3 18c0-3.5 4-6 9-6s9 2.5 9 6"/>
-            </svg>
+            Crew
           </button>
         </div>
 
-        <div className="flex items-center gap-2 text-gray-400 text-sm">
+        <div className="flex items-center gap-2 text-gray-400 text-sm whitespace-nowrap flex-wrap">
           {movie.year && <span>{movie.year}</span>}
           {movie.year && movie.genre && <span>•</span>}
-          {movie.genre && (
-            <span className="px-2 py-0.5 bg-gray-800 rounded-full text-xs">
-              {movie.genre}
-            </span>
-          )}
+          {movie.genre && <span>{movie.genre}</span>}
           {movie.duration && (
             <>
               <span>•</span>
