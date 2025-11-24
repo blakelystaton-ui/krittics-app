@@ -41,11 +41,14 @@ export function registerTriviaRoutes(app: Express, storage: IStorage) {
    */
   app.post("/api/trivia/generate", isAuthenticated, async (req: any, res) => {
     try {
+      console.log("[Trivia API] Step 1: Received request", { body: req.body });
+      
       const validated = triviaGenerationSchema.parse(req.body);
       const userId = req.user.claims.sub;
 
-      console.log(`[Trivia API] Request from user ${userId} for movie: ${validated.movieTitle}`);
+      console.log(`[Trivia API] Step 2: Validated - User ${userId}, Movie: ${validated.movieTitle}, MovieId: ${validated.movieId}`);
 
+      console.log("[Trivia API] Step 3: Calling TriviaService.getFreshQuestions...");
       const questions = await triviaService.getFreshQuestions({
         userId,
         count: validated.count || 5,
@@ -54,10 +57,22 @@ export function registerTriviaRoutes(app: Express, storage: IStorage) {
         difficulty: validated.difficulty || 'medium'
       });
 
-      res.json(questions);
+      console.log(`[Trivia API] Step 4: Got ${questions.length} questions from service`);
+      console.log("[Trivia API] Step 5: Sample question:", questions[0] ? {
+        question: questions[0].question.substring(0, 50) + "...",
+        optionsCount: questions[0].options?.length,
+        hasCorrectAnswer: !!questions[0].correctAnswer
+      } : "No questions");
+
+      const response = { questions };
+      console.log("[Trivia API] Step 6: Sending response with format { questions: [...] }");
+      
+      res.status(200).json(response);
     } catch (error: any) {
-      console.error("[Trivia API] Error generating trivia:", error);
+      console.error("[Trivia API] ERROR:", error);
+      console.error("[Trivia API] Error stack:", error.stack);
       if (error instanceof z.ZodError) {
+        console.error("[Trivia API] Validation error:", error.errors);
         return res.status(400).json({ error: error.errors });
       }
       res.status(500).json({ error: error.message || "Failed to generate trivia" });
