@@ -2,7 +2,8 @@
   "appId": "com.blakely.krittics",
   "appName": "Krittics",
   "webDir": "dist/public",
-  "ios": {
     "bundleId": "com.blakely.krittics"
   }
 }
+    "bundleId": "com.blakely.krittics"
+  }
