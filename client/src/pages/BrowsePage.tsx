@@ -169,7 +169,7 @@ function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progre
           {movie.duration && (
             <>
               <span>•</span>
-              <span>{movie.duration} min</span>
+              <span>{Math.round(movie.duration / 60)} min</span>
             </>
           )}
         </div>
