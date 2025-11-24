@@ -170,6 +170,7 @@ interface EnhancedVideoPlayerProps {
   src: string;
   poster?: string;
   movieId?: string; // For progress tracking
+  autoplay?: boolean; // Enable autoplay
   onTimeUpdate?: (currentTime: number, duration: number) => void;
   onEnded?: () => void;
   className?: string;
@@ -187,6 +188,7 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
   src,
   poster,
   movieId,
+  autoplay = false,
   onTimeUpdate,
   onEnded,
   className = ''
@@ -250,6 +252,8 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
       responsive: true,
       fluid: true,
       preload: 'auto',
+      autoplay: autoplay,
+      muted: autoplay, // Mute when autoplaying to comply with browser policies
       poster: poster,
       sources: [{
         src: src,

@@ -247,6 +247,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               ref={playerRef}
               src={movie.videoUrl}
               movieId={movie.id}
+              autoplay={true}
               onTimeUpdate={(currentTime, duration) => {
                 setCurrentTime(currentTime);
                 setDuration(duration);
