@@ -4,6 +4,6 @@
   "webDir": "dist/public",
   "bundledWebRuntime": false,
   "ios": {
-    "bundleId": "com.blakely.krittics"
+    "xcconfigFile": "ios/App/config/manual-signing.xcconfig"
   }
 }

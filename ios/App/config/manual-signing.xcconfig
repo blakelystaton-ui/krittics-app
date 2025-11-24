@@ -1,0 +1,18 @@
+// Krittics iOS Manual Signing Configuration
+// This file ensures correct provisioning profile is always used
+// regardless of Capacitor sync or Appflow regeneration
+
+// Bundle Identifier
+PRODUCT_BUNDLE_IDENTIFIER = com.blakely.krittics
+
+// Development Team
+DEVELOPMENT_TEAM = 9SA2W557K5
+
+// Provisioning Profile Specifier
+PROVISIONING_PROFILE_SPECIFIER = Krittics App Store Profile
+
+// Code Sign Identity
+CODE_SIGN_IDENTITY = Apple Distribution: Staton Blakely (9SA2W557K5)
+
+// Code Sign Style
+CODE_SIGN_STYLE = Manual

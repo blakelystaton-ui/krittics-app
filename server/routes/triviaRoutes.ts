@@ -27,7 +27,7 @@ const createGameSchema = z.object({
 });
 
 const submitAnswerSchema = z.object({
-  questionId: z.string().min(1),
+  questionIndex: z.number().int().min(0),
   answer: z.string().min(1),
 });
 
@@ -77,7 +77,7 @@ export function registerTriviaRoutes(app: Express, storage: IStorage) {
         movieId: validated.movieId,
         gameMode: validated.gameMode,
         score: 0,
-        status: 'playing',
+        completed: false,
       });
 
       res.json(session);
@@ -131,9 +131,9 @@ export function registerTriviaRoutes(app: Express, storage: IStorage) {
       
       const answer = await gameService.submitAnswer({
         sessionId: req.params.id,
-        questionId: validated.questionId,
-        userAnswer: validated.answer,
-        isCorrect: 0, // Will be validated server-side (0 = false, 1 = true)
+        questionIndex: validated.questionIndex,
+        answer: validated.answer,
+        isCorrect: false, // Will be validated server-side
       });
 
       res.json(answer);

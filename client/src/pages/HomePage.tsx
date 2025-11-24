@@ -131,7 +131,10 @@ export default function HomePage() {
 
   const handleTriviaReady = () => {
     setShowTrivia(true);
-    // Don't auto-generate - let user click "Start Trivia Now" to begin
+    // Auto-generate trivia when user clicks "Start Now"
+    if (triviaQuestions.length === 0) {
+      handleGenerateTrivia();
+    }
   };
 
   const handleGenerateTrivia = async () => {
@@ -142,10 +145,7 @@ export default function HomePage() {
       const response = await apiRequest(
         "POST",
         "/api/trivia/generate",
-        { 
-          movieTitle: selectedMovie.title,
-          movieId: selectedMovie.id
-        }
+        { movieTitle: selectedMovie.title }
       );
       const data = await response.json() as { questions: GeneratedTriviaQuestion[] };
       setTriviaQuestions(data.questions);

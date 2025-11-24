@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "python3 fix_bundle_id.py && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
@@ -18,7 +18,7 @@
     "@capacitor/core": "^7.4.4",
     "@capacitor/ios": "^7.4.4",
     "@capacitor/keyboard": "^7.0.3",
-    "@google/genai": "^1.30.0",
+    "@google/genai": "^1.28.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.10.0",
     "@ionic/react": "^8.7.10",
@@ -71,7 +71,6 @@
     "express-session": "^1.18.1",
     "firebase": "^12.6.0",
     "firebase-admin": "^13.6.0",
-    "firebase-functions": "^7.0.0",
     "framer-motion": "^11.13.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.453.0",
