@@ -1,42 +1,27 @@
 platform :ios do
   lane :build_capacitor do
-    # This lane runs automatically in Appflow — now it does EVERYTHING
-    sh "echo 'FORCING SIGNING — NO ESCAPE'"
+    # This is the ONLY lane Appflow calls — everything happens here
 
-    # Force bundle ID
-    update_app_identifier(
+    # 1. Force the provisioning profile on the exact target (this is the kill-shot)
+    update_project_provisioning(
       xcodeproj: "ios/App/App.xcodeproj",
-      plist_path: "ios/App/App/Info.plist",
-      app_identifier: "com.blakely.krittics"
+      target_filter: "App",
+      build_configuration: "Release",
+      profile: ENV["SIGH_PROFILE_PATH"] || Dir["*.mobileprovision"].first
     )
 
-    # Force team ID
-    update_project_team(
-      path: "ios/App/App.xcodeproj",
-      teamid: "9SA2W557K5"
-    )
-
-    # Disable automatic signing + set manual
+    # 2. Make absolutely sure manual signing is set
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/App/App.xcodeproj",
+      targets: "App",
       team_id: "9SA2W557K5",
       code_sign_identity: "Apple Distribution: Staton Blakely (9SA2W557K5)",
       profile_name: "Krittics App Store Profile"
     )
 
-    # FORCE the exact provisioning profile on the target (this is the kill shot)
-    update_project_provisioning(
-      xcodeproj: "ios/App/App.xcodeproj",
-      profile: ENV["SIGH_PROFILE_PATH"],
-      target_filter: "App",
-      build_configuration: "Release"
-    )
-
-    # Double-tap: set PROVISIONING_PROFILE_SPECIFIER directly
-    sh "plutil -replace PROVISIONING_PROFILE_SPECIFIER -string 'Krittics App Store Profile' ios/App/App/Info.plist"
-    sh "plutil -replace CODE_SIGN_IDENTITY -string 'Apple Distribution: Staton Blakely (9SA2W557K5)' ios/App/App/Info.plist"
-
-    sh "echo 'SIGNING FORCED — BUILD WILL SUCCEED'"
+    # 3. Direct hammer into the project file — Appflow CANNOT ignore this
+    sh "sed -i '' 's/PROVISIONING_PROFILE_SPECIFIER = \"\"/PROVISIONING_PROFILE_SPECIFIER = \"Krittics App Store Profile\"/g' ios/App/App.xcodeproj/project.pbxproj"
+    sh "sed -i '' 's/PROVISIONING_PROFILE = \"\"/PROVISIONING_PROFILE = \"\"/g' ios/App/App.xcodeproj/project.pbxproj || true"
   end
 end
