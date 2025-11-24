@@ -44,6 +44,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **API Endpoints**: Comprehensive RESTful APIs for core functionalities.
 - **CSS Gradient System**: Centralized teal gradient utilities using CSS custom properties for consistent branding.
 - **Production Teaser Overlay**: Semi-transparent "KRITTICS — LAUNCHING SOON" overlay for production environment.
+- **iOS Codesigning (Ionic Appflow)**: Permanent solution using Xcode `.xcconfig` file (`ios/App/config/manual-signing.xcconfig`) that survives Capacitor sync and all build environment changes. Applied via Appflow Native Configuration system. See APPFLOW_SETUP.md for complete setup guide.
 
 ### System Design Choices
 - **Hybrid Storage**: PostgreSQL for structured data and Firebase Firestore for real-time data.

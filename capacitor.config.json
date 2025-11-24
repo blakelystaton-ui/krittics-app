@@ -2,8 +2,5 @@
   "appId": "com.krittics.app",
   "appName": "Krittics",
   "webDir": "dist/public",
-  "bundledWebRuntime": false,
-  "ios": {
-    "externalProject": true
-  }
+  "bundledWebRuntime": false
 }
