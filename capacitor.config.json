@@ -1,5 +1,5 @@
 {
-  "appId": "com.krittics.app",
+  "appId": "com.blakely.krittics",
   "appName": "Krittics",
   "webDir": "dist/public",
   "bundledWebRuntime": false,
