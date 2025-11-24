@@ -344,6 +344,16 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               >
                 <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
               </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-10 w-10 rounded-full"
+                onClick={onTriviaReady}
+                data-testid="button-deep-dive-trivia"
+                title="Start Deep Dive Trivia"
+              >
+                <Trophy className="h-5 w-5 text-primary" />
+              </Button>
             </div>
             
             {movie.tagline && (
