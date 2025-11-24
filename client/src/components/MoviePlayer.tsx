@@ -381,22 +381,39 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               >
                 <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
               </Button>
-              
-              {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
-              {showTriviaButton && (
-                <button
-                  className="teal-gradient-button flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm animate-in fade-in duration-500"
-                  onClick={() => {
-                    setManuallyOpenedTrivia(true);
-                    onTriviaReady();
-                  }}
-                  data-testid="button-deep-dive-trivia"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Deep-Dive Trivia
-                </button>
-              )}
             </div>
+            
+            {/* Deep-Dive Trivia section - appears at 3:00 remaining */}
+            {showTriviaButton && (
+              <div className="mb-6 animate-in fade-in duration-500">
+                <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="teal-icon-glow flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-display text-sm font-bold text-gradient-teal">
+                        Test Your Knowledge
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Challenge yourself with AI-powered trivia
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    className="teal-gradient-button w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-md font-semibold text-sm mt-3"
+                    onClick={() => {
+                      setManuallyOpenedTrivia(true);
+                      onTriviaReady();
+                    }}
+                    data-testid="button-deep-dive-trivia"
+                  >
+                    <Trophy className="h-4 w-4" />
+                    Start Deep-Dive Trivia
+                  </button>
+                </div>
+              </div>
+            )}
             
             {movie.tagline && (
               <div className="mb-6">
