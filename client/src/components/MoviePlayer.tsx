@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
@@ -384,22 +384,17 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               
               {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
               {showTriviaButton && (
-                <Button
-                  variant="default"
-                  className="flex items-center gap-2 animate-in fade-in duration-500"
-                  style={{
-                    background: 'linear-gradient(135deg, #1ba9af 0%, #158a8f 100%)',
-                    border: '1px solid rgba(27, 169, 175, 0.3)'
-                  }}
+                <button
+                  className="teal-gradient-button flex items-center gap-2 px-4 py-2 rounded-md font-semibold text-sm animate-in fade-in duration-500"
                   onClick={() => {
                     setManuallyOpenedTrivia(true);
                     onTriviaReady();
                   }}
                   data-testid="button-deep-dive-trivia"
                 >
-                  <Trophy className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4" />
                   Deep-Dive Trivia
-                </Button>
+                </button>
               )}
             </div>
             

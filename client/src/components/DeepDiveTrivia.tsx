@@ -229,7 +229,7 @@ export function DeepDiveTrivia({
               data-testid="button-no-thanks"
             >
               <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-                No thanks
+                Back to Browse
               </span>
             </button>
           </div>
