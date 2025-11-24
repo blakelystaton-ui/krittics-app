@@ -32,6 +32,7 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Crew Matching**: Finds users with shared interests using PostgreSQL array overlap queries.
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback.
   - **Trivia Question Pool System**: Prevents duplicate questions for users across sessions using SHA-256 hash deduplication and user history tracking in PostgreSQL.
+  - **Merged Countdown Screen**: End-of-movie trivia screen displays countdown timer, trivia description, and three action buttons simultaneously (Start Trivia Now, Continue watching, Back to Browse). Countdown auto-triggers "Continue watching" at 0 seconds. No separate intermediate countdown screen.
 - **Movie Catalog**: 4 open-source Blender Foundation movies with comprehensive metadata, hosted via Google Cloud Storage.
 - **Netflix/Hulu/Tubi-Style Linear Video Ads**: Seamless in-player video advertising powered by Google IMA SDK with VMAP-based ad scheduling.
 - **Crew Command Center (Private Rooms)**: Real-time room creation/joining, live chat, and host controls, powered by Firebase Firestore.

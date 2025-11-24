@@ -1,0 +1,25 @@
+You are modifying the Kritiks mobile web app (React + TypeScript code base).
+
+Current unwanted behavior:
+- After a movie ends, the user is shown the "End-of-Movie Deep Dive Trivia" screen.
+- This screen has two buttons: "Start Trivia Now" and "Back to Browse".
+- When the user taps "Back to Browse" on this screen, instead of immediately returning to the main Browse tab/screen, it incorrectly navigates to a separate intermediate "Up next in 60 seconds..." countdown screen (second screenshot).
+- The "Up next in 60 seconds..." screen also has its own "Back to Browse" button that finally works correctly.
+
+Desired behavior:
+1. Merge the countdown into the "End-of-Movie Deep Dive Trivia" screen. There should no longer be a separate "Up next in 60 seconds..." page at all.
+2. The "End-of-Movie Deep Dive Trivia" screen must now display:
+   - The existing trivia headline and text
+   - A live countdown timer that says "Up next in XX seconds..." (decrementing every second, same style as the current separate screen)
+   - THREE buttons at the bottom (all visible at the same time):
+     - "Start Trivia Now" (primary, glowing style, same as current)
+     - "Continue watching" → this immediately starts playing a new random movie (same behavior as the current "Continue watching" button on the intermediate screen)
+     - "Back to Browse" → this immediately navigates the user back to the main Browse tab/screen (exactly like the working one on the current intermediate screen)
+3. When the user taps "Back to Browse" on this new combined screen, it must directly go to Browse — NO intermediate countdown page.
+4. If the countdown reaches 0 and the user has not pressed any button, automatically trigger "Continue watching" (start the next random movie).
+5. Layout: the countdown text should appear centered below the trivia description and above the three buttons (similar visual placement to the current separate screen).
+6. Keep the existing "Deep Dive Trivia Ready!" top banner if it exists.
+
+Implement this change in the relevant component (likely EndOfMovieTriviaScreen, PostMovieScreen, or similar) and remove or redirect the old separate "UpNextCountdown" component/page so it is never shown again.
+
+Make sure all navigation uses the existing navigation methods (react-navigation or whatever the project uses) and that "Back to Browse" correctly resets the stack or switches to the Browse tab.

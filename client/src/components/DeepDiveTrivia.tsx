@@ -32,42 +32,26 @@ export function DeepDiveTrivia({
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished" | "upnext">("initial");
+  const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished">("initial");
   const [showAd, setShowAd] = useState(false);
   const [upNextCountdown, setUpNextCountdown] = useState(60);
 
   const currentQuestion = questions?.[currentQuestionIndex];
 
-  // 5-minute idle timeout on initial screen
+  // 60-second countdown on initial screen - auto-plays random movie when reaches 0
   useEffect(() => {
     if (gameStatus === "initial" && !isGenerating && !error) {
-      console.log("[Trivia] Starting 5-minute idle timeout");
-      const timeout = setTimeout(() => {
-        console.log("[Trivia] Idle 5min after auto-trigger → autoplaying random movie");
-        // Always reset state before navigation
-        if (onClose) onClose();
-        
-        if (onPlayRandomMovie) {
-          onPlayRandomMovie();
-        } else {
-          // Fallback to browse page
-          setLocation("/");
-        }
-      }, 300000); // 5 minutes = 300,000ms
-
-      return () => clearTimeout(timeout);
-    }
-  }, [gameStatus, isGenerating, error, onPlayRandomMovie, onClose, setLocation]);
-
-  // 60-second countdown for "Up Next" screen
-  useEffect(() => {
-    if (gameStatus === "upnext") {
+      // Reset countdown to 60 whenever we enter the initial state
+      setUpNextCountdown(60);
+      console.log("[Trivia] Starting 60-second countdown on initial screen");
+      
       const interval = setInterval(() => {
         setUpNextCountdown((prev) => {
           if (prev <= 1) {
             // Clear interval before navigation
             clearInterval(interval);
             
+            console.log("[Trivia] Countdown reached 0 → autoplaying random movie");
             // Always reset state before navigation
             if (onClose) onClose();
             
@@ -91,7 +75,7 @@ export function DeepDiveTrivia({
 
       return () => clearInterval(interval);
     }
-  }, [gameStatus, onPlayRandomMovie, onClose, setLocation]);
+  }, [gameStatus, isGenerating, error, onPlayRandomMovie, onClose, setLocation]);
 
   const handleAnswer = (option: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists
@@ -190,14 +174,7 @@ export function DeepDiveTrivia({
     );
   }
 
-  // Handler for "No thanks" - show Up Next countdown
-  const handleNoThanks = () => {
-    console.log("[Trivia] User declined → showing normal Up Next screen");
-    setGameStatus("upnext");
-    setUpNextCountdown(60);
-  };
-
-  // Initial state
+  // Initial state - merged with countdown
   if (gameStatus === "initial") {
     return (
       <Card className="mx-auto max-w-4xl overflow-hidden">
@@ -212,7 +189,19 @@ export function DeepDiveTrivia({
             Test your recall on <span className="font-semibold text-foreground">{movieTitle}</span>'s plot, quotes, and
             behind-the-scenes facts.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
+          
+          {/* Countdown timer */}
+          <div className="mt-8 mb-8">
+            <p className="text-2xl font-display font-bold text-foreground mb-2" data-testid="text-countdown">
+              Up next in {upNextCountdown} seconds...
+            </p>
+            <p className="text-base text-muted-foreground">
+              We'll start playing a random movie for you
+            </p>
+          </div>
+
+          {/* Three buttons: Start Trivia, Continue watching, Back to Browse */}
+          <div className="flex flex-wrap justify-center gap-4">
             <button
               onClick={handleStart}
               className="gradient-border-button"
@@ -223,35 +212,6 @@ export function DeepDiveTrivia({
                 Start Trivia Now
               </span>
             </button>
-            <button
-              onClick={handleNoThanks}
-              className="gradient-border-button"
-              data-testid="button-no-thanks"
-            >
-              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-                Back to Browse
-              </span>
-            </button>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
-  // Up Next state - countdown to next movie
-  if (gameStatus === "upnext") {
-    return (
-      <Card className="mx-auto max-w-4xl overflow-hidden">
-        <div className="teal-gradient-bg p-12 text-center">
-          <h3 className="font-display text-3xl font-extrabold text-foreground mb-8">
-            Up next in {upNextCountdown} seconds...
-          </h3>
-          
-          <p className="text-lg text-muted-foreground mb-8">
-            We'll start playing a random movie for you
-          </p>
-
-          <div className="flex justify-center gap-4">
             <button
               onClick={() => {
                 // Always reset state before navigation
@@ -273,6 +233,7 @@ export function DeepDiveTrivia({
             </button>
             <button
               onClick={() => {
+                console.log("[Trivia] User clicked Back to Browse → navigating to Browse");
                 if (onClose) onClose();
                 setLocation("/");
               }}
