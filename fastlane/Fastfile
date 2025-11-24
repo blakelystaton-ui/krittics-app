@@ -1,0 +1,24 @@
+platform :ios do
+  desc "Force manual signing — Appflow-proof"
+  lane :force_signing do
+    update_project_team(
+      path: "ios/App/App.xcodeproj",
+      teamid: "9SA2W557K5"
+    )
+
+    update_project_provisioning(
+      xcodeproj: "ios/App/App.xcodeproj",
+      profile: ENV["SIGH_PROFILE_PATH"],
+      target_filter: "App",
+      build_configuration: "Release"
+    )
+
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: "ios/App/App.xcodeproj",
+      team_id: "9SA2W557K5",
+      code_sign_identity: "Apple Distribution: Staton Blakely (9SA2W557K5)",
+      profile_name: "Krittics App Store Profile"
+    )
+  end
+end
