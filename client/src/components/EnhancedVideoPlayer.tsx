@@ -200,7 +200,9 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
   const [isFloating, setIsFloating] = useState(false);
   const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
+  const [showUnmutePrompt, setShowUnmutePrompt] = useState(false);
   const lastSavedProgressRef = useRef<number>(0); // Track last saved progress to avoid redundant saves
+  const unmuteTimeoutRef = useRef<number | null>(null); // Track unmute prompt timeout
   const { toast } = useToast();
   
   // Use refs to store callbacks to prevent player reinitialization when props change
@@ -304,6 +306,22 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
           hasStartedPlaying = true;
           console.log('✅ Video is now playing');
           setAutoplayBlocked(false);
+          
+          // Show unmute prompt if video is muted (after successful autoplay)
+          if (autoplay && player.muted()) {
+            setShowUnmutePrompt(true);
+            
+            // Clear any existing timeout before setting new one
+            if (unmuteTimeoutRef.current) {
+              clearTimeout(unmuteTimeoutRef.current);
+            }
+            
+            // Auto-hide prompt after 5 seconds
+            unmuteTimeoutRef.current = window.setTimeout(() => {
+              setShowUnmutePrompt(false);
+              unmuteTimeoutRef.current = null;
+            }, 5000);
+          }
         };
         
         const handleSuspend = () => {
@@ -377,6 +395,12 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
 
     // Cleanup
     return () => {
+      // Clear any pending unmute timeout
+      if (unmuteTimeoutRef.current) {
+        clearTimeout(unmuteTimeoutRef.current);
+        unmuteTimeoutRef.current = null;
+      }
+      
       if (player && !player.isDisposed()) {
         player.dispose();
       }
@@ -426,19 +450,49 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
     }
   };
 
-  // Handler for manual play button (when autoplay is blocked)
+  // Handler for manual play button (when autoplay is blocked or error retry)
   const handleManualPlay = async () => {
     if (!playerRef.current) return;
     
+    const player = playerRef.current;
+    
     try {
-      // Unmute for manual playback (user gesture allows audio)
-      playerRef.current.muted(false);
+      // If there's a source error, reload source before retrying
+      if (playbackError) {
+        console.log('🔄 Reloading source due to previous error');
+        player.src({ src, type: 'video/mp4' });
+        setPlaybackError(null); // Clear error state before retry
+      }
       
-      await playerRef.current.play();
+      // Start playback FIRST (muted if was autoplay, otherwise unmuted)
+      await player.play();
       console.log('✅ Manual play started');
+      
+      // Only unmute AFTER successful playback start (Safari/iOS may reject otherwise)
+      if (player.muted()) {
+        player.muted(false);
+        
+        // Verify audio actually unmuted (Safari can silently fail)
+        setTimeout(() => {
+          if (player.muted()) {
+            console.warn('⚠️ Browser blocked audio unmute');
+            toast({
+              title: "Audio Blocked",
+              description: "Your browser blocked audio. Use the player controls to unmute manually.",
+              duration: 4000,
+            });
+          }
+        }, 100);
+      }
+      
       // Overlay will be hidden by 'playing' event listener
     } catch (error) {
       console.error('Failed to play video:', error);
+      
+      // Ensure video is re-muted if play failed
+      if (player && !player.muted()) {
+        player.muted(true);
+      }
       
       // Show error toast for user feedback
       toast({
@@ -456,8 +510,8 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
     <div className={`enhanced-video-player-wrapper ${className}`} style={{ position: 'relative' }}>
       <div ref={videoRef} data-testid="video-player-enhanced" />
 
-      {/* Autoplay Blocked Fallback Overlay */}
-      {autoplayBlocked && (
+      {/* Autoplay Blocked or Error Overlay - Shows when blocked OR when error occurs */}
+      {(autoplayBlocked || playbackError) && (
         <div
           className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-[100] cursor-pointer"
           onClick={handleManualPlay}
@@ -487,6 +541,38 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
               </p>
             </>
           )}
+        </div>
+      )}
+
+      {/* Unmute Prompt Banner - Shows after successful autoplay */}
+      {showUnmutePrompt && (
+        <div
+          className="absolute top-4 left-1/2 -translate-x-1/2 bg-primary/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg shadow-primary/30 cursor-pointer z-[100] transition-all hover:scale-105"
+          onClick={() => {
+            if (playerRef.current) {
+              playerRef.current.muted(false);
+              
+              // Verify audio actually unmuted (Safari can silently fail)
+              setTimeout(() => {
+                if (playerRef.current && playerRef.current.muted()) {
+                  console.warn('⚠️ Browser blocked audio unmute after user gesture');
+                  toast({
+                    title: "Audio Still Blocked",
+                    description: "Your browser continues to block audio. Try using the player controls to unmute.",
+                    duration: 4000,
+                  });
+                } else {
+                  setShowUnmutePrompt(false);
+                }
+              }, 100);
+            }
+          }}
+          data-testid="button-unmute-prompt"
+        >
+          <p className="text-primary-foreground text-sm font-semibold flex items-center gap-2">
+            <Play className="h-4 w-4" fill="currentColor" />
+            Tap to unmute
+          </p>
         </div>
       )}
 
