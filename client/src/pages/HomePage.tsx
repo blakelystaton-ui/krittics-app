@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Movie, GeneratedTriviaQuestion } from "@shared/schema";
 
 export default function HomePage() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [showTrivia, setShowTrivia] = useState(false);
   const [triviaQuestions, setTriviaQuestions] = useState<GeneratedTriviaQuestion[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -181,13 +181,13 @@ export default function HomePage() {
     setIsGenerating(false);
   };
 
-  // Play random movie directly (all random movie scenarios)
+  // Play random movie directly in full-screen player (all random movie scenarios)
   const handlePlayRandomMovie = () => {
     // Reset trivia state before navigation
     handleCloseTrivia();
     
     if (!movies || movies.length === 0) {
-      window.location.href = "/";
+      setLocation("/");
       return;
     }
     
@@ -196,7 +196,8 @@ export default function HomePage() {
       ? otherMovies[Math.floor(Math.random() * otherMovies.length)]
       : movies[Math.floor(Math.random() * movies.length)];
     
-    window.location.href = `/?movieId=${randomMovie.id}`;
+    // Navigate to full-screen player route with autoplay using SPA routing
+    setLocation(`/player?movieId=${randomMovie.id}`);
   };
 
   if (moviesLoading) {

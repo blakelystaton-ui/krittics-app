@@ -191,13 +191,12 @@ export function DeepDiveTrivia({
           
           {/* Title - responsive font sizes */}
           <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground">
-            End-of-Movie Deep Dive Trivia
+            Up Next
           </h3>
           
           {/* Description - responsive font sizes */}
           <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-muted-foreground px-2">
-            Test your recall on <span className="font-semibold text-foreground">{movieTitle}</span>'s plot, quotes, and
-            behind-the-scenes facts.
+            Choose what to watch next, or we'll pick a random movie for you
           </p>
           
           {/* Countdown timer - compact on mobile */}
@@ -210,23 +209,13 @@ export function DeepDiveTrivia({
             </p>
           </div>
 
-          {/* Three buttons - stack on mobile, responsive padding and text */}
+          {/* Action buttons - Primary: Play Random (matches countdown), Secondary: Start Trivia */}
           <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
-            <button
-              onClick={handleStart}
-              className="gradient-border-button"
-              data-testid="button-start-game"
-            >
-              <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
-                <Sparkles className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
-                Start Trivia Now
-              </span>
-            </button>
+            {/* Primary: Play Random Movie (same as countdown at 0) */}
             <button
               onClick={() => {
-                // Always reset state before navigation
+                // Same behavior as countdown reaching 0 - play random movie in full-screen
                 if (onClose) onClose();
-                
                 if (onPlayRandomMovie) {
                   onPlayRandomMovie();
                 } else {
@@ -234,13 +223,27 @@ export function DeepDiveTrivia({
                 }
               }}
               className="gradient-border-button"
-              data-testid="button-continue-watching-next"
+              data-testid="button-play-random"
             >
               <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
                 <Film className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
-                Continue watching
+                Play Random Movie
               </span>
             </button>
+            
+            {/* Secondary: Start Trivia Game */}
+            <button
+              onClick={handleStart}
+              className="gradient-border-button"
+              data-testid="button-start-game"
+            >
+              <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
+                <Sparkles className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
+                Start Trivia
+              </span>
+            </button>
+            
+            {/* Tertiary: Back to Browse */}
             <button
               onClick={() => {
                 console.log("[Trivia] User clicked Back to Browse → navigating to Browse");
