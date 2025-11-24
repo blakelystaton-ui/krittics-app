@@ -400,9 +400,9 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
                     }}
                     data-testid="button-deep-dive-trivia"
                   >
-                    <span className="gradient-border-content px-10">
+                    <span className="gradient-border-content px-16">
                       <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                      <span>Start</span>
+                      <span className="text-[15px]">Start</span>
                     </span>
                   </button>
                 </div>
