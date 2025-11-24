@@ -385,7 +385,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
               {showTriviaButton && (
                 <div 
-                  className="flex flex-col items-center gap-1 flex-1 justify-center transition-opacity duration-600 ease-in-out"
+                  className="flex flex-col items-center gap-1 flex-1 transition-opacity duration-600 ease-in-out"
                   style={{ 
                     opacity: showTriviaButton ? 1 : 0,
                     pointerEvents: showTriviaButton ? 'auto' : 'none'
