@@ -4,6 +4,8 @@ import 'video.js/dist/video-js.css';
 import Player from 'video.js/dist/types/player';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
+import { Play, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Type assertion helper for plugin methods
 type PlayerWithPlugins = Player & {
@@ -196,7 +198,10 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const [isFloating, setIsFloating] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
   const lastSavedProgressRef = useRef<number>(0); // Track last saved progress to avoid redundant saves
+  const { toast } = useToast();
   
   // Use refs to store callbacks to prevent player reinitialization when props change
   const onTimeUpdateRef = useRef(onTimeUpdate);
@@ -235,6 +240,12 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
   useEffect(() => {
     onEndedRef.current = onEnded;
   }, [onEnded]);
+  
+  // Reset states when autoplay prop changes
+  useEffect(() => {
+    setAutoplayBlocked(false);
+    setPlaybackError(null);
+  }, [autoplay]);
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -252,7 +263,7 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
       responsive: true,
       fluid: true,
       preload: 'auto',
-      autoplay: autoplay,
+      autoplay: autoplay, // Use Video.js native autoplay with browser policy negotiation
       muted: autoplay, // Mute when autoplaying to comply with browser policies
       poster: poster,
       sources: [{
@@ -268,10 +279,54 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
     player.on('error', () => {
       const error = player.error();
       console.error('❌ Video.js error:', error?.code, error?.message, 'Source:', src);
+      
+      // Set playback error for user-facing feedback
+      if (error?.code === 4) {
+        setPlaybackError('Unable to load video. The source may not be available.');
+      } else {
+        setPlaybackError(`Playback error (code ${error?.code})`);
+      }
+      
+      // Don't hide overlay - let user see the error state
     });
 
     playerRef.current = player;
     const playerWithPlugins = player as PlayerWithPlugins;
+    
+    // Detect autoplay blocks and provide fallback
+    if (autoplay) {
+      player.ready(() => {
+        // Video.js will attempt autoplay internally
+        let hasStartedPlaying = false;
+        
+        const handlePlaying = () => {
+          // Only hide overlay when video is actually playing
+          hasStartedPlaying = true;
+          console.log('✅ Video is now playing');
+          setAutoplayBlocked(false);
+        };
+        
+        const handleSuspend = () => {
+          // If suspended without playing, autoplay likely blocked
+          if (!hasStartedPlaying && player.paused()) {
+            console.warn('⚠️ Autoplay appears to be blocked');
+            setAutoplayBlocked(true);
+          }
+        };
+        
+        // Listen for 'playing' event (not just 'play') to confirm playback started
+        player.on('playing', handlePlaying);
+        player.one('suspend', handleSuspend);
+        
+        // Check after a short delay if autoplay worked
+        setTimeout(() => {
+          if (!hasStartedPlaying && player.paused()) {
+            console.warn('⚠️ Autoplay was blocked by browser');
+            setAutoplayBlocked(true);
+          }
+        }, 500);
+      });
+    }
 
 
     // Initialize floating player plugin
@@ -371,9 +426,69 @@ export const EnhancedVideoPlayer = forwardRef<VideoPlayerHandle, EnhancedVideoPl
     }
   };
 
+  // Handler for manual play button (when autoplay is blocked)
+  const handleManualPlay = async () => {
+    if (!playerRef.current) return;
+    
+    try {
+      // Unmute for manual playback (user gesture allows audio)
+      playerRef.current.muted(false);
+      
+      await playerRef.current.play();
+      console.log('✅ Manual play started');
+      // Overlay will be hidden by 'playing' event listener
+    } catch (error) {
+      console.error('Failed to play video:', error);
+      
+      // Show error toast for user feedback
+      toast({
+        title: "Playback Failed",
+        description: error instanceof Error ? error.message : "Unable to start playback. Click to try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
+      
+      // Keep overlay visible for retry
+    }
+  };
+
   return (
     <div className={`enhanced-video-player-wrapper ${className}`} style={{ position: 'relative' }}>
       <div ref={videoRef} data-testid="video-player-enhanced" />
+
+      {/* Autoplay Blocked Fallback Overlay */}
+      {autoplayBlocked && (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-[100] cursor-pointer"
+          onClick={handleManualPlay}
+          data-testid="overlay-autoplay-blocked"
+        >
+          {playbackError ? (
+            // Show error state
+            <>
+              <div className="w-20 h-20 rounded-full bg-destructive/20 flex items-center justify-center shadow-lg shadow-destructive/30">
+                <AlertCircle className="h-10 w-10 text-destructive" />
+              </div>
+              <p className="mt-4 text-destructive text-base font-semibold max-w-xs text-center px-4">
+                {playbackError}
+              </p>
+              <p className="mt-2 text-muted-foreground text-sm">
+                Click to retry
+              </p>
+            </>
+          ) : (
+            // Show play button
+            <>
+              <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-primary/50">
+                <Play className="h-10 w-10 text-primary-foreground" fill="currentColor" />
+              </div>
+              <p className="mt-4 text-foreground text-base font-semibold">
+                Click to Play
+              </p>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Floating mode toggle button */}
       {!isFloating && (

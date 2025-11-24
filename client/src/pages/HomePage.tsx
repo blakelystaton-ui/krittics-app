@@ -196,8 +196,8 @@ export default function HomePage() {
       ? otherMovies[Math.floor(Math.random() * otherMovies.length)]
       : movies[Math.floor(Math.random() * movies.length)];
     
-    // Navigate to full-screen player route with autoplay using SPA routing
-    setLocation(`/player?movieId=${randomMovie.id}`);
+    // Navigate to full-screen player route with autoplay=true parameter for immediate playback
+    setLocation(`/player?movieId=${randomMovie.id}&autoplay=true`);
   };
 
   if (moviesLoading) {

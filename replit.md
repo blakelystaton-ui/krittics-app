@@ -33,6 +33,12 @@ The application is built with a **React 18** frontend (Vite, Tailwind CSS, shadc
 - **Deep Dive Trivia**: AI-generated trivia with 5 unique questions per game, providing immediate visual feedback.
   - **Trivia Question Pool System**: Prevents duplicate questions for users across sessions using SHA-256 hash deduplication and user history tracking in PostgreSQL.
   - **Merged Countdown Screen**: End-of-movie trivia screen displays countdown timer, trivia description, and three action buttons simultaneously (Start Trivia Now, Continue watching, Back to Browse). Countdown auto-triggers "Continue watching" at 0 seconds. No separate intermediate countdown screen. Fully optimized for mobile devices with responsive padding, typography, and button stacking (vertical on mobile, horizontal on desktop) to fit within iPhone viewports without scrolling.
+- **Autoplay System**: Intelligent video autoplay with browser policy compliance and graceful fallback handling.
+  - **URL Parameter Gating**: Autoplay only triggers when `?autoplay=true` parameter is present in URL, ensuring it only occurs from countdown timer or "Play Random Movie" button.
+  - **Event-Driven Detection**: Uses Video.js 'playing' event to detect successful autoplay or browser blocks, with 500ms timeout fallback.
+  - **Fallback Overlay**: Displays teal gradient "Click to Play" button when autoplay is blocked by browser, automatically dismissing only when playback actually starts.
+  - **Muted Compliance**: Videos autoplay muted to comply with browser autoplay policies; users can manually unmute via player controls or fallback overlay click.
+  - **State Management**: Automatically resets overlay state when autoplay prop changes, preventing stuck overlays during navigation transitions.
 - **Movie Catalog**: 4 open-source Blender Foundation movies with comprehensive metadata, hosted via Google Cloud Storage.
 - **Netflix/Hulu/Tubi-Style Linear Video Ads**: Seamless in-player video advertising powered by Google IMA SDK with VMAP-based ad scheduling.
 - **Crew Command Center (Private Rooms)**: Real-time room creation/joining, live chat, and host controls, powered by Firebase Firestore.

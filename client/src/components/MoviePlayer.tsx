@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize, Trophy, Film, Bookmark, ThumbsUp, ThumbsDown, Check, RotateCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useSearch } from "wouter";
 
 
 interface MoviePlayerProps {
@@ -33,6 +34,13 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
   const playerRef = useRef<VideoPlayerHandle>(null);
+  const searchString = useSearch();
+  
+  // Check if autoplay is requested via URL parameter
+  const shouldAutoplay = useMemo(() => {
+    const params = new URLSearchParams(searchString);
+    return params.get('autoplay') === 'true';
+  }, [searchString]);
 
   // Calculate progress percentage
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -247,7 +255,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               ref={playerRef}
               src={movie.videoUrl}
               movieId={movie.id}
-              autoplay={true}
+              autoplay={shouldAutoplay}
               onTimeUpdate={(currentTime, duration) => {
                 setCurrentTime(currentTime);
                 setDuration(duration);
