@@ -1,0 +1,45 @@
+You are fixing a React/TypeScript web app that runs on Replit. The app is a movie trivia game (similar to “Krittics” or “Krossfire”) that shows an “End-of-Movie Deep Dive Trivia” splash screen with a countdown timer and a “Start Trivia Now” button.
+
+Current problems:
+
+1. Layout doesn’t fit on mobile screens
+   - There is a large trophy/achievement banner at the very top (outside the main game card) that wastes a lot of vertical space.
+   - On iPhone/Android portrait mode, the main card is too tall: the title “End-of-Movie Deep Dive Trivia”, the description text, the countdown “Up next in 18 seconds…”, and the three buttons (“Republish”, “Preview”, “Start Trivia Now”) get cut off or require scrolling.
+   - I need EVERYTHING (all text + all 3 buttons) to be fully visible without scrolling on a standard iPhone 12/13/14/15 screen (height ≈ 812–896 px).
+
+2. Countdown bug
+   - When the 18-second countdown reaches 0, nothing happens. It just stays at 0.
+   - It should automatically start playing a new random movie clip (the same behavior as pressing “Start Trivia Now”).
+
+Please rewrite the relevant component(s) so that:
+
+- The trophy/achievement bar at the top is completely removed or hidden on this specific screen (it’s unnecessary here).
+- The entire content uses a responsive, compact layout that fits entirely within the viewport on mobile.
+- Maximum use of flexbox, reduced font sizes on mobile, reduced padding/margins, and smaller button heights.
+- The three buttons at the top (“Republish”, “Preview”, and the three-dot menu) must stay visible.
+- The main “Start Trivia Now” button stays prominent at the bottom.
+- The countdown actually triggers the start of a new random movie when it hits 0 (call the same function that “Start Trivia Now” calls, usually something like startNewGame(), playRandomMovie(), or handleStartTrivia()).
+
+Current typical structure (simplified):
+
+<div className="app">
+  <AchievementBanner />   ←←← REMOVE THIS ON THIS SCREEN
+  <HeaderWithButtons />   ← contains Republish, Preview, ⋮
+  <div className="main-card">
+    <h1>End-of-Movie Deep Dive Trivia</h1>
+    <p>Test your recall on Tears of Steel’s plot, quotes...</p>
+    <p className="countdown">Up next in {seconds} seconds…</p>
+    <button className="start-button">Start Trivia Now</button>
+  </div>
+</div>
+
+Please provide the complete fixed component code (or the minimal set of changes) that:
+- Conditionally hides or removes the trophy/AchievementBanner on this specific route/screen
+- Uses proper responsive CSS (preferably Tailwind or CSS modules) to shrink everything so it fits on mobile
+- Decreases font sizes on small screens (text-base → text-sm, text-5xl → text-3xl or text-4xl, etc.)
+- Reduces vertical padding and margins
+- Makes the countdown automatically trigger the trivia start when it reaches 0 (use an useEffect that watches the seconds variable)
+
+Include any necessary imports and make sure the countdown logic calls the exact same function as the manual button (e.g., startTrivia(), nextMovie(), etc. – keep the original function name from the project).
+
+Make the layout beautiful but extremely compact for mobile. Target: everything visible on an iPhone SE (667px height) and taller devices without any scrolling.

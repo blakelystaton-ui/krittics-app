@@ -52,21 +52,26 @@ export function DeepDiveTrivia({
             clearInterval(interval);
             
             console.log("[Trivia] Countdown reached 0 → autoplaying random movie");
-            // Always reset state before navigation
-            if (onClose) onClose();
             
-            // Auto-play random movie when countdown reaches 0
-            try {
-              if (onPlayRandomMovie) {
-                onPlayRandomMovie();
-              } else {
+            // Defer navigation to next tick to avoid React warning
+            setTimeout(() => {
+              // Always reset state before navigation
+              if (onClose) onClose();
+              
+              // Auto-play random movie when countdown reaches 0
+              try {
+                if (onPlayRandomMovie) {
+                  onPlayRandomMovie();
+                } else {
+                  setLocation("/");
+                }
+              } catch (error) {
+                console.error("[Trivia] Error playing random movie:", error);
+                // Still navigate away on error
                 setLocation("/");
               }
-            } catch (error) {
-              console.error("[Trivia] Error playing random movie:", error);
-              // Still navigate away on error
-              setLocation("/");
-            }
+            }, 0);
+            
             return 0;
           }
           return prev - 1;
@@ -178,37 +183,42 @@ export function DeepDiveTrivia({
   if (gameStatus === "initial") {
     return (
       <Card className="mx-auto max-w-4xl overflow-hidden">
-        <div className="teal-gradient-bg p-12 text-center">
-          <div className="teal-icon-subtle mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-            <Trophy className="h-10 w-10" />
+        <div className="teal-gradient-bg p-4 sm:p-8 md:p-12 text-center">
+          {/* Trophy icon - smaller on mobile */}
+          <div className="teal-icon-subtle mx-auto mb-3 sm:mb-4 md:mb-6 flex h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 items-center justify-center rounded-full">
+            <Trophy className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
           </div>
-          <h3 className="font-display text-3xl font-extrabold text-foreground">
+          
+          {/* Title - responsive font sizes */}
+          <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground">
             End-of-Movie Deep Dive Trivia
           </h3>
-          <p className="mt-4 text-lg text-muted-foreground">
+          
+          {/* Description - responsive font sizes */}
+          <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-muted-foreground px-2">
             Test your recall on <span className="font-semibold text-foreground">{movieTitle}</span>'s plot, quotes, and
             behind-the-scenes facts.
           </p>
           
-          {/* Countdown timer */}
-          <div className="mt-8 mb-8">
-            <p className="text-2xl font-display font-bold text-foreground mb-2" data-testid="text-countdown">
+          {/* Countdown timer - compact on mobile */}
+          <div className="mt-4 sm:mt-6 md:mt-8 mb-4 sm:mb-6 md:mb-8">
+            <p className="text-lg sm:text-xl md:text-2xl font-display font-bold text-foreground mb-1 sm:mb-2" data-testid="text-countdown">
               Up next in {upNextCountdown} seconds...
             </p>
-            <p className="text-base text-muted-foreground">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
               We'll start playing a random movie for you
             </p>
           </div>
 
-          {/* Three buttons: Start Trivia, Continue watching, Back to Browse */}
-          <div className="flex flex-wrap justify-center gap-4">
+          {/* Three buttons - stack on mobile, responsive padding and text */}
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 sm:gap-3 md:gap-4">
             <button
               onClick={handleStart}
               className="gradient-border-button"
               data-testid="button-start-game"
             >
-              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-                <Sparkles className="mr-2 h-5 w-5 inline-block" />
+              <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
+                <Sparkles className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
                 Start Trivia Now
               </span>
             </button>
@@ -226,8 +236,8 @@ export function DeepDiveTrivia({
               className="gradient-border-button"
               data-testid="button-continue-watching-next"
             >
-              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-                <Film className="mr-2 h-5 w-5 inline-block" />
+              <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
+                <Film className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
                 Continue watching
               </span>
             </button>
@@ -240,8 +250,8 @@ export function DeepDiveTrivia({
               className="gradient-border-button"
               data-testid="button-back-to-browse"
             >
-              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-                <ArrowLeft className="mr-2 h-5 w-5 inline-block" />
+              <span className="gradient-border-content px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-sm sm:text-base md:text-lg font-bold">
+                <ArrowLeft className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 inline-block" />
                 Back to Browse
               </span>
             </button>
@@ -278,38 +288,43 @@ export function DeepDiveTrivia({
 
     return (
       <Card className="mx-auto max-w-4xl overflow-hidden">
-        <div className="teal-gradient-bg p-12 text-center">
-          <div className="teal-icon-subtle mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
-            <Trophy className="h-12 w-12" />
+        <div className="teal-gradient-bg p-4 sm:p-8 md:p-12 text-center">
+          {/* Trophy icon - smaller on mobile */}
+          <div className="teal-icon-subtle mx-auto mb-3 sm:mb-4 md:mb-6 flex h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 items-center justify-center rounded-full">
+            <Trophy className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12" />
           </div>
-          <h3 className="font-display text-4xl font-extrabold" style={{ color: tierColor }}>{tier}</h3>
-          <p className="mt-2 text-lg text-muted-foreground">{tierMessage}</p>
+          
+          {/* Tier title - responsive */}
+          <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold" style={{ color: tierColor }}>{tier}</h3>
+          <p className="mt-2 text-sm sm:text-base md:text-lg text-muted-foreground">{tierMessage}</p>
 
-          <div className="mx-auto mt-8 max-w-md">
-            <div className="flex items-center justify-center gap-12">
+          {/* Score display - responsive */}
+          <div className="mx-auto mt-4 sm:mt-6 md:mt-8 max-w-md">
+            <div className="flex items-center justify-center gap-6 sm:gap-8 md:gap-12">
               <div>
-                <div className="font-display text-5xl font-extrabold" style={{ color: 'var(--teal)' }} data-testid="text-final-score">
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold" style={{ color: 'var(--teal)' }} data-testid="text-final-score">
                   {score}/{questions?.length || 0}
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Correct Answers</div>
+                <div className="mt-1 text-xs sm:text-sm text-muted-foreground">Correct Answers</div>
               </div>
               <div>
-                <div className="font-display text-5xl font-extrabold text-foreground" data-testid="text-percentage">
+                <div className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground" data-testid="text-percentage">
                   {percentage}%
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">Accuracy</div>
+                <div className="mt-1 text-xs sm:text-sm text-muted-foreground">Accuracy</div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex justify-center gap-4">
+          {/* Buttons - responsive */}
+          <div className="mt-4 sm:mt-6 md:mt-8 flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4">
             <button
               onClick={handleRestart}
               className="gradient-border-button"
               data-testid="button-play-again"
             >
-              <span className="gradient-border-content px-5 py-2 text-sm font-medium">
-                <RotateCcw className="mr-2 h-4 w-4 inline-block" />
+              <span className="gradient-border-content px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium">
+                <RotateCcw className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 inline-block" />
                 Play Again
               </span>
             </button>
@@ -318,8 +333,8 @@ export function DeepDiveTrivia({
               className="gradient-border-button"
               data-testid="button-back-to-browse"
             >
-              <span className="gradient-border-content px-5 py-2 text-sm font-medium">
-                <Film className="mr-2 h-4 w-4 inline-block" />
+              <span className="gradient-border-content px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-medium">
+                <Film className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 inline-block" />
                 Browse
               </span>
             </button>
