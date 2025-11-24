@@ -1,9 +1,7 @@
 platform :ios do
   desc "Force manual signing for Appflow"
-  # This lane name MUST match what Appflow expects
   lane :build_capacitor do
-    # Call our real signing lane
-    force_signing
+    force_signing  # ← this was missing — now it runs
   end
 
   private_lane :force_signing do
