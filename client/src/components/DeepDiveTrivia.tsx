@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, X, Trophy, RotateCcw, Sparkles, Film } from "lucide-react";
+import { Check, X, Trophy, RotateCcw, Sparkles, Film, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,7 @@ interface DeepDiveTriviaProps {
   onGenerate: () => void;
   onRestart: () => void;
   onPlayRandomMovie?: () => void;
+  onClose?: () => void;
 }
 
 export function DeepDiveTrivia({
@@ -24,14 +25,16 @@ export function DeepDiveTrivia({
   onGenerate,
   onRestart,
   onPlayRandomMovie,
+  onClose,
 }: DeepDiveTriviaProps) {
   const [, setLocation] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished">("initial");
+  const [gameStatus, setGameStatus] = useState<"initial" | "playing" | "finished" | "upnext">("initial");
   const [showAd, setShowAd] = useState(false);
+  const [upNextCountdown, setUpNextCountdown] = useState(60);
 
   const currentQuestion = questions?.[currentQuestionIndex];
 
@@ -40,7 +43,7 @@ export function DeepDiveTrivia({
     if (gameStatus === "initial" && !isGenerating && !error) {
       console.log("[Trivia] Starting 5-minute idle timeout");
       const timeout = setTimeout(() => {
-        console.log("[Trivia] User idle for 5 minutes → autoplaying random movie");
+        console.log("[Trivia] Idle 5min after auto-trigger → autoplaying random movie");
         if (onPlayRandomMovie) {
           onPlayRandomMovie();
         } else {
@@ -52,6 +55,39 @@ export function DeepDiveTrivia({
       return () => clearTimeout(timeout);
     }
   }, [gameStatus, isGenerating, error, onPlayRandomMovie, setLocation]);
+
+  // 60-second countdown for "Up Next" screen
+  useEffect(() => {
+    if (gameStatus === "upnext") {
+      const interval = setInterval(() => {
+        setUpNextCountdown((prev) => {
+          if (prev <= 1) {
+            // Clear interval before navigation
+            clearInterval(interval);
+            
+            // Auto-play random movie when countdown reaches 0
+            try {
+              if (onPlayRandomMovie) {
+                onPlayRandomMovie();
+              } else {
+                if (onClose) onClose();
+                setLocation("/");
+              }
+            } catch (error) {
+              console.error("[Trivia] Error playing random movie:", error);
+              // Still navigate away on error
+              if (onClose) onClose();
+              setLocation("/");
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [gameStatus, onPlayRandomMovie, onClose, setLocation]);
 
   const handleAnswer = (option: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists
@@ -150,15 +186,11 @@ export function DeepDiveTrivia({
     );
   }
 
-  // Handler for "No thanks" - play random movie
+  // Handler for "No thanks" - show Up Next countdown
   const handleNoThanks = () => {
-    console.log("[Trivia] User clicked 'No thanks' → playing random movie");
-    if (onPlayRandomMovie) {
-      onPlayRandomMovie();
-    } else {
-      // Fallback to browse page
-      setLocation("/");
-    }
+    console.log("[Trivia] User declined → showing normal Up Next screen");
+    setGameStatus("upnext");
+    setUpNextCountdown(60);
   };
 
   // Initial state
@@ -193,8 +225,57 @@ export function DeepDiveTrivia({
               data-testid="button-no-thanks"
             >
               <span className="gradient-border-content px-8 py-3 text-lg font-bold">
+                No thanks
+              </span>
+            </button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Up Next state - countdown to next movie
+  if (gameStatus === "upnext") {
+    return (
+      <Card className="mx-auto max-w-4xl overflow-hidden">
+        <div className="teal-gradient-bg p-12 text-center">
+          <h3 className="font-display text-3xl font-extrabold text-foreground mb-8">
+            Up next in {upNextCountdown} seconds...
+          </h3>
+          
+          <p className="text-lg text-muted-foreground mb-8">
+            We'll start playing a random movie for you
+          </p>
+
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => {
+                if (onPlayRandomMovie) {
+                  onPlayRandomMovie();
+                } else {
+                  if (onClose) onClose();
+                  setLocation("/");
+                }
+              }}
+              className="gradient-border-button"
+              data-testid="button-continue-watching-next"
+            >
+              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
                 <Film className="mr-2 h-5 w-5 inline-block" />
-                No thanks, play another movie
+                Continue watching
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                if (onClose) onClose();
+                setLocation("/");
+              }}
+              className="gradient-border-button"
+              data-testid="button-back-to-browse"
+            >
+              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
+                <ArrowLeft className="mr-2 h-5 w-5 inline-block" />
+                Back to Browse
               </span>
             </button>
           </div>

@@ -73,20 +73,20 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
       const timeRemaining = duration - currentTime;
       
       if (timeRemaining <= 180) {
-        console.log(`[Trivia] Button revealed at 3:00 remaining (${Math.floor(timeRemaining)}s left)`);
+        console.log(`Trivia button revealed at 3:00 remaining (${Math.floor(timeRemaining)}s left)`);
         setShowTriviaButton(true);
       }
     }
   }, [currentTime, duration, showTriviaButton]);
 
-  // AUTO-TRIGGER: Show full-screen trivia at 2:00 (120 seconds) remaining
+  // AUTO-TRIGGER: Show full-screen trivia at 0:30 (30 seconds) remaining
   // Only trigger if user hasn't manually opened trivia
   useEffect(() => {
     if (duration > 0 && currentTime > 0 && !triviaAutoTriggered && !manuallyOpenedTrivia) {
       const timeRemaining = duration - currentTime;
       
-      if (timeRemaining <= 120) {
-        console.log(`[Auto-Trigger] Full-screen trivia at 2:00 (${Math.floor(timeRemaining)}s left)`);
+      if (timeRemaining <= 30) {
+        console.log(`[Auto-Trigger] Auto-triggered full-screen trivia at 00:30 (${Math.floor(timeRemaining)}s left)`);
         setTriviaAutoTriggered(true);
         
         // Auto-trigger the full-screen trivia overlay

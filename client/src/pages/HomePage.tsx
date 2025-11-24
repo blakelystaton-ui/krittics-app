@@ -173,20 +173,29 @@ export default function HomePage() {
     }
   };
 
+  // Close trivia overlay and reset all state
+  const handleCloseTrivia = () => {
+    setShowTrivia(false);
+    setTriviaQuestions([]);
+    setError(null);
+    setIsGenerating(false);
+  };
+
+  // Play random movie directly (all random movie scenarios)
   const handlePlayRandomMovie = () => {
+    // Reset trivia state before navigation
+    handleCloseTrivia();
+    
     if (!movies || movies.length === 0) {
-      // Fallback to browse page
       window.location.href = "/";
       return;
     }
-
-    // Get a random movie that's not the current one
+    
     const otherMovies = movies.filter(m => m.id !== selectedMovie?.id);
     const randomMovie = otherMovies.length > 0 
       ? otherMovies[Math.floor(Math.random() * otherMovies.length)]
       : movies[Math.floor(Math.random() * movies.length)];
-
-    // Navigate to the random movie
+    
     window.location.href = `/?movieId=${randomMovie.id}`;
   };
 
@@ -226,6 +235,7 @@ export default function HomePage() {
               onGenerate={handleGenerateTrivia}
               onRestart={handleRestartTrivia}
               onPlayRandomMovie={handlePlayRandomMovie}
+              onClose={handleCloseTrivia}
             />
           </div>
         )}
