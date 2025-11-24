@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
-    "ionic:capacitor:sync:after": "python3 fix_bundle_id.py"
+    "capacitor:sync:after": "python3 fix_bundle_id.py"
   },
   "dependencies": {
     "@angular/fire": "^20.0.1",
