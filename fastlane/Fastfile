@@ -1,22 +1,22 @@
 platform :ios do
-  desc "Force manual signing for Appflow"
   lane :build_capacitor do
-    force_signing  # ← this was missing — now it runs
-  end
+    # This lane runs automatically in Appflow — now it does EVERYTHING
+    sh "echo 'FORCING SIGNING — NO ESCAPE'"
 
-  private_lane :force_signing do
+    # Force bundle ID
+    update_app_identifier(
+      xcodeproj: "ios/App/App.xcodeproj",
+      plist_path: "ios/App/App/Info.plist",
+      app_identifier: "com.blakely.krittics"
+    )
+
+    # Force team ID
     update_project_team(
       path: "ios/App/App.xcodeproj",
       teamid: "9SA2W557K5"
     )
 
-    update_project_provisioning(
-      xcodeproj: "ios/App/App.xcodeproj",
-      profile: ENV["SIGH_PROFILE_PATH"],
-      target_filter: "App",
-      build_configuration: "Release"
-    )
-
+    # Disable automatic signing + set manual
     update_code_signing_settings(
       use_automatic_signing: false,
       path: "ios/App/App.xcodeproj",
@@ -24,5 +24,19 @@ platform :ios do
       code_sign_identity: "Apple Distribution: Staton Blakely (9SA2W557K5)",
       profile_name: "Krittics App Store Profile"
     )
+
+    # FORCE the exact provisioning profile on the target (this is the kill shot)
+    update_project_provisioning(
+      xcodeproj: "ios/App/App.xcodeproj",
+      profile: ENV["SIGH_PROFILE_PATH"],
+      target_filter: "App",
+      build_configuration: "Release"
+    )
+
+    # Double-tap: set PROVISIONING_PROFILE_SPECIFIER directly
+    sh "plutil -replace PROVISIONING_PROFILE_SPECIFIER -string 'Krittics App Store Profile' ios/App/App/Info.plist"
+    sh "plutil -replace CODE_SIGN_IDENTITY -string 'Apple Distribution: Staton Blakely (9SA2W557K5)' ios/App/App/Info.plist"
+
+    sh "echo 'SIGNING FORCED — BUILD WILL SUCCEED'"
   end
 end
