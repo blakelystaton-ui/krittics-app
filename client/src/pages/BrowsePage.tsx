@@ -68,79 +68,111 @@ interface MovieCardProps {
 }
 
 function MovieCard({ movie, onClick, onAddToQueue, inQueue, showProgress, progress = 0 }: MovieCardProps) {
-  const dominantColor = getMovieDominantColor(movie.id);
+  const [, setLocation] = useLocation();
   
+  const handlePlay = () => {
+    setLocation(`/player?movieId=${movie.id}&autoplay=true`);
+  };
+
+  const handleCrew = () => {
+    setLocation(`/crew`);
+  };
+
   return (
     <div 
-      className="group relative flex-shrink-0 w-[280px] cursor-pointer transition-all duration-300 hover:scale-105 hover:z-10"
-      onClick={onClick}
+      className="group relative flex-shrink-0 w-[240px] cursor-pointer"
       data-testid={`movie-card-${movie.id}`}
     >
-      <div className="relative aspect-video overflow-hidden rounded-md bg-muted">
+      {/* Poster with 2:3 aspect ratio */}
+      <div className="aspect-[2/3] relative bg-black rounded-xl overflow-hidden">
         {movie.posterUrl ? (
           <img 
             src={movie.posterUrl} 
             alt={movie.title}
-            className="h-full w-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
             <Play className="h-16 w-16 text-primary opacity-40" />
           </div>
         )}
-        
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
-          <Button 
-            size="icon" 
-            variant="default" 
-            className="rounded-full" 
-            data-testid="button-play-quick"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-            }}
+
+        {/* Centered Teal Play Button (appears on hover - desktop only) */}
+        <div
+          onClick={handlePlay}
+          className="hidden md:flex absolute inset-0 items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <div className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl transition-all scale-100 hover:scale-110"
+            style={{ backgroundColor: 'rgba(0, 245, 255, 0.8)', backdropFilter: 'blur(4px)' }}
           >
-            <Play className="h-5 w-5" />
-          </Button>
-          <Button 
-            size="icon" 
-            variant={inQueue ? "default" : "secondary"}
-            className="rounded-full" 
-            data-testid={inQueue ? "button-in-queue" : "button-add-list"}
-            onClick={onAddToQueue}
-          >
-            {inQueue ? <Check className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-          </Button>
-          <Button size="icon" variant="secondary" className="rounded-full" data-testid="button-info">
-            <Info className="h-5 w-5" />
-          </Button>
+            <Play className="w-10 h-10 text-white ml-1" fill="white" />
+          </div>
         </div>
-        
+
+        {/* Mobile tap-to-show play button (always visible on mobile) */}
+        <div 
+          onClick={handlePlay}
+          className="md:hidden absolute inset-0 flex items-center justify-center bg-black/30"
+        >
+          <div className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(0, 245, 255, 0.7)' }}
+          >
+            <Play className="w-8 h-8 text-white ml-1" fill="white" />
+          </div>
+        </div>
+
         {/* Progress bar for Continue Watching */}
         {showProgress && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
+          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/50">
             <div 
               className="h-full transition-all" 
               style={{ 
                 width: `${progress}%`,
-                backgroundColor: '#9dc0c4'
+                backgroundColor: '#00F5FF'
               }}
             />
           </div>
         )}
       </div>
-      
-      {/* Title always visible with white color */}
-      <div className="mt-3">
-        <h4 
-          className="font-semibold text-sm truncate line-clamp-1 text-white"
-        >
-          {movie.title}
-        </h4>
-        <div className="flex items-center gap-2 mt-1 flex-wrap">
-          {movie.year && <span className="text-xs text-muted-foreground">{movie.year}</span>}
-          {movie.genre && <Badge variant="outline" className="text-xs">{movie.genre}</Badge>}
+
+      {/* Title row with Crew icon on far right */}
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-1 gap-2">
+          <h3 className="text-white font-bold text-lg truncate">
+            {movie.title}
+          </h3>
+          {/* Custom Crew Icon */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCrew();
+            }}
+            className="text-[#00F5FF] hover:text-[#00D4E6] transition-colors flex-shrink-0"
+            title="Open with Crew"
+            data-testid="button-crew"
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3">
+              <circle cx="8" cy="8" r="3.2"/>
+              <circle cx="16" cy="8" r="3.2"/>
+              <path d="M3 18c0-3.5 4-6 9-6s9 2.5 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-gray-400 text-sm">
+          {movie.year && <span>{movie.year}</span>}
+          {movie.year && movie.genre && <span>•</span>}
+          {movie.genre && (
+            <span className="px-2 py-0.5 bg-gray-800 rounded-full text-xs">
+              {movie.genre}
+            </span>
+          )}
+          {movie.duration && (
+            <>
+              <span>•</span>
+              <span>{movie.duration} min</span>
+            </>
+          )}
         </div>
       </div>
     </div>

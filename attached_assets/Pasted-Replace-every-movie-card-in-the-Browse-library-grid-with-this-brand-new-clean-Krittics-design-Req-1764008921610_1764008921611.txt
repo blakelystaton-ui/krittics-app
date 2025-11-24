@@ -1,0 +1,96 @@
+Replace every movie card in the Browse/library grid with this brand-new, clean Krittics design.
+
+Requirements:
+- Completely remove the three old floating buttons (Play, +, i)
+- Add a large centered transparent play button that appears on hover (desktop) or on first tap (mobile)
+- The play button must be tinted in Krittics signature teal (#00F5FF) with ~50% opacity and a subtle dark backdrop so it’s visible on any poster
+- Add a permanent custom "Crew" icon to the far right of the movie title (same line as title, right-aligned)
+- When the Crew icon is tapped, navigate to the Crew page for that movie (use existing route /crew/:id or whatever it is)
+- Title stays left-aligned, Crew icon stays perfectly right-aligned
+- Keep year + genre tags below as normal
+
+Here is the exact React + Tailwind code to use for the new MovieCard component (replace the old one entirely):
+
+```tsx
+import { Play, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+export default function MovieCard({ movie }: { movie: any }) {
+  const navigate = useNavigate();
+
+  const handlePlay = () => {
+    navigate(`/player/${movie.id}?autoplay=true`);
+  };
+
+  const handleCrew = () => {
+    navigate(`/crew/${movie.id}`);
+  };
+
+  return (
+    <div className="group relative bg-black rounded-xl overflow-hidden cursor-pointer">
+      {/* Poster */}
+      <div className="aspect-[2/3] relative">
+        <img
+          src={movie.poster}
+          alt={movie.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+
+        {/* Centered Teal Play Button (appears on hover/tap) 
+        <div
+          onClick={handlePlay}
+          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100"
+        >
+          <div className="w-20 h-20 rounded-full bg-teal-500/80 backdrop-blur-sm flex items-center justify-center shadow-2xl hover:bg-teal-400 transition-all scale-100 hover:scale-110">
+            <Play className="w-10 h-10 text-white ml-1" fill="white" />
+          </div>
+        </div>
+
+        {/* Mobile tap-to-show play button */}
+        <div className="md:hidden absolute inset-0 flex items-center justify-center bg-black/30">
+          <div className="w-16 h-16 rounded-full bg-teal-500/70 flex items-center justify-center">
+            <Play className="w-8 h-8 text-white ml-1" fill="white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Title row with Crew icon on far right */}
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-white font-bold text-lg truncate pr-2">
+            {movie.title}
+          </h3>
+          {/* Custom Crew Icon */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCrew();
+            }}
+            className="text-teal-400 hover:text-teal-300 transition-colors"
+            title="Open with Crew"
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3">
+              <circle cx="8" cy="8" r="3.2"/>
+              <circle cx="16" cy="8" r="3.2"/>
+              <path d="M3 18c0-3.5 4 6 9 6s9 -2.5 9 -6"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-gray-400 text-sm">
+          <span>{movie.year}</span>
+          <span>•</span>
+          <span className="px-2 py-0.5 bg-gray-800 rounded-full text-xs">
+            {movie.genre || "Science Fiction"}
+          </span>
+          {movie.duration && (
+            <>
+              <span>•</span>
+              <span>{movie.duration} min</span>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
