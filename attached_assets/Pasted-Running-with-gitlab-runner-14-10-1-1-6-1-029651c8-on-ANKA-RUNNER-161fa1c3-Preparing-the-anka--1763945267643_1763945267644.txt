@@ -1,0 +1,365 @@
+Running with gitlab-runner 14.10.1/1.6.1 (029651c8)
+  on ANKA_RUNNER 161fa1c3
+Preparing the "anka" executor
+Opening a connection to the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443
+Starting Anka VM using:
+  - VM Template UUID: 4e82f4f5-40db-4bd4-93d1-81ec458d4325
+  - VM Template Tag Name: v2
+Please be patient...
+You can check the status of starting your Instance on the Anka Cloud Controller: https://controller.green.us-west-2.apple-orchard.net:443/#/instances
+Verifying connectivity to the VM: build_stack_2025.06_arm64-1763945083928409000 (a9a86af3-3fa8-4e7e-b23b-4bee998093d6) | Controller Instance ID: 55546d91-7b51-4012-5095-bb9abb7284bd | Host: 10.2.165.33 | Port: 10000 
+VM "build_stack_2025.06_arm64-1763945083928409000" (a9a86af3-3fa8-4e7e-b23b-4bee998093d6) / Controller Instance ID 55546d91-7b51-4012-5095-bb9abb7284bd running on Node ip-10-2-165-33.us-west-2.compute.internal (10.2.165.33), is ready for work (10.2.165.33:10000)
+Preparing environment
+Running on ip-192-168-64-24.us-west-2.compute.internal via ip-10-2-128-202.us-west-2.compute.internal...
+Getting source from Git repository
+$ pre-clone
+[00:45:13]: Cloning repository...
+Fetching changes...
+Initialized empty Git repository in /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/.git/
+Created fresh repository.
+Checking out 850a7b32 as main...
+Updating/initializing submodules...
+$ post-clone
+[00:45:15]: Cloning complete...
+Restoring cache
+Not downloading cache 2032fe53/node-cache-stack-package-ios-2025.06-arm64.zip due to policy
+Executing "step_script" stage of the job script
+$ pre-build
+[00:45:16]: Building project....
+$ fetch-updates || true
+Checking for build process updates...
+$ build-ios
+[00:45:20]: ---------------------------------
+[00:45:20]: --- Step: add_extra_platforms ---
+[00:45:20]: ---------------------------------
+[00:45:20]: Setting '[:web]' as extra SupportedPlatforms
+/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fastlane/outsystems/errors/detectors/pdm_plugins.rb:8: warning: character class has '-' without escape
+/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fastlane/outsystems/errors/detectors/pdm_plugins.rb:15: warning: character class has '-' without escape
+[00:45:20]: ------------------------------
+[00:45:20]: --- Step: default_platform ---
+[00:45:20]: ------------------------------
+[00:45:20]: Driving the lane 'ios build_capacitor' 🚀
+[00:45:20]: ---------------------------------
+[00:45:20]: --- Step: prepare_environment ---
+[00:45:20]: ---------------------------------
+[00:45:20]: Setting default environment variables to tidy up logs. These can be overridden by setting them in Appflow.
+[00:45:20]: 
+[00:45:20]: No changes needed - logs are already tidy! 🧹
+[00:45:20]: -------------------------
+[00:45:20]: --- Step: sentry_init ---
+[00:45:20]: -------------------------
+[00:45:20]: ----------------------------
+[00:45:20]: --- Step: begin_building ---
+[00:45:20]: ----------------------------
+[00:45:20]: Began building @ 2025-11-24T00:45:20
+[00:45:20]: ---------------------------
+[00:45:20]: --- Step: build_summary ---
+[00:45:20]: ---------------------------
+
++---------------------------------------------------+
+|                   Build Summary                   |
++---------------------+-----------------------------+
+| Runners Revision    | 631c60c                     |
+| Job ID              | 10586347                    |
+| Node.js version     | v20.19.3                    |
+| Cordova CLI version | 12.0.0 (cordova-lib@12.0.2) |
+| npm version         | 10.8.2                      |
+| yarn version        | 1.22.19                     |
+| macOS version       | 15.4                        |
+| Xcode version       | Xcode 16.4                  |
+|                     | Build version 16F6          |
+| Fastlane version    | fastlane (2.228.0)          |
++---------------------+-----------------------------+
+
+[00:45:23]: -----------------------------
+[00:45:23]: --- Step: create_keychain ---
+[00:45:23]: -----------------------------
+[00:45:23]: $ security list-keychains -d user
+[00:45:23]: ▸ "/Users/ionic-cloud-team/Library/Keychains/login.keychain-db"
+[00:45:23]: ------------------------------------------
+[00:45:23]: --- Step: get_ios_credentials_from_api ---
+[00:45:23]: ------------------------------------------
+[00:45:23]: Fetching certificate and profile(s) from Ionic Appflow
+[00:45:24]: ---------------------------------
+[00:45:24]: --- Step: set_ios_credentials ---
+[00:45:24]: ---------------------------------
+[00:45:24]: Installing provisioning profile...
+[00:45:24]: /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ed996f30-63b0-4adf-a445-f6a5f985b9f0.mobileprovision
+
++---------------------------------------------------------------------+
+|                        Installed Certificate                        |
++-------------------+-------------------------------------------------+
+| User ID           | 9SA2W557K5                                      |
+| Common Name       | Apple Distribution: Staton Blakely (9SA2W557K5) |
+| Organization Unit | 9SA2W557K5                                      |
+| Organization      | Staton Blakely                                  |
+| Country           | US                                              |
++-------------------+-------------------------------------------------+
+
+[00:45:24]: --------------------------------
+[00:45:24]: --- Step: import_certificate ---
+[00:45:24]: --------------------------------
+[00:45:24]: Setting key partition list... (this can take a minute if there are a lot of keys installed)
+[00:45:24]: ---------------------------
+[00:45:24]: --- Step: set_ionic_cli ---
+[00:45:24]: ---------------------------
+[00:45:25]: Preinstalled @ionic/cli compatible with project `angular`
+[00:45:25]: ------------------------------------
+[00:45:25]: --- Step: detect_package_manager ---
+[00:45:25]: ------------------------------------
+[00:45:25]: Detecting package manager
+[00:45:25]: Defaulting to npm
+[00:45:25]: ---------------------------------
+[00:45:25]: --- Step: add_git_credentials ---
+[00:45:25]: ---------------------------------
+[00:45:25]: Writing git-credentials files
+[00:45:25]: git-credentials successfully added to project
+[00:45:25]: --------------------------------
+[00:45:25]: --- Step: get_appflow_config ---
+[00:45:25]: --------------------------------
+[00:45:25]: Checking for appflow.config.json
+[00:45:25]: Appflow config not detected
+[00:45:25]: --------------------------------
+[00:45:25]: --- Step: dependency_install ---
+[00:45:25]: --------------------------------
+[00:45:25]: Installing Dependencies (in /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app)
+[00:45:25]: $ npm ci --quiet 
+[00:45:26]: ▸ npm warn ERESOLVE overriding peer dependency
+[00:45:26]: ▸ npm warn While resolving: babel-preset-expo@54.0.7
+[00:45:26]: ▸ npm warn Found: react-refresh@0.14.2
+[00:45:26]: ▸ npm warn node_modules/babel-preset-expo/node_modules/react-refresh
+[00:45:26]: ▸ npm warn   react-refresh@"^0.14.0" from @react-native/babel-preset@0.81.5
+[00:45:26]: ▸ npm warn   node_modules/babel-preset-expo/node_modules/@react-native/babel-preset
+[00:45:26]: ▸ npm warn     @react-native/babel-preset@"0.81.5" from babel-preset-expo@54.0.7
+[00:45:26]: ▸ npm warn     node_modules/babel-preset-expo
+[00:45:26]: ▸ npm warn
+[00:45:26]: ▸ npm warn Could not resolve dependency:
+[00:45:26]: ▸ npm warn peer react-refresh@">=0.14.0 <1.0.0" from babel-preset-expo@54.0.7
+[00:45:26]: ▸ npm warn node_modules/babel-preset-expo
+[00:45:26]: ▸ npm warn   babel-preset-expo@"~54.0.7" from expo@54.0.25
+[00:45:26]: ▸ npm warn   node_modules/expo
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: '@react-native/debugger-frontend@0.81.5',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: '@react-native/dev-middleware@0.81.5',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-babel-transformer@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-cache@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-cache-key@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-config@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-core@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-file-map@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-minify-terser@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-resolver@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-runtime@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-source-map@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-symbolicate@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-transform-plugins@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'metro-transform-worker@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: 'ob1@0.83.2',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>=20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: '@react-native/babel-plugin-codegen@0.81.5',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: '@react-native/babel-preset@0.81.5',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:26]: ▸ npm warn EBADENGINE Unsupported engine {
+[00:45:26]: ▸ npm warn EBADENGINE   package: '@react-native/codegen@0.81.5',
+[00:45:26]: ▸ npm warn EBADENGINE   required: { node: '>= 20.19.4' },
+[00:45:26]: ▸ npm warn EBADENGINE   current: { node: 'v20.19.3', npm: '10.8.2' }
+[00:45:26]: ▸ npm warn EBADENGINE }
+[00:45:27]: ▸ npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[00:45:27]: ▸ npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+[00:45:27]: ▸ npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[00:45:28]: ▸ npm warn deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+[00:45:29]: ▸ npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[00:45:31]: ▸ npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[00:45:31]: ▸ npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[00:45:31]: ▸ npm warn deprecated @babel/plugin-proposal-nullish-coalescing-operator@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-nullish-coalescing-operator instead.
+[00:45:31]: ▸ npm warn deprecated @babel/plugin-proposal-class-properties@7.18.6: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
+[00:45:31]: ▸ npm warn deprecated @babel/plugin-proposal-optional-chaining@7.21.0: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-optional-chaining instead.
+[00:45:32]: ▸ npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+[00:45:46]: ▸ added 1517 packages, and audited 1518 packages in 21s
+[00:45:46]: ▸ 151 packages are looking for funding
+[00:45:46]: ▸ run `npm fund` for details
+[00:45:46]: ▸ 5 moderate severity vulnerabilities
+[00:45:46]: ▸ To address all issues (including breaking changes), run:
+[00:45:46]: ▸ npm audit fix --force
+[00:45:46]: ▸ Run `npm audit` for details.
+[00:45:46]: -------------------------------------
+[00:45:46]: --- Step: create_capacitor_config ---
+[00:45:46]: -------------------------------------
+[00:45:46]: -------------------------
+[00:45:46]: --- Step: get_web_dir ---
+[00:45:46]: -------------------------
+[00:45:46]: webDir is `dist/public`
+[00:45:46]: -----------------------------------
+[00:45:46]: --- Step: modify_cap_web_config ---
+[00:45:46]: -----------------------------------
+[00:45:46]: No custom native config detected.
+[00:45:46]: ---------------------------
+[00:45:46]: --- Step: build_pro_app ---
+[00:45:46]: ---------------------------
+[00:45:46]: Building app from /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app
+[00:45:46]: Build script detected...
+[00:45:46]: $ npm run build
+[00:45:46]: ▸ > rest-express@1.0.0 build
+[00:45:46]: ▸ > python3 fix_bundle_id.py && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[00:45:46]: ▸ /opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fix_bundle_id.py': [Errno 2] No such file or directory
+[00:45:46]: -------------------------
+[00:45:46]: --- Step: upload_logs ---
+[00:45:46]: -------------------------
+[00:45:50]: --------------------------------------
+[00:45:50]: --- Step: sentry_capture_exception ---
+[00:45:50]: --------------------------------------
+[00:45:50]: ---------------------------
+[00:45:50]: --- Step: shell command ---
+[00:45:50]: ---------------------------
+[00:45:50]: -----------------------------
+[00:45:50]: --- Step: delete_keychain ---
+[00:45:50]: -----------------------------
+[00:45:50]: Exit status of command 'npm run build' was 2 instead of 0.
+
+> rest-express@1.0.0 build
+> python3 fix_bundle_id.py && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fix_bundle_id.py': [Errno 2] No such file or directory
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                        Lane Context                                                                         |
++-------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+| DEFAULT_PLATFORM                    | ios                                                                                                                   |
+| PLATFORM_NAME                       | ios                                                                                                                   |
+| LANE_NAME                           | ios build_capacitor                                                                                                   |
+| KEYCHAIN_PATH                       | ~/Library/Keychains/IonicKeychain                                                                                     |
+| DOWNLOAD_CERTS_PROVISION_FILE_UUID  | ed996f30-63b0-4adf-a445-f6a5f985b9f0                                                                                  |
+| DOWNLOAD_CERTS_CODESIGNING_IDENTITY | Apple Distribution: Staton Blakely (9SA2W557K5)                                                                       |
+| DOWNLOAD_CERTS_TEAM_ID              | 9SA2W557K5                                                                                                            |
+| DOWNLOAD_CERTS_CERT_PATH            | /Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/cert_file.p12                                            |
+| SIGH_PROFILE_PATHS                  | ["/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/ed996f30-63b0-4adf-a445-f6a5f985b9f0.mobileprovision"] |
+| IONIC_CLI_VERSION                   | 7.2.1                                                                                                                 |
+| NODE_PACKAGE_MANAGER                | npm                                                                                                                   |
+| PROJECT_WEB_DIR                     | dist/public                                                                                                           |
++-------------------------------------+-----------------------------------------------------------------------------------------------------------------------+
+[00:45:50]: Exit status of command 'npm run build' was 2 instead of 0.
+
+> rest-express@1.0.0 build
+> python3 fix_bundle_id.py && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fix_bundle_id.py': [Errno 2] No such file or directory
+
+
++---------------------------------------------------+
+|                 fastlane summary                  |
++------+------------------------------+-------------+
+| Step | Action                       | Time (in s) |
++------+------------------------------+-------------+
+| 1    | add_extra_platforms          | 0           |
+| 2    | default_platform             | 0           |
+| 3    | prepare_environment          | 0           |
+| 4    | sentry_init                  | 0           |
+| 5    | begin_building               | 0           |
+| 6    | build_summary                | 2           |
+| 7    | create_keychain              | 0           |
+| 8    | get_ios_credentials_from_api | 0           |
+| 9    | set_ios_credentials          | 0           |
+| 10   | import_certificate           | 0           |
+| 11   | set_ionic_cli                | 0           |
+| 12   | detect_package_manager       | 0           |
+| 13   | add_git_credentials          | 0           |
+| 14   | get_appflow_config           | 0           |
+| 15   | dependency_install           | 20          |
+| 16   | create_capacitor_config      | 0           |
+| 17   | get_web_dir                  | 0           |
+| 18   | modify_cap_web_config        | 0           |
+| 💥   | build_pro_app                | 0           |
+| 20   | upload_logs                  | 3           |
+| 21   | sentry_capture_exception     | 0           |
+| 22   | shell command                | 0           |
+| 23   | delete_keychain              | 0           |
++------+------------------------------+-------------+
+
+[00:45:50]: fastlane finished with errors
+/opt/homebrew/Cellar/fastlane/2.228.0/libexec/bin/fastlane: [!] Exit status of command 'npm run build' was 2 instead of 0. (FastlaneCore::Interface::FastlaneShellError)
+
+> rest-express@1.0.0 build
+> python3 fix_bundle_id.py && vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+
+/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/ionic-cloud-team/builds/blakelystaton-ui/krittics-app/fix_bundle_id.py': [Errno 2] No such file or directory
+
+Running after_script
+Running after script...
+$ clean-up
+Cleaning up project directory and file based variables
+Terminating VM: build_stack_2025.06_arm64-1763945083928409000 (a9a86af3-3fa8-4e7e-b23b-4bee998093d6) | Controller Instance ID: 55546d91-7b51-4012-5095-bb9abb7284bd | Host: 10.2.165.33
+ERROR: Job failed: Process exited with status 1
