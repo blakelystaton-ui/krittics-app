@@ -173,6 +173,23 @@ export default function HomePage() {
     }
   };
 
+  const handlePlayRandomMovie = () => {
+    if (!movies || movies.length === 0) {
+      // Fallback to browse page
+      window.location.href = "/";
+      return;
+    }
+
+    // Get a random movie that's not the current one
+    const otherMovies = movies.filter(m => m.id !== selectedMovie?.id);
+    const randomMovie = otherMovies.length > 0 
+      ? otherMovies[Math.floor(Math.random() * otherMovies.length)]
+      : movies[Math.floor(Math.random() * movies.length)];
+
+    // Navigate to the random movie
+    window.location.href = `/?movieId=${randomMovie.id}`;
+  };
+
   if (moviesLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -208,6 +225,7 @@ export default function HomePage() {
               error={error}
               onGenerate={handleGenerateTrivia}
               onRestart={handleRestartTrivia}
+              onPlayRandomMovie={handlePlayRandomMovie}
             />
           </div>
         )}

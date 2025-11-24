@@ -23,8 +23,10 @@ interface MoviePlayerProps {
 export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQueue }: MoviePlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [showTriviaButton, setShowTriviaButton] = useState(false);
   const [showTriviaNotification, setShowTriviaNotification] = useState(false);
   const [triviaAutoTriggered, setTriviaAutoTriggered] = useState(false);
+  const [manuallyOpenedTrivia, setManuallyOpenedTrivia] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<"like" | "dislike" | null>(null);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const { saveReaction, removeReaction, getReaction, isFirebaseConfigured } = useReactions();
@@ -48,10 +50,12 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
   // Show buttons only if watched at least 15 seconds and not completed
   const showProgressButtons = savedProgressSeconds >= 15 && !initialProgress?.completed;
 
-  // Reset auto-trigger state when movie changes
+  // Reset all trivia states when movie changes
   useEffect(() => {
+    setShowTriviaButton(false);
     setTriviaAutoTriggered(false);
     setShowTriviaNotification(false);
+    setManuallyOpenedTrivia(false);
   }, [movie.id]);
 
   // Load user's reaction for this movie
@@ -63,19 +67,29 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
     loadReaction();
   }, [movie.id, getReaction]);
 
-  // AUTO-TRIGGER: Show trivia 2 minutes (120 seconds) before video ends
+  // BUTTON REVEAL: Show trivia button at 3:00 (180 seconds) remaining
   useEffect(() => {
-    if (duration > 0 && currentTime > 0 && !triviaAutoTriggered) {
+    if (duration > 0 && currentTime > 0 && !showTriviaButton) {
       const timeRemaining = duration - currentTime;
       
-      // Trigger when 2 minutes (120 seconds) or less remaining
-      // Works even if user scrubs or player updates in >1s increments
+      if (timeRemaining <= 180) {
+        console.log(`[Trivia] Button revealed at 3:00 remaining (${Math.floor(timeRemaining)}s left)`);
+        setShowTriviaButton(true);
+      }
+    }
+  }, [currentTime, duration, showTriviaButton]);
+
+  // AUTO-TRIGGER: Show full-screen trivia at 2:00 (120 seconds) remaining
+  // Only trigger if user hasn't manually opened trivia
+  useEffect(() => {
+    if (duration > 0 && currentTime > 0 && !triviaAutoTriggered && !manuallyOpenedTrivia) {
+      const timeRemaining = duration - currentTime;
+      
       if (timeRemaining <= 120) {
-        console.log(`[Auto-Trigger] Deep-Dive Trivia – 2 minutes remaining (${Math.floor(timeRemaining)}s left)`);
-        setShowTriviaNotification(true);
+        console.log(`[Auto-Trigger] Full-screen trivia at 2:00 (${Math.floor(timeRemaining)}s left)`);
         setTriviaAutoTriggered(true);
         
-        // Auto-trigger the trivia overlay
+        // Auto-trigger the full-screen trivia overlay
         onTriviaReady();
         
         toast({
@@ -85,7 +99,7 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
         });
       }
     }
-  }, [currentTime, duration, triviaAutoTriggered, onTriviaReady, toast]);
+  }, [currentTime, duration, triviaAutoTriggered, manuallyOpenedTrivia, onTriviaReady, toast]);
 
   // Handler for bookmark button
   const handleBookmark = () => {
@@ -367,6 +381,26 @@ export function MoviePlayer({ movie, onTriviaReady, inQueue = false, onToggleQue
               >
                 <ThumbsDown className={`h-5 w-5 ${currentReaction === "dislike" ? "fill-primary text-primary" : ""}`} />
               </Button>
+              
+              {/* Deep-Dive Trivia button - appears at 3:00 remaining */}
+              {showTriviaButton && (
+                <Button
+                  variant="default"
+                  className="flex items-center gap-2 animate-in fade-in duration-500"
+                  style={{
+                    background: 'linear-gradient(135deg, #1ba9af 0%, #158a8f 100%)',
+                    border: '1px solid rgba(27, 169, 175, 0.3)'
+                  }}
+                  onClick={() => {
+                    setManuallyOpenedTrivia(true);
+                    onTriviaReady();
+                  }}
+                  data-testid="button-deep-dive-trivia"
+                >
+                  <Trophy className="h-4 w-4" />
+                  Deep-Dive Trivia
+                </Button>
+              )}
             </div>
             
             {movie.tagline && (

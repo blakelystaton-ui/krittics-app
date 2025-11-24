@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, X, Trophy, RotateCcw, Sparkles, Film } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ interface DeepDiveTriviaProps {
   error: string | null;
   onGenerate: () => void;
   onRestart: () => void;
+  onPlayRandomMovie?: () => void;
 }
 
 export function DeepDiveTrivia({
@@ -22,6 +23,7 @@ export function DeepDiveTrivia({
   error,
   onGenerate,
   onRestart,
+  onPlayRandomMovie,
 }: DeepDiveTriviaProps) {
   const [, setLocation] = useLocation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -32,6 +34,24 @@ export function DeepDiveTrivia({
   const [showAd, setShowAd] = useState(false);
 
   const currentQuestion = questions?.[currentQuestionIndex];
+
+  // 5-minute idle timeout on initial screen
+  useEffect(() => {
+    if (gameStatus === "initial" && !isGenerating && !error) {
+      console.log("[Trivia] Starting 5-minute idle timeout");
+      const timeout = setTimeout(() => {
+        console.log("[Trivia] User idle for 5 minutes → autoplaying random movie");
+        if (onPlayRandomMovie) {
+          onPlayRandomMovie();
+        } else {
+          // Fallback to browse page
+          setLocation("/");
+        }
+      }, 300000); // 5 minutes = 300,000ms
+
+      return () => clearTimeout(timeout);
+    }
+  }, [gameStatus, isGenerating, error, onPlayRandomMovie, setLocation]);
 
   const handleAnswer = (option: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (selectedAnswer || !currentQuestion) return; // Prevent double-clicking and ensure question exists
@@ -130,6 +150,17 @@ export function DeepDiveTrivia({
     );
   }
 
+  // Handler for "No thanks" - play random movie
+  const handleNoThanks = () => {
+    console.log("[Trivia] User clicked 'No thanks' → playing random movie");
+    if (onPlayRandomMovie) {
+      onPlayRandomMovie();
+    } else {
+      // Fallback to browse page
+      setLocation("/");
+    }
+  };
+
   // Initial state
   if (gameStatus === "initial") {
     return (
@@ -145,16 +176,28 @@ export function DeepDiveTrivia({
             Test your recall on <span className="font-semibold text-foreground">{movieTitle}</span>'s plot, quotes, and
             behind-the-scenes facts.
           </p>
-          <button
-            onClick={handleStart}
-            className="gradient-border-button mt-8"
-            data-testid="button-start-game"
-          >
-            <span className="gradient-border-content px-8 py-3 text-lg font-bold">
-              <Sparkles className="mr-2 h-5 w-5 inline-block" />
-              Start Trivia Now
-            </span>
-          </button>
+          <div className="mt-8 flex justify-center gap-4">
+            <button
+              onClick={handleStart}
+              className="gradient-border-button"
+              data-testid="button-start-game"
+            >
+              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
+                <Sparkles className="mr-2 h-5 w-5 inline-block" />
+                Start Trivia Now
+              </span>
+            </button>
+            <button
+              onClick={handleNoThanks}
+              className="gradient-border-button"
+              data-testid="button-no-thanks"
+            >
+              <span className="gradient-border-content px-8 py-3 text-lg font-bold">
+                <Film className="mr-2 h-5 w-5 inline-block" />
+                No thanks, play another movie
+              </span>
+            </button>
+          </div>
         </div>
       </Card>
     );
