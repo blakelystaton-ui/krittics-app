@@ -1,0 +1,24 @@
+{
+  "webDir": "dist/public",
+  "serverUrl": null,
+  "plugins": {},
+  "android": {
+    "flavor": "default",
+    "versionCode": 1,
+    "versionName": "1.0.0"
+  },
+  "ios": {
+    "flavor": "default",
+    "scheme": "App",
+    "version": "1.0.0",
+    "buildNumber": 1
+  },
+  "build": {
+    "before_build": [
+      "npm install",
+      "python3 fix_bundle_id.py",
+      "npm run build"
+    ]
+  },
+  "cordova": {}
+}
