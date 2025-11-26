@@ -1,0 +1,17 @@
+name: Download Data
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  download-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download and extract data from Replit
+        run: |
+          curl -L "${{ secrets.DATA_ZIP_URL }}" -o FINAL-IOS.zip
+          unzip -o FINAL-IOS.zip
+          rm FINAL-IOS.zip
