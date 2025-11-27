@@ -101,3 +101,6 @@ waitForPort = 5000
 
 [agent]
 integrations = ["javascript_gemini_ai_integrations:1.0.0", "firebase_barebones_javascript:1.0.0", "javascript_log_in_with_replit:1.0.0"]
+
+[objectStorage]
+defaultBucketID = "replit-objstore-3ecf84bb-993f-49c0-b18f-16ffa649b315"
