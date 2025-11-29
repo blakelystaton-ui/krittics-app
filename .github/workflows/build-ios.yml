@@ -8,6 +8,7 @@ on:
 jobs:
   build-ios:
     runs-on: macos-14
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,17 +21,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Ionic & Capacitor
-        run: npm install @ionic/cli @capacitor/cli
-
       - name: Build web assets
-        run: npx ionic build
+        run: npm run build
 
-      - name: Sync Capacitor
+      - name: Sync Capacitor iOS
         run: npx cap sync ios
 
-      - name: Install Pods
-        run: cd ios/App && pod install --repo-update
+      - name: Install CocoaPods
+        working-directory: ios/App
+        run: pod install --repo-update
 
       - name: Import certificates
         env:
@@ -45,19 +44,52 @@ jobs:
           security create-keychain -p "" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
+          security set-keychain-settings -lut 7200 build.keychain
           security import cert.p12 -k build.keychain -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -k "" build.keychain
 
-      - name: Build & Export IPA
+      - name: Unlock Keychain for Signing
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
-                     -scheme App \
-                     -configuration Release \
-                     -archivePath build/App.xcarchive \
-                     archive
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security set-keychain-settings -lut 7200 build.keychain
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ExportOptions.plist << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store-connect</string>
+              <key>destination</key>
+              <string>upload</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Build Archive
+        working-directory: ios/App
+        run: |
+          xcodebuild archive \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -xcconfig config/manual-signing.xcconfig \
+            -allowProvisioningUpdates \
+            CODE_SIGN_STYLE=Manual
+
+      - name: Export IPA
+        run: |
           xcodebuild -exportArchive \
-                     -archivePath build/App.xcarchive \
-                     -exportOptionsPlist exportOptions.plist \
-                     -exportPath build/IPA
+            -archivePath $RUNNER_TEMP/App.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/export \
+            -allowProvisioningUpdates
 
       - name: Upload to TestFlight
         env:
@@ -65,7 +97,13 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
           xcrun altool --upload-app \
-                       -f build/IPA/*.ipa \
-                       -u "$APPLE_ID_EMAIL" \
-                       -p "$APPLE_ID_PASSWORD" \
-                       --verbose
+            -f "$RUNNER_TEMP/export/App.ipa" \
+            -u "$APPLE_ID_EMAIL" \
+            -p "$APPLE_ID_PASSWORD" \
+            --type ios \
+            --verbose
+
+      - name: Cleanup keychain
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
