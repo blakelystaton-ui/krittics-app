@@ -1,23 +1,18 @@
 {
   "cli": {
-    "version": ">= 14.0.0"
+    "version": ">= 5.0.0"
   },
   "build": {
     "preview": {
-      "workflow": "generic",
+      "distribution": "internal",
       "ios": {
-        "buildType": "simulator",
-        "prebuildCommand": "npm run build && npx cap sync ios"
+        "simulator": true,
+        "image": "latest"
       }
     },
     "production": {
-      "workflow": "generic",
       "ios": {
-        "buildType": "archive",
-        "prebuildCommand": "npm run build && npx cap sync ios",
-        "xcodeProject": "ios/App/App.xcodeproj",
-        "scheme": "App",
-        "credentialsSource": "remote"
+        "image": "latest"
       }
     }
   },
