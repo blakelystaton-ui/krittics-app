@@ -1,0 +1,41 @@
+----------------+
+[22:41:14]: No index.html found in the project web dir (dist).
+
++---------------------------------------------------+
+|                 fastlane summary                  |
++------+------------------------------+-------------+
+| Step | Action                       | Time (in s) |
++------+------------------------------+-------------+
+| 1    | add_extra_platforms          | 0           |
+| 2    | default_platform             | 0           |
+| 3    | prepare_environment          | 0           |
+| 4    | sentry_init                  | 0           |
+| 5    | begin_building               | 0           |
+| 6    | build_summary                | 3           |
+| 7    | create_keychain              | 0           |
+| 8    | get_ios_credentials_from_api | 0           |
+| 9    | set_ios_credentials          | 4           |
+| 10   | import_certificate           | 0           |
+| 11   | set_ionic_cli                | 1           |
+| 12   | detect_package_manager       | 0           |
+| 13   | add_git_credentials          | 0           |
+| 14   | get_appflow_config           | 0           |
+| 15   | dependency_install           | 46          |
+| 16   | create_capacitor_config      | 0           |
+| 17   | get_web_dir                  | 0           |
+| 18   | modify_cap_web_config        | 0           |
+| 💥   | build_pro_app                | 7           |
+| 20   | upload_logs                  | 2           |
+| 21   | sentry_capture_exception     | 2           |
+| 22   | shell command                | 0           |
+| 23   | delete_keychain              | 0           |
++------+------------------------------+-------------+
+
+[22:41:14]: fastlane finished with errors
+/opt/homebrew/Cellar/fastlane/2.228.0/libexec/bin/fastlane: [!] No index.html found in the project web dir (dist). (RuntimeError)
+Running after_script
+Running after script...
+$ clean-up
+Cleaning up project directory and file based variables
+Terminating VM: build_stack_2025.06_arm64-1764455967382864000 (5031ae58-78a9-4e5b-9802-79085737f67e) | Controller Instance ID: deabb380-ffad-4009-7ee2-f6cf39ff407b | Host: 10.2.146.21
+ERROR: Job failed: Process exited with status 1
