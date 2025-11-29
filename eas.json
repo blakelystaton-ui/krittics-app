@@ -1,0 +1,33 @@
+{
+  "cli": {
+    "version": ">= 14.0.0"
+  },
+  "build": {
+    "preview": {
+      "workflow": "generic",
+      "ios": {
+        "buildType": "simulator",
+        "prebuildCommand": "npm run build && npx cap sync ios"
+      }
+    },
+    "production": {
+      "workflow": "generic",
+      "ios": {
+        "buildType": "archive",
+        "prebuildCommand": "npm run build && npx cap sync ios",
+        "xcodeProject": "ios/App/App.xcodeproj",
+        "scheme": "App",
+        "credentialsSource": "remote"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "${APPLE_ID_EMAIL}",
+        "ascAppId": "${ASC_APP_ID}",
+        "appleTeamId": "9SA2W557K5"
+      }
+    }
+  }
+}

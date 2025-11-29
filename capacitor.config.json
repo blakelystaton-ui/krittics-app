@@ -1,7 +1,7 @@
 {
   "appId": "com.blakely.krittics",
   "appName": "Krittics",
-  "webDir": "dist/public",
+  "webDir": "dist",
   "bundledWebRuntime": false,
   "ios": {
     "xcconfigFile": "ios/App/config/manual-signing.xcconfig"
